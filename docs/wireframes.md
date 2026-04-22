@@ -24,12 +24,12 @@ Venont ensuite sur le point de quelqu'un qui cherche du travail, son profil sera
 
 ![Offres possibles](/assets/offres.png)
 
-Aprsè avoir renseigné ces informations sur son compte il pourra aller voir les offres d'emplois disponibles, regarder selon les types de contrats, tier par ordre : si l'offre est plus récent ou moins et des petits reésumé pour chaque offres d'emplois, également un bouton pour pouvoir lettre des offres interresantes en favoris pour les garder sur son prorfil et candidater plus tard ou se renseigner sur le poste de manière plus poussée. 
+Après avoir renseigné ces informations sur son compte il pourra aller voir les offres d'emplois disponibles, regarder selon les types de contrats, tier par ordre : si l'offre est plus récent ou moins et des petits reésumé pour chaque offres d'emplois, également un bouton pour pouvoir lettre des offres interresantes en favoris pour les garder sur son prorfil et candidater plus tard ou se renseigner sur le poste de manière plus poussée. 
+
+![Description d'une candidature](/assets/candidature.png)
+Une offre convient très bien à ce que cherche l'étuidant ou l'utilisateur en recherche de travail. il va donc pouvoir mettre sa candidature en dessous du poste qui est decrit dans l'annonce, il devra y mettre tout =es ces informations personnelles pour la candiature ainsi que son CV, lettre de motivation et des documents complémentaires ci-besoin puis ensuite cliquer sur le button postuler; 
+
 
 ![Motivation du user](/assets/motivation.png)
 
-
-
-
-![Description d'une candidature](/assets/candidature.png)
-
+Voici enfin ce à quoi pourrait ressembler à une candidature avec toutes les informations du candidat qui aurait remplir avec une lettre de motivation complète, ces compétences techniques et otut ce qu'il aura rempli en avance sur sa page de profil personnelle. Ces pages ressortent à la vue d'un recruteur qui voudrait trier les candidatures qu'il aurait recu pour l'offre qu'il a mise en ligne, il va ensuite pourvoir clier sur le bouton o=convient ou non pour choisir si c'est possikble pour lui de fzire potentiellement un entretien avec le candidat ou simplement de rejeter sa demande. 
