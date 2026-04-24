@@ -1,5 +1,4 @@
 import Navbar from "@/components/NavBar";
-import JobCard from "@/components/JobCard";
 import CandidateCard from "@/components/CandidateCard";
 import JobCardCompany from "@/components/JobCardCompany";
 import { Mail, Phone, MapPin, Pencil } from "lucide-react";
@@ -62,7 +61,7 @@ export default function ProfilAdminPage() {
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-6">
-        
+
         <div className="flex flex-col items-center gap-6 py-8">
           <h1 className="text-2xl font-bold text-gray-900">
             Poisson <span className="text-indigo-600">Barbu</span>
