@@ -35,7 +35,7 @@ export default function JobCard({
           {tags.map((tag) => (
             <span
               key={tag}
-              className="text-xs bg-indigo-500 text-white px-2.5 py-1 rounded-md font-medium"
+              className="text-xs bg-brand-500 text-white px-2.5 py-1 rounded-md font-medium"
             >
               {tag}
             </span>
