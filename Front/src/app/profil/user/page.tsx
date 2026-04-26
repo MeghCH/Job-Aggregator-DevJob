@@ -58,7 +58,6 @@ export default function ProfilPage() {
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-6">
-
         <ProfileHeader />
 
         <hr className="border-gray-100 mb-8" />
@@ -84,7 +83,6 @@ export default function ProfilPage() {
             ))}
           </div>
         </div>
-
       </div>
     </div>
   );
