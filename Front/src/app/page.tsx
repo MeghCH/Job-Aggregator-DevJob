@@ -1,3 +1,4 @@
+import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 
 export default function HomePage() {
@@ -8,9 +9,9 @@ export default function HomePage() {
         <span className="text-xl font-extrabold text-brand-600 tracking-tight">
           DevJobs
         </span>
-        <button className="bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
+        <Link href="/connexion" className="bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
           Connexion
-        </button>
+        </Link>
       </nav>
 
       <div className="px-8 py-6 border-b border-gray-100">
@@ -24,9 +25,9 @@ export default function HomePage() {
         <p className="text-2xl font-bold text-gray-900">
           Push ta carrière&nbsp;!
         </p>
-        <button className="bg-brand-400 hover:bg-brand-500 text-white text-sm font-semibold px-8 py-3 rounded-lg transition-colors">
+        <Link href="/connexion" className="bg-brand-400 hover:bg-brand-500 text-white text-sm font-semibold px-8 py-3 rounded-lg transition-colors">
           Commencez ici
-        </button>
+        </Link>
       </main>
 
     </div>
