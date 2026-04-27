@@ -12,7 +12,7 @@ export default function InscriptionPage() {
             à ton espace <span className="text-brand-600">DevJobs.</span>
           </h1>
           <p className="text-gray-500 mt-2 text-sm">
-            Rejoins toutes les offres tech qui te correspondent.
+            c'est le debut d'une nouvelle aventure.
           </p>
         </div>
 
