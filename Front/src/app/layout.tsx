@@ -1,16 +1,12 @@
 import type { ReactNode } from "react";
 import "./globals.css";
 
-export default function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export const metadata = { title: "DevJobs" };
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr">
-      <body>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
