@@ -1,2 +1,12 @@
 .env
 .venv/
+
+# Next.js
+.next/
+out/
+
+# Node
+node_modules/
+
+# Build outputs & source maps
+*.map
