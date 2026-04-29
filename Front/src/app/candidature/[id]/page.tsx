@@ -26,8 +26,9 @@ export default function CandidatureDetailPage() {
               <input
                 type="text"
                 readOnly
+                aria-label="Lien vers le CV"
                 value="http://www.example.com/myfile.pdf"
-                className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-400 bg-white outline-none w-full"
+                className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500 bg-white outline-none w-full"
               />
             </div>
 
@@ -83,7 +84,7 @@ export default function CandidatureDetailPage() {
         </div>
 
         <div className="flex justify-center">
-          <button className="bg-indigo-400 hover:bg-indigo-500 text-white text-sm font-medium px-12 py-3 rounded-lg transition-colors">
+          <button className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-12 py-3 rounded-lg transition-colors">
             Ne convient pas
           </button>
         </div>
