@@ -29,7 +29,7 @@ export default function Navbar() {
               "text-sm transition-colors",
               pathname === link.href
                 ? "text-indigo-700 font-semibold"
-                : "text-gray-800 hover:text-brand-600",
+                : "text-gray-800 hover:text-indigo-500",
             )}
           >
             {link.label}
