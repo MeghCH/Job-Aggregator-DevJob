@@ -13,37 +13,46 @@ const AuthController = {
      */
     async register(req, res) {
         try {
-            const { username, email, password } = req.body;
+            const { name, firstname, email, password, role } = req.body;
 
-            if (!username || !email || !password) {
+            if (!name || !firstname || !email || !password) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Please provide username, email and password'
+                    message: 'Please provide name, firstname, email and password'
+                });
+            }
+
+            // Validate role
+            const userRole = role || 'User';
+            if (!['User', 'Recruiter'].includes(userRole)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Role must be either "User" or "Recruiter"'
                 });
             }
 
             // Check if user exists
             const [existingUsers] = await pool.query(
-                'SELECT * FROM users WHERE email = ? OR username = ?',
-                [email, username]
+                'SELECT * FROM users WHERE email = ?',
+                [email]
             );
 
             if (existingUsers.length > 0) {
                 return res.status(409).json({
                     success: false,
-                    message: 'User with this email or username already exists'
+                    message: 'User with this email already exists'
                 });
             }
 
             const hashedPassword = await bcrypt.hash(password, 12);
 
             const [result] = await pool.query(
-                'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-                [username, email, hashedPassword]
+                'INSERT INTO users (name, firstname, email, password, role) VALUES (?, ?, ?, ?, ?)',
+                [name, firstname, email, hashedPassword, userRole]
             );
 
             const [newUser] = await pool.query(
-                'SELECT id, username, email, created_at FROM users WHERE id = ?',
+                'SELECT id, name, firstname, email, role, created_at FROM users WHERE id = ?',
                 [result.insertId]
             );
 
@@ -104,7 +113,8 @@ const AuthController = {
                 {
                     userId: user.id,
                     email: user.email,
-                    username: user.username
+                    name: user.name,
+                    role: user.role
                 },
                 process.env.JWT_SECRET,
                 { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
@@ -116,8 +126,10 @@ const AuthController = {
                 token,
                 user: {
                     id: user.id,
-                    username: user.username,
+                    name: user.name,
+                    firstname: user.firstname,
                     email: user.email,
+                    role: user.role,
                     created_at: user.created_at
                 }
             });
@@ -138,7 +150,7 @@ const AuthController = {
     async me(req, res) {
         try {
             const [users] = await pool.query(
-                'SELECT id, username, email, created_at FROM users WHERE id = ?',
+                'SELECT id, name, firstname, email, role, created_at FROM users WHERE id = ?',
                 [req.user.userId]
             );
 
