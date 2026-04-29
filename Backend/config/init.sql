@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS jobaggregator;
+USE jobaggregator;
+
 CREATE TABLE IF NOT EXISTS companies_wld (
     id VARCHAR(255) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
