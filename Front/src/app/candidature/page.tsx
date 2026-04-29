@@ -16,73 +16,101 @@ export default function CandidaturePage() {
 
           <div className="grid grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="prenom"
+                className="text-sm font-medium text-gray-700"
+              >
                 Prénom :*
               </label>
               <input
+                id="prenom"
                 type="text"
-                className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-400 outline-none focus:border-indigo-400 transition-colors"
+                className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-600 outline-none focus:border-indigo-400 transition-colors"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="nom"
+                className="text-sm font-medium text-gray-700"
+              >
                 Nom :*
               </label>
               <input
+                id="nom"
                 type="text"
-                className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-400 outline-none focus:border-indigo-400 transition-colors"
+                className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-600 outline-none focus:border-indigo-400 transition-colors"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="sexe"
+                className="text-sm font-medium text-gray-700"
+              >
                 Sexe :*
               </label>
               <input
+                id="sexe"
                 type="text"
-                className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-400 outline-none focus:border-indigo-400 transition-colors"
+                className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-600 outline-none focus:border-indigo-400 transition-colors"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="text-sm font-medium text-gray-700"
+              >
                 Email :*
               </label>
               <input
+                id="email"
                 type="email"
-                className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-400 outline-none focus:border-indigo-400 transition-colors"
+                className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-600 outline-none focus:border-indigo-400 transition-colors"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="téléphone"
+                className="text-sm font-medium text-gray-700"
+              >
                 Téléphone :*
               </label>
               <input
+                id="téléphone"
                 type="tel"
-                className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-400 outline-none focus:border-indigo-400 transition-colors"
+                className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-600 outline-none focus:border-indigo-400 transition-colors"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="codepostal"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Code Postal :*
                 </label>
                 <input
+                  id="codepostal"
                   type="text"
-                  className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-400 outline-none focus:border-indigo-400 transition-colors"
+                  className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-600 outline-none focus:border-indigo-400 transition-colors"
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="ville"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Ville :*
                 </label>
                 <input
+                  id="ville"
                   type="text"
-                  className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-400 outline-none focus:border-indigo-400 transition-colors"
+                  className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-600 outline-none focus:border-indigo-400 transition-colors"
                 />
               </div>
             </div>
@@ -97,13 +125,13 @@ export default function CandidaturePage() {
           </h2>
 
           <div className="flex items-center gap-4">
-            <button className="bg-indigo-400 hover:bg-indigo-500 text-white text-sm font-medium px-8 py-3 rounded-lg transition-colors">
+            <button className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-8 py-3 rounded-lg transition-colors">
               CV
             </button>
-            <button className="bg-indigo-400 hover:bg-indigo-500 text-white text-sm font-medium px-8 py-3 rounded-lg transition-colors">
+            <button className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-8 py-3 rounded-lg transition-colors">
               Lettre de motivation
             </button>
-            <button className="bg-indigo-400 hover:bg-indigo-500 text-white text-sm font-medium px-8 py-3 rounded-lg transition-colors">
+            <button className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-8 py-3 rounded-lg transition-colors">
               Documents complementaires
             </button>
           </div>
@@ -112,7 +140,7 @@ export default function CandidaturePage() {
         <hr className="border-gray-100" />
 
         <div className="flex justify-center">
-          <button className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-12 py-3 rounded-lg transition-colors">
+          <button className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-12 py-3 rounded-lg transition-colors">
             Postuler
           </button>
         </div>

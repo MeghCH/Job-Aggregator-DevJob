@@ -107,7 +107,7 @@ export default function AdminPage() {
               className="bg-indigo-50/60 border border-indigo-100 rounded-xl p-4"
             >
               <div className="text-2xl font-bold text-indigo-600">{s.n}</div>
-              <div className="text-xs text-gray-400 mt-1">{s.l}</div>
+              <div className="text-xs text-gray-500 mt-1">{s.l}</div>
             </div>
           ))}
         </div>
@@ -124,7 +124,7 @@ export default function AdminPage() {
                 "text-sm px-5 py-3 border-b-2 transition-colors",
                 activeTab === tab.key
                   ? "border-indigo-600 text-indigo-600 font-semibold"
-                  : "border-transparent text-gray-400 hover:text-gray-600",
+                  : "border-transparent text-gray-500 hover:text-gray-600",
               )}
             >
               {tab.label}
@@ -135,7 +135,7 @@ export default function AdminPage() {
         {activeTab === "offres" && (
           <div className="flex flex-col gap-6">
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
                 Offres en attente de validation
               </p>
               <div className="flex flex-col gap-2">
@@ -148,27 +148,27 @@ export default function AdminPage() {
                       <p className="text-sm font-semibold text-gray-900">
                         {offre.title}
                       </p>
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-gray-500 mt-0.5">
                         {offre.company} · {offre.location} · Soumis le{" "}
                         {offre.date}
                       </p>
                       <div className="flex gap-2 mt-2">
-                        <span className="text-xs bg-amber-50 text-amber-500 border border-amber-200 px-2 py-0.5 rounded-md">
+                        <span className="text-xs bg-amber-100 text-amber-700 border border-amber-300 px-2 py-0.5 rounded-md">
                           En attente
                         </span>
-                        <span className="text-xs bg-indigo-50 text-indigo-500 border border-indigo-100 px-2 py-0.5 rounded-md">
+                        <span className="text-xs bg-indigo-100 text-indigo-600 border border-indigo-200 px-2 py-0.5 rounded-md">
                           {offre.type}
                         </span>
                       </div>
                     </div>
                     <div className="flex gap-2 shrink-0 ml-4">
-                      <button className="text-xs bg-green-50 text-green-600 border border-green-200 rounded-lg px-3 py-1.5 hover:bg-green-100 transition-colors">
+                      <button className="text-xs bg-green-50 text-green-700 border border-green-300 rounded-lg px-3 py-1.5 hover:bg-green-100 transition-colors">
                         Approuver
                       </button>
-                      <button className="text-xs bg-red-50 text-red-500 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-100 transition-colors">
+                      <button className="text-xs bg-red-50 text-red-700 border border-red-300 rounded-lg px-3 py-1.5 hover:bg-red-100 transition-colors">
                         Refuser
                       </button>
-                      <button className="text-xs bg-gray-50 text-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-100 transition-colors">
+                      <button className="text-xs bg-gray-50 text-gray-600 border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-100 transition-colors">
                         Supprimer
                       </button>
                     </div>
@@ -178,7 +178,7 @@ export default function AdminPage() {
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
                 Offres signalées
               </p>
               <div className="flex flex-col gap-2">
@@ -191,27 +191,27 @@ export default function AdminPage() {
                       <p className="text-sm font-semibold text-gray-900">
                         {offre.title}
                       </p>
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-gray-500 mt-0.5">
                         {offre.company} · {offre.location} · Signalé le{" "}
                         {offre.date}
                       </p>
                       <div className="flex gap-2 mt-2">
-                        <span className="text-xs bg-red-50 text-red-500 border border-red-200 px-2 py-0.5 rounded-md">
+                        <span className="text-xs bg-red-50 text-red-700 border border-red-300 px-2 py-0.5 rounded-md">
                           Signalée
                         </span>
-                        <span className="text-xs bg-indigo-50 text-indigo-500 border border-indigo-100 px-2 py-0.5 rounded-md">
+                        <span className="text-xs bg-indigo-100 text-indigo-600 border border-indigo-200 px-2 py-0.5 rounded-md">
                           {offre.type}
                         </span>
                       </div>
                     </div>
                     <div className="flex gap-2 shrink-0 ml-4">
-                      <button className="text-xs bg-green-50 text-green-600 border border-green-200 rounded-lg px-3 py-1.5 hover:bg-green-100 transition-colors">
+                      <button className="text-xs bg-green-50 text-green-700 border border-green-300 rounded-lg px-3 py-1.5 hover:bg-green-100 transition-colors">
                         Garder
                       </button>
-                      <button className="text-xs bg-red-50 text-red-500 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-100 transition-colors">
+                      <button className="text-xs bg-red-50 text-red-700 border border-red-300 rounded-lg px-3 py-1.5 hover:bg-red-100 transition-colors">
                         Refuser
                       </button>
-                      <button className="text-xs bg-gray-50 text-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-100 transition-colors">
+                      <button className="text-xs bg-gray-50 text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-100 transition-colors">
                         Supprimer
                       </button>
                     </div>
@@ -248,7 +248,7 @@ export default function AdminPage() {
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
                 Utilisateurs
               </p>
               <div className="flex flex-col gap-2">
@@ -265,7 +265,7 @@ export default function AdminPage() {
                         <p className="text-sm font-semibold text-gray-900">
                           {u.name}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-gray-500">
                           {u.email} · Inscrit le {u.date}
                         </p>
                       </div>
@@ -274,7 +274,7 @@ export default function AdminPage() {
                       <span className="text-xs bg-indigo-50 text-indigo-600 border border-indigo-100 px-2.5 py-0.5 rounded-full font-medium">
                         Utilisateur
                       </span>
-                      <button className="text-xs bg-gray-50 text-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-100 transition-colors">
+                      <button className="text-xs bg-gray-50 text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-100 transition-colors">
                         Changer rôle
                       </button>
                       <button className="text-xs bg-red-50 text-red-500 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-100 transition-colors">
@@ -287,7 +287,7 @@ export default function AdminPage() {
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
                 Entreprises
               </p>
               <div className="flex flex-col gap-2">
@@ -304,7 +304,7 @@ export default function AdminPage() {
                         <p className="text-sm font-semibold text-gray-900">
                           {u.name}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-gray-500">
                           {u.email} · Inscrit le {u.date}
                         </p>
                       </div>
@@ -313,7 +313,7 @@ export default function AdminPage() {
                       <span className="text-xs bg-green-50 text-green-600 border border-green-100 px-2.5 py-0.5 rounded-full font-medium">
                         Entreprise
                       </span>
-                      <button className="text-xs bg-gray-50 text-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-100 transition-colors">
+                      <button className="text-xs bg-gray-50 text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-100 transition-colors">
                         Changer rôle
                       </button>
                       <button className="text-xs bg-red-50 text-red-500 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-100 transition-colors">
@@ -326,7 +326,7 @@ export default function AdminPage() {
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
                 Comptes bannis
               </p>
               <div className="flex flex-col gap-2">
@@ -343,7 +343,7 @@ export default function AdminPage() {
                         <p className="text-sm font-semibold text-red-400">
                           {u.name}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-gray-500">
                           {u.email} · Banni le {u.date}
                         </p>
                       </div>
@@ -355,7 +355,7 @@ export default function AdminPage() {
                       <button className="text-xs bg-green-50 text-green-600 border border-green-200 rounded-lg px-3 py-1.5 hover:bg-green-100 transition-colors">
                         Débannir
                       </button>
-                      <button className="text-xs bg-gray-50 text-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-100 transition-colors">
+                      <button className="text-xs bg-gray-50 text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-100 transition-colors">
                         Supprimer
                       </button>
                     </div>

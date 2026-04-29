@@ -31,14 +31,14 @@ export default function CandidateCard({
           {tags.map((tag) => (
             <span
               key={tag}
-              className="text-xs bg-brand-500 text-white px-2.5 py-1 rounded-md font-medium"
+              className="text-xs bg-indigo-500 text-white px-2.5 py-1 rounded-md font-medium"
             >
               {tag}
             </span>
           ))}
         </div>
 
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-gray-500">
           {availability} · {location}
         </p>
       </div>
@@ -47,10 +47,10 @@ export default function CandidateCard({
         <span className="text-sm font-semibold text-indigo-600">
           {appliedTo}
         </span>
-        <span className="text-xs bg-green-400 text-white px-3 py-1 rounded-full font-medium">
+        <span className="text-xs bg-green-700 text-white px-3 py-1 rounded-full font-medium">
           Disponible
         </span>
-        <span className="text-xs text-indigo-400">Envoyé le {sentAt}</span>
+        <span className="text-xs text-indigo-600">Envoyé le {sentAt}</span>
       </div>
     </div>
   );

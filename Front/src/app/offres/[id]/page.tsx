@@ -12,9 +12,9 @@ export default function OffreDetailPage() {
             Dev full stack H/F
           </h1>
           <p className="text-sm text-gray-600">Poisson Barbu</p>
-          <p className="text-sm text-gray-400">Strasbourg , 67200</p>
+          <p className="text-sm text-gray-500">Strasbourg , 67200</p>
           <div className="mt-2">
-            <button className="bg-indigo-400 hover:bg-indigo-500 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors">
+            <button className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors">
               Continuer pour postuler
             </button>
           </div>
@@ -28,15 +28,15 @@ export default function OffreDetailPage() {
           </h2>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3 text-sm text-gray-600">
-              <Euro className="w-4 h-4 text-gray-400 shrink-0" />
+              <Euro className="w-4 h-4 text-gray-500 shrink-0" />
               42 000 € à 52 000 € par an
             </div>
             <div className="flex items-center gap-3 text-sm text-gray-600">
-              <Briefcase className="w-4 h-4 text-gray-400 shrink-0" />
+              <Briefcase className="w-4 h-4 text-gray-500 shrink-0" />
               CDI – Temps plein
             </div>
             <div className="flex items-center gap-3 text-sm text-gray-600">
-              <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
+              <MapPin className="w-4 h-4 text-gray-500 shrink-0" />
               Strasbourg
             </div>
           </div>
@@ -72,7 +72,7 @@ export default function OffreDetailPage() {
                 key={mission}
                 className="flex items-start gap-2 text-sm text-gray-600"
               >
-                <span className="text-gray-400 mt-0.5">•</span>
+                <span className="text-gray-500 mt-0.5">•</span>
                 {mission}
               </li>
             ))}
@@ -95,7 +95,7 @@ export default function OffreDetailPage() {
                 key={item}
                 className="flex items-start gap-2 text-sm text-gray-600"
               >
-                <span className="text-gray-400 mt-0.5">•</span>
+                <span className="text-gray-500 mt-0.5">•</span>
                 {item}
               </li>
             ))}
@@ -118,7 +118,7 @@ export default function OffreDetailPage() {
                 key={item}
                 className="flex items-start gap-2 text-sm text-gray-600"
               >
-                <span className="text-gray-400 mt-0.5">•</span>
+                <span className="text-gray-500 mt-0.5">•</span>
                 {item}
               </li>
             ))}

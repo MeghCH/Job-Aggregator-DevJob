@@ -16,7 +16,7 @@ export default function Navbar() {
 
   return (
     <nav className="flex items-center px-8 py-4 border-b border-gray-100 bg-white gap-12">
-      <span className="text-xl font-extrabold text-indigo-600 tracking-tight shrink-0">
+      <span className="text-xl font-extrabold text-indigo-700 tracking-tight shrink-0">
         DevJobs
       </span>
 
@@ -28,8 +28,8 @@ export default function Navbar() {
             className={cn(
               "text-sm transition-colors",
               pathname === link.href
-                ? "text-brand-600 font-semibold"
-                : "text-gray-800 hover:text-brand-600",
+                ? "text-indigo-700 font-semibold"
+                : "text-gray-800 hover:text-indigo-500",
             )}
           >
             {link.label}

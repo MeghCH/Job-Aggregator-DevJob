@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+export const metadata = { title: "Accueil · DevJobs" };
+
 export default function ConnexionPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6">
@@ -12,7 +14,7 @@ export default function ConnexionPage() {
           <h1 className="text-xl font-bold text-gray-900">
             Connexion à <span className="text-indigo-600">DevJobs</span>
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             Pas encore de compte ?{" "}
             <Link
               href="/inscription"
@@ -29,7 +31,7 @@ export default function ConnexionPage() {
             <input
               type="email"
               placeholder="exemple@email.com"
-              className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-indigo-400 transition-colors placeholder-indigo-300"
+              className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-600 outline-none focus:border-indigo-600 transition-colors placeholder-indigo-600"
             />
           </div>
 
@@ -48,7 +50,7 @@ export default function ConnexionPage() {
             <input
               type="password"
               placeholder="••••••••"
-              className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-indigo-400 transition-colors placeholder-indigo-300"
+              className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-600 outline-none focus:border-indigo-600 transition-colors placeholder-indigo-500"
             />
           </div>
         </div>

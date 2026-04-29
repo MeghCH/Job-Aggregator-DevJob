@@ -11,7 +11,7 @@ export default function OffresPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 leading-tight">
             Le job tech <br />
-            qui te correspond <span className="text-brand-600">vraiment.</span>
+            qui te correspond <span className="text-indigo-600">vraiment.</span>
           </h1>
         </div>
 
