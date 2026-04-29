@@ -33,14 +33,14 @@ export default function JobCardCompany({
           {tags.map((tag) => (
             <span
               key={tag}
-              className="text-xs bg-brand-500 text-white px-2.5 py-1 rounded-md font-medium"
+              className="text-xs bg-indigo-500 text-white px-2.5 py-1 rounded-md font-medium"
             >
               {tag}
             </span>
           ))}
         </div>
 
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-gray-500">
           {postedAt} / {remote}
         </p>
       </div>
@@ -50,7 +50,7 @@ export default function JobCardCompany({
         <span className="text-xs bg-indigo-500 text-white px-3 py-1 rounded-full font-medium">
           {contractType}
         </span>
-        <span className="text-xs text-indigo-400">Publié le {publishedAt}</span>
+        <span className="text-xs text-indigo-600">Publié le {publishedAt}</span>
       </div>
     </div>
   );

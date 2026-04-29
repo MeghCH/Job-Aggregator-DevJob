@@ -68,20 +68,20 @@ export default function ProfilAdminPage() {
           </h1>
 
           <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2 text-sm text-gray-400 uppercase font-semibold tracking-widest">
+            <div className="flex items-center gap-2 text-sm text-gray-500 uppercase font-semibold tracking-widest">
               <Pencil className="w-3.5 h-3.5" />
               Informations
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
-              <Mail className="w-4 h-4 text-indigo-400" />
+              <Mail className="w-4 h-4 text-indigo-500" />
               RhpoissonBarbu@gmail.com
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
-              <Phone className="w-4 h-4 text-indigo-400" />
+              <Phone className="w-4 h-4 text-indigo-500" />
               06 29 67 39 32
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
-              <MapPin className="w-4 h-4 text-indigo-400" />
+              <MapPin className="w-4 h-4 text-indigo-500" />
               Strasbourg, France
             </div>
           </div>
@@ -90,7 +90,7 @@ export default function ProfilAdminPage() {
         <hr className="border-gray-100 mb-8" />
 
         <div className="flex flex-col gap-4 mb-12">
-          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest text-center">
+          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest text-center">
             Mes offres
           </h2>
           <div className="flex flex-col gap-3">
@@ -103,7 +103,7 @@ export default function ProfilAdminPage() {
         <hr className="border-gray-100 mb-8" />
 
         <div className="flex flex-col gap-4 mb-12">
-          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest text-center">
+          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest text-center">
             Candidats
           </h2>
           <div className="flex flex-col gap-3">

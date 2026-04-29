@@ -63,7 +63,7 @@ export default function ProfilPage() {
         <hr className="border-gray-100 mb-8" />
 
         <div className="flex flex-col gap-4 mb-12">
-          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest text-center">
+          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest text-center">
             Mes candidatures
           </h2>
           <div className="flex flex-col gap-3">
@@ -74,7 +74,7 @@ export default function ProfilPage() {
         </div>
 
         <div className="flex flex-col gap-4 mb-12">
-          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest text-center">
+          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest text-center">
             Offres sauvegardées
           </h2>
           <div className="flex flex-col gap-3">
