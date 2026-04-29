@@ -35,14 +35,14 @@ export default function JobCard({
           {tags.map((tag) => (
             <span
               key={tag}
-              className="text-xs bg-brand-500 text-white px-2.5 py-1 rounded-md font-medium"
+              className="text-xs bg-indigo-500 text-white px-2.5 py-1 rounded-md font-medium"
             >
               {tag}
             </span>
           ))}
         </div>
 
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-gray-500">
           {postedAt} / {remote}
         </p>
       </div>
@@ -53,7 +53,10 @@ export default function JobCard({
         <span className="text-xs bg-indigo-500 text-white px-3 py-1 rounded-full font-medium">
           {contractType}
         </span>
-        <button className="p-2 border border-indigo-200 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition-colors">
+        <button
+          aria-label="Sauvegarder cette offre"
+          className="p-2 border border-indigo-200 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition-colors"
+        >
           <Heart className="w-4 h-4 text-indigo-400" />
         </button>
       </div>
