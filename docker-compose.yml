@@ -42,6 +42,13 @@ services:
     networks:
       - backend_network
 
+  frontend:
+    build: ./Front
+    ports: 
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+
   tests:
     image: curlimages/curl:latest
     container_name: jobaggregator-tests
