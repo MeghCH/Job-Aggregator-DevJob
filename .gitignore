@@ -1,5 +1,7 @@
 .env
 .venv/
+node_modules/
+bruno/
 
 # Next.js
 .next/

@@ -1,0 +1,12 @@
+CREATE DATABASE IF NOT EXISTS jobaggregator;
+USE jobaggregator;
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    firstname VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('User', 'Recruiter') NOT NULL DEFAULT 'User',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
