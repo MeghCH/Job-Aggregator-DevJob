@@ -25,6 +25,7 @@ erDiagram
         int salary_min
         int salary_max
         string currency
+        string contract_type
         int experience_years
         string remote_type
         timestamp created_at
@@ -54,6 +55,7 @@ erDiagram
         int salary_min
         int salary_max
         string currency
+        string contract_type
         int experience_years
         string remote_type
         timestamp created_at
