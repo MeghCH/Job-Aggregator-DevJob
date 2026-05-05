@@ -70,14 +70,14 @@ services:
         echo "--- 2. Register User ---"
         curl -s -X POST http://backend:3000/api/auth/register \
           -H "Content-Type: application/json" \
-          -d '{"name":"Doe","firstname":"John","email":"john@example.com","password":"mypassword123","role":"User"}'
+          -d '{"name":"Doe","firstname":"John","email":"john@example.com","password":"mypassword123","role":"user"}'
         echo ""
 
         echo ""
         echo "--- 3. Register Recruiter ---"
         curl -s -X POST http://backend:3000/api/auth/register \
           -H "Content-Type: application/json" \
-          -d '{"name":"Smith","firstname":"Jane","email":"jane@example.com","password":"mypassword123","role":"Recruiter"}'
+          -d '{"name":"Smith","firstname":"Jane","email":"jane@example.com","password":"mypassword123","role":"recruiter","company":"Acme Corp","siret":"12345678900012"}'
         echo ""
 
         echo ""
@@ -98,14 +98,14 @@ services:
         echo "--- 6. Duplicate Register (should fail 409) ---"
         curl -s -X POST http://backend:3000/api/auth/register \
           -H "Content-Type: application/json" \
-          -d '{"name":"Doe","firstname":"John","email":"john@example.com","password":"mypassword123","role":"User"}'
+          -d '{"name":"Doe","firstname":"John","email":"john@example.com","password":"mypassword123","role":"user"}'
         echo ""
 
         echo ""
         echo "--- 7. Invalid Role (should fail 400) ---"
         curl -s -X POST http://backend:3000/api/auth/register \
           -H "Content-Type: application/json" \
-          -d '{"name":"Doe","firstname":"John","email":"invalid@example.com","password":"mypassword123","role":"Admin"}'
+          -d '{"name":"Doe","firstname":"John","email":"invalid@example.com","password":"mypassword123","role":"admin"}'
         echo ""
 
         echo ""

@@ -6,7 +6,9 @@ export const api = {
     firstname: string;
     email: string;
     password: string;
-    role: "User" | "Recruiter";
+    role: "user" | "recruiter";
+    company?: string;
+    siret?: string;
   }) {
     const res = await fetch(`${API_URL}/api/auth/register`, {
       method: "POST",
