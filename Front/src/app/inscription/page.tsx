@@ -12,7 +12,9 @@ export default function InscriptionPage() {
     name: "",
     email: "",
     password: "",
-    role: "User" as "User" | "Recruiter",
+    role: "user" as "user" | "recruiter",
+    company: "",
+    siret: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -144,16 +146,60 @@ export default function InscriptionPage() {
               onChange={(e) =>
                 setForm({
                   ...form,
-                  role: e.target.value as "User" | "Recruiter",
+                  role: e.target.value as "user" | "recruiter",
+                  company: "",
+                  siret: "",
                 })
               }
               className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-indigo-400 text-gray-500 transition-colors"
             >
-              <option value="">Choisir...</option>
-              <option value="User">Un candidat</option>
-              <option value="Recruiter">Une entreprise</option>
+              <option value="user">Un candidat</option>
+              <option value="recruiter">Une entreprise</option>
             </select>
           </div>
+
+          {form.role === "recruiter" && (
+            <>
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="company"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Nom de l&apos;entreprise
+                </label>
+                <input
+                  id="company"
+                  type="text"
+                  value={form.company}
+                  onChange={(e) =>
+                    setForm({ ...form, company: e.target.value })
+                  }
+                  placeholder="Acme Corp"
+                  className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-600 outline-none focus:border-indigo-400 transition-colors placeholder-indigo-600"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="siret"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  SIRET
+                </label>
+                <input
+                  id="siret"
+                  type="text"
+                  value={form.siret}
+                  onChange={(e) =>
+                    setForm({ ...form, siret: e.target.value })
+                  }
+                  placeholder="123 456 789 00012"
+                  maxLength={17}
+                  className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-600 outline-none focus:border-indigo-400 transition-colors placeholder-indigo-600"
+                />
+              </div>
+            </>
+          )}
         </div>
 
         <button

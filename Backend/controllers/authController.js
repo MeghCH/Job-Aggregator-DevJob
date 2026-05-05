@@ -13,7 +13,7 @@ const AuthController = {
      */
     async register(req, res) {
         try {
-            const { name, firstname, email, password, role } = req.body;
+            const { name, firstname, email, password, role, company, siret } = req.body;
 
             if (!name || !firstname || !email || !password) {
                 return res.status(400).json({
@@ -22,12 +22,18 @@ const AuthController = {
                 });
             }
 
-            // Validate role
-            const userRole = role || 'User';
-            if (!['User', 'Recruiter'].includes(userRole)) {
+            const userRole = role || 'user';
+            if (!['user', 'recruiter'].includes(userRole)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Role must be either "User" or "Recruiter"'
+                    message: 'Role must be either "user" or "recruiter"'
+                });
+            }
+
+            if (userRole === 'recruiter' && (!company || !siret)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Recruiters must provide company name and SIRET'
                 });
             }
 
@@ -47,12 +53,12 @@ const AuthController = {
             const hashedPassword = await bcrypt.hash(password, 12);
 
             const [result] = await pool.query(
-                'INSERT INTO users (name, firstname, email, password, role) VALUES (?, ?, ?, ?, ?)',
-                [name, firstname, email, hashedPassword, userRole]
+                'INSERT INTO users (name, firstname, email, password, role, company, siret) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                [name, firstname, email, hashedPassword, userRole, company || null, siret || null]
             );
 
             const [newUser] = await pool.query(
-                'SELECT id, name, firstname, email, role, created_at FROM users WHERE id = ?',
+                'SELECT id, name, firstname, email, role, company, siret, created_at FROM users WHERE id = ?',
                 [result.insertId]
             );
 

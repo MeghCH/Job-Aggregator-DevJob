@@ -41,8 +41,8 @@ const { loginLimiter } = require("../middleware/rateLimitMiddleware");
  *                 example: mypassword123
  *               role:
  *                 type: string
- *                 enum: [User, Recruiter]
- *                 example: User
+ *                 enum: [user, recruiter]
+ *                 example: user
  *     responses:
  *       201:
  *         description: User registered successfully

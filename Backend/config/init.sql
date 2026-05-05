@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role ENUM('user','recruiter','admin') DEFAULT 'user',
+    company VARCHAR(255) DEFAULT NULL,
+    siret VARCHAR(14) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 INSERT INTO users (firstname, name, email, password, role) 
