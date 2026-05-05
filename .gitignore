@@ -2,6 +2,8 @@
 .venv/
 node_modules/
 bruno/
+AGENTS.md
+sujet.md
 
 # Next.js
 .next/
