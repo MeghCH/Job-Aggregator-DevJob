@@ -1,8 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./config/swagger');
 const authRoutes = require('./routes/authRoutes');
-
 const jobRoutes = require('./routes/jobRoutes');
 
 const app = express();
@@ -15,6 +16,9 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Swagger documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -49,6 +53,7 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`API Docs available at http://localhost:${PORT}/api-docs`);
 });
 
 module.exports = app;
