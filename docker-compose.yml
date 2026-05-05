@@ -48,6 +48,7 @@ services:
       - "3001:3000"
     environment:
       - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://backend:3000
 
   tests:
     image: curlimages/curl:latest
