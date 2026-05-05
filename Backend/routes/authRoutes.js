@@ -152,4 +152,6 @@ router.post("/login", loginLimiter, AuthController.login);
  */
 router.get("/me", authenticateToken, AuthController.me);
 
+router.post("/logout", AuthController.logout);
+
 module.exports = router;

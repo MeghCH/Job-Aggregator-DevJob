@@ -13,6 +13,7 @@ export const api = {
     const res = await fetch(`${API_URL}/api/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(data),
     });
     return res.json();
@@ -22,14 +23,23 @@ export const api = {
     const res = await fetch(`${API_URL}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(data),
     });
     return res.json();
   },
 
-  async me(token: string) {
+  async me() {
     const res = await fetch(`${API_URL}/api/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: "include",
+    });
+    return res.json();
+  },
+
+  async logout() {
+    const res = await fetch(`${API_URL}/api/auth/logout`, {
+      method: "POST",
+      credentials: "include",
     });
     return res.json();
   },

@@ -18,7 +18,6 @@ export default function ConnexionPage() {
     try {
       const res = await api.login({ email, password });
       if (res.success) {
-        localStorage.setItem("token", res.token);
         localStorage.setItem("user", JSON.stringify(res.user));
         router.push("/offres");
       } else {

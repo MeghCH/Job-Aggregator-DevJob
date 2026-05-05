@@ -126,10 +126,17 @@ const AuthController = {
                 { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
             );
 
+            const isProduction = process.env.NODE_ENV === 'production';
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: isProduction,
+                sameSite: 'strict',
+                maxAge: 60 * 60 * 1000, // 1h
+            });
+
             return res.status(200).json({
                 success: true,
                 message: 'Login successful',
-                token,
                 user: {
                     id: user.id,
                     name: user.name,
@@ -179,6 +186,15 @@ const AuthController = {
                 message: 'Error fetching user'
             });
         }
+    },
+
+    /**
+     * @route POST /api/auth/logout
+     * @desc Clear the auth cookie
+     */
+    logout(req, res) {
+        res.clearCookie('token', { httpOnly: true, sameSite: 'strict' });
+        return res.status(200).json({ success: true, message: 'Logged out successfully' });
     }
 };
 
