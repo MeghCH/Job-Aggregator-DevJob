@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS users (
     role ENUM('user','recruiter','admin') DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+INSERT INTO users (firstname, name, email, password, role) 
+VALUES ('Admin', 'Système', 'admin@exemple.com', 'votre_password', 'admin');
 
 CREATE TABLE IF NOT EXISTS companies_dj (
     id VARCHAR(255) PRIMARY KEY,
