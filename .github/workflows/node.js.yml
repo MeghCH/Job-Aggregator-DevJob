@@ -12,21 +12,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     defaults:
       run:
-        working-directory: ./front  
+        working-directory: ./Front
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Use Node.js 24
-      uses: actions/setup-node@v4
-      with:
-        node-version: 24
-        cache: 'npm'
-        cache-dependency-path: front/package-lock.json  
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
 
-    - run: npm ci
-    - run: npm run lint
-    - run: npm run build
+    - run: bun install
+    - run: bun run lint
+    - run: bun run build
