@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const AuthController = require("../controllers/authController");
 const authenticateToken = require("../middleware/authMiddleware");
+const { loginLimiter } = require("../middleware/rateLimitMiddleware");
 
 /**
  * @swagger
