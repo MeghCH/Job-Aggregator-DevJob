@@ -14,7 +14,16 @@ services:
       - db_data:/var/lib/mysql
       - ./Backend/config/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uappuser", "-papppassword"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-uappuser",
+          "-papppassword",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -35,7 +44,7 @@ services:
       DB_NAME: jobaggregator
       DB_PORT: 3306
     ports:
-      - "3000:3000"
+      - "3001:3000"
     depends_on:
       db:
         condition: service_healthy
@@ -45,7 +54,7 @@ services:
   frontend:
     build: ./Front
     ports:
-      - "3001:3000"
+      - "3000:3000"
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://backend:3000
