@@ -30,8 +30,6 @@ Neutralization (Escaping): The driver (mysql2) processes the data to ensure that
 
 - File: controllers/authController.js
 
-- Locations: Lines 20, 45, 70, 90.
-
 - General Rule: No pool.query() call contains variables injected directly via template strings (${variable}).
 
 4. **NoSQL Protection**
