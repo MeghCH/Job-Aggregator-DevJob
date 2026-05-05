@@ -80,13 +80,13 @@ Applied to all skill tags across all `JobCard` components.
 
 ### Screen
 
-![alt text](<Screenshot from 2026-04-28 19-18-07.png>)
-![alt text](<Screenshot from 2026-04-28 19-18-11.png>)
-![alt text](<Screenshot from 2026-04-28 19-18-14.png>)
-![alt text](<Screenshot from 2026-04-28 19-18-18.png>)
-![alt text](<Screenshot from 2026-04-28 19-18-21.png>)
-![alt text](<Screenshot from 2026-04-28 19-18-24.png>)
-![alt text](<Screenshot from 2026-04-28 19-18-27.png>)
-![alt text](<Screenshot from 2026-04-28 19-18-30.png>)
-![alt text](<Screenshot from 2026-04-28 19-19-17.png>)
-![alt text](<Screenshot from 2026-04-29 10-10-06.png>)
+![alt text](<Offres.png>)
+![alt text](<Offres2.png>)
+![alt text](<Offres3.png>)
+![alt text](<Offres4.png>)
+![alt text](<Offres5.png>)
+![alt text](<Offres6.png>)
+![alt text](<Offres7.png>)
+![alt text](<Offres8.png>)
+![alt text](<Offres9.png>)
+![alt text](<Offres10.png>)

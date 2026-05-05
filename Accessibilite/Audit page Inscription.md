@@ -88,9 +88,9 @@ Also applied `htmlFor` / `id` association to all other inputs:
 
 ### Screen
 
-![alt text](<Screenshot from 2026-04-28 14-48-11.png>)
-![alt text](<Screenshot from 2026-04-28 14-48-20.png>)
-![alt text](<Screenshot from 2026-04-28 14-48-27.png>)
-![alt text](<Screenshot from 2026-04-28 14-48-33.png>)
-![alt text](<Screenshot from 2026-04-28 14-49-05.png>)
-![alt text](<Screenshot from 2026-04-28 14-59-28.png>)
+![alt text](<Inscription.png>)
+![alt text](<Inscription2.png>)
+![alt text](<Inscription3.png>)
+![alt text](<Inscription4.png>)
+![alt text](<Inscription5.png>)
+![alt text](<Inscription6.png>)
