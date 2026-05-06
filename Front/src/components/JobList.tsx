@@ -1,46 +1,65 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import JobCard from "./JobCard";
+import { jobsApi as api } from "@/lib/api";
 
 const sorts = ["Recent", "Pertinent", "Salaire"];
 
-const jobs = [
-  {
-    id: 1,
-    title: "Dev full stack H/F",
-    company: "Snapp",
-    location: "Paris 9e",
-    salary: "42 – 52 K",
-    contractType: "CDI",
-    tags: ["JS", "React", "Next JS"],
-    postedAt: "Il y a 3h",
-    remote: "Partiel remote",
-  },
-  {
-    id: 2,
-    title: "Dev full stack H/F",
-    company: "Snapp",
-    location: "Paris 9e",
-    salary: "42 – 52 K",
-    contractType: "CDI",
-    tags: ["JS", "React", "Next JS"],
-    postedAt: "Il y a 5h",
-    remote: "Full remote",
-  },
-];
+type Job = {
+  id: string;
+  title: string;
+  company_id: string;
+  salary_min: number;
+  salary_max: number;
+  currency: string;
+  remote_type: string;
+  skills: string;
+  experience_years: number;
+  created_at: string;
+};
 
 export default function JobList() {
   const [activeSort, setActiveSort] = useState("Recent");
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const res = await api.getAll();
+        if (res.success) {
+          setJobs(res.data);
+        } else {
+          setError("Erreur lors du chargement des offres.");
+        }
+      } catch {
+        setError("Impossible de contacter le serveur.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchJobs();
+  }, []);
+
+  if (loading) {
+    return <p className="text-sm text-gray-400">Chargement des offres...</p>;
+  }
+
+  if (error) {
+    return <p className="text-sm text-red-500">{error}</p>;
+  }
 
   return (
     <div className="flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500">
-          <span className="text-gray-900 font-medium">156 offres</span> ·
-          "Développeur Python" à Paris
+          <span className="text-gray-900 font-medium">
+            {jobs.length} offres
+          </span>
         </p>
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-500">Trier par:</span>
@@ -64,7 +83,17 @@ export default function JobList() {
       {/* Liste des offres */}
       <div className="flex flex-col gap-3">
         {jobs.map((job) => (
-          <JobCard key={job.id} {...job} />
+          <JobCard
+            key={job.id}
+            title={job.title}
+            company={job.company_id}
+            location={job.remote_type}
+            salary={`${job.salary_min} – ${job.salary_max} €`}
+            contractType="CDI"
+            tags={JSON.parse(job.skills || "[]")}
+            postedAt={new Date(job.created_at).toLocaleDateString("fr-FR")}
+            remote={job.remote_type}
+          />
         ))}
       </div>
     </div>

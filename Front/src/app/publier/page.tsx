@@ -1,10 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/NavBar";
 import FormField from "@/components/FormField";
+import { authApi } from "@/lib/api";
 
 export default function PublierPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    authApi.me().then((res) => {
+      if (!res?.success || res.data.role !== "recruiter") router.replace("/");
+    }).catch(() => router.replace("/"));
+  }, [router]);
+
   const [skills, setSkills] = useState<string[]>([
     "JS",
     "Python",
