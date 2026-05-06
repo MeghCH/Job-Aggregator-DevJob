@@ -6,6 +6,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swagger');
 const authRoutes = require('./routes/authRoutes');
 const jobRoutes = require('./routes/jobRoutes');
+const userRoutes = require('./routes/UserRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,6 +36,9 @@ app.use('/api/auth', authRoutes);
 
 // Job routes
 app.use('/api/jobs', jobRoutes);
+
+// user routes
+app.use('/api/users', userRoutes);
 
 // Error handler for 404
 app.use((req, res) => {
