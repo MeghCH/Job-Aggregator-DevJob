@@ -189,6 +189,39 @@ const AuthController = {
     },
 
     /**
+     * @route PATCH /api/auth/me
+     * @desc Update current authenticated user's info
+     */
+    async updateMe(req, res) {
+        try {
+            const { name, firstname, email } = req.body;
+
+            if (!name && !firstname && !email) {
+                return res.status(400).json({ success: false, message: 'No fields to update' });
+            }
+
+            const fields = [];
+            const values = [];
+            if (name)      { fields.push('name = ?');      values.push(name); }
+            if (firstname) { fields.push('firstname = ?'); values.push(firstname); }
+            if (email)     { fields.push('email = ?');     values.push(email); }
+            values.push(req.user.userId);
+
+            await pool.query(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`, values);
+
+            const [updated] = await pool.query(
+                'SELECT id, name, firstname, email, role, created_at FROM users WHERE id = ?',
+                [req.user.userId]
+            );
+
+            return res.status(200).json({ success: true, data: updated[0] });
+        } catch (error) {
+            console.error('Update user error:', error);
+            return res.status(500).json({ success: false, message: 'Error updating user' });
+        }
+    },
+
+    /**
      * @route POST /api/auth/logout
      * @desc Clear the auth cookie
      */

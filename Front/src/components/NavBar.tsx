@@ -2,23 +2,32 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { authApi } from "@/lib/api";
 
-const links = [
+const baseLinks = [
   { label: "Accueil", href: "/" },
   { label: "Offres d'emplois", href: "/offres" },
-  { label: "Publier une offre", href: "/publier" },
-  { label: "Profil", href: "/profil" },
 ];
 
 export default function Navbar() {
   const pathname = usePathname();
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    authApi.me().then((res) => setRole(res?.success ? res.data.role : null)).catch(() => {});
+  }, []);
+
+  const links = role === "recruiter"
+    ? [...baseLinks, { label: "Publier une offre", href: "/publier" }, { label: "Profil", href: "/profil" }]
+    : [...baseLinks, { label: "Profil", href: "/profil" }];
 
   return (
     <nav className="flex items-center px-8 py-4 border-b border-gray-100 bg-white gap-12">
-      <span className="text-xl font-extrabold text-indigo-700 tracking-tight shrink-0">
+      <Link href="/" className="text-xl font-extrabold text-indigo-700 tracking-tight shrink-0">
         DevJobs
-      </span>
+      </Link>
 
       <div className="flex items-center gap-8">
         {links.map((link) => (
