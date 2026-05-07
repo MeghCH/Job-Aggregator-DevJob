@@ -36,6 +36,16 @@ export const api = {
     return res.json();
   },
 
+  async updateMe(data: { name?: string; firstname?: string; email?: string }) {
+    const res = await fetch(`${API_URL}/api/auth/me`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
   async logout() {
     const res = await fetch(`${API_URL}/api/auth/logout`, {
       method: "POST",

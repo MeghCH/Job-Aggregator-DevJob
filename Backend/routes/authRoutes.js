@@ -151,6 +151,7 @@ router.post("/login", loginLimiter, AuthController.login);
  *               $ref: '#/components/schemas/Error'
  */
 router.get("/me", authenticateToken, AuthController.me);
+router.patch("/me", authenticateToken, AuthController.updateMe);
 
 router.post("/logout", AuthController.logout);
 
