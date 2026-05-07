@@ -6,7 +6,6 @@ export const api = {
     return res.json();
   },
 
-<<<<<<< HEAD
   async createJob(data: {
     id: string;
     company_id: string;
@@ -23,29 +22,6 @@ export const api = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-=======
-  async createJob(
-    token: string,
-    data: {
-      id: string;
-      company_id: string;
-      title: string;
-      description?: string;
-      salary_min?: number;
-      salary_max?: number;
-      currency?: string;
-      experience_years?: number;
-      remote_type?: "remote" | "hybrid" | "onsite";
-      skills?: string[];
-    },
-  ) {
-    const res = await fetch(`${API_URL}/api/jobs`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
->>>>>>> 6ad491c6563e7f78e560720a578abddedb07549c
       body: JSON.stringify(data),
     });
     return res.json();
