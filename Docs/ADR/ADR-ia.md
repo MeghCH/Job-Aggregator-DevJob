@@ -1,60 +1,55 @@
-# ADR-IA — Choix du modèle et de la feature IA
+# ADR-IA — Model selection and AI feature
 
-**Date :** ?
-**Statut :** Accepté
+**Date:** ?
+**Status:** Accepted
 
-## Contexte
+## Context
 
-Le sujet impose l'implémentation d'une feature IA légère avec les
-contraintes suivantes :
+The project mandates the implementation of a lightweight AI feature with the following constraints:
 
-- Modèle < 500 MB sur disque
-- Résultat en < 5 secondes par offre
-- Pas de fine-tuning au démarrage du container
-- Pas d'API externe (OpenAI, Anthropic, etc. interdits)
+- Model size < 500 MB on disk
+- Result in < 5 seconds per offer
+- No fine-tuning during container startup
+- No external APIs (OpenAI, Anthropic, etc. are forbidden)
 
 ---
 
 ## Why
 
-Les utilisateurs de la plateforme sont des développeurs cherchant
-des offres pertinentes. Afficher un **score de matching** entre
-le profil de l'utilisateur et une offre d'emploi permet de
-prioriser les offres les plus adaptées et réduit le temps de
-recherche. C'est une valeur ajoutée directe et mesurable.
+Users of the platform are developers looking for relevant job offers. Displaying a **matching score** between the user's profile and a job offer allows for the prioritization of the most suitable offers and reduces search time. This provides direct and measurable added value.
 
 ---
 
 ## How
 
-### Méthode choisie — ?
+### Chosen method — ?
 
-### Fonctionnement du score de matching ? (diagramme de pipeline)
+### How the matching score works ? (pipeline diagram)
 
-### Implémentation ?
+### Implementation ?
 
-### Contraintes respectées ?
+### Constraints respected ?
 
-### Intégration dans la plateforme ?
+### Integration into the platform ?
 
 ## Trade-off ?
 
 ---
 
-## Évaluation
+## Evaluation
 
-### Mesure de succès ?
+### Success measurement ?
 
-### Limitations connues ?
-
----
-
-## Alternative rejetée ?
+### Known limitations ?
 
 ---
 
-## Références
+## Rejected alternative ?
 
-- Code : ?
-- Intégration : ?
-- Affiché dans : ?
+---
+
+## References
+
+- Code: ?
+- Integration: ?
+- Displayed in: ?
