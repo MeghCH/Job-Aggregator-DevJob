@@ -44,7 +44,7 @@ services:
       DB_NAME: jobaggregator
       DB_PORT: 3306
     ports:
-      - "3000:3000"
+      - "3001:3000"
     depends_on:
       db:
         condition: service_healthy
@@ -54,10 +54,10 @@ services:
   frontend:
     build: ./Front
     ports:
-      - "3001:3000"
+      - "3000:3000"
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost:3000
+      - NEXT_PUBLIC_API_URL=http://backend:3000
     networks:
       - backend_network
 
