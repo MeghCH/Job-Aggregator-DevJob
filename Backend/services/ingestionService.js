@@ -8,6 +8,39 @@ function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// ── Mapping helpers ───────────────────────────────────────
+
+/**
+ * Normalise un type de contrat WLD vers le format interne
+ */
+function normalizeContractType(wldValue) {
+    if (!wldValue) return null;
+    const v = wldValue.toString().toLowerCase();
+
+    if (v.includes('permanent') || v.includes('cdi')) return 'CDI';
+    if (v.includes('fixed') || v.includes('cdd')) return 'CDD';
+    if (v.includes('internship') || v.includes('stage')) return 'Stage';
+    if (v.includes('apprenticeship') || v.includes('alternance')) return 'Alternance';
+    if (v.includes('freelance')) return 'Freelance';
+
+    // Fallback: return the original uppercase
+    return wldValue.toString().toUpperCase();
+}
+
+/**
+ * Normalise la politique de remote WLD
+ */
+function normalizeRemoteType(wldValue) {
+    if (!wldValue) return 'onsite';
+    const v = wldValue.toString().toLowerCase();
+
+    if (v === 'full_remote' || v === 'total' || v === 'remote') return 'remote';
+    if (v === 'partial' || v === 'hybrid') return 'hybrid';
+    if (v === 'no_remote' || v === 'no' || v === 'onsite') return 'onsite';
+
+    return 'onsite'; // default
+}
+
 /**
  * Normalise un job WLD brut vers le schéma jobs_wld
  */
@@ -17,49 +50,43 @@ function normalizeJob(raw) {
     const company = raw.smallCompany || {};
     const remotePolicy = details.remotePolicy || {};
 
-    const contractType = raw.contractTypes?.[0];
-    const contract = contractType
-        ? contractType.toUpperCase()
-        : null;
-
-    const remoteMap = {
-        full_remote: 'remote',
-        total: 'remote',
-        partial: 'hybrid',
-        hybrid: 'hybrid',
-        '': 'onsite',
-    };
-    const remote = remoteMap[(remotePolicy.frequency || '').toLowerCase()] || 'onsite';
+    const contractType = normalizeContractType(raw.contractTypes?.[0]);
+    const remoteType = normalizeRemoteType(remotePolicy.frequency);
 
     const skills = Array.isArray(raw.skillsList)
         ? raw.skillsList.map(s => (typeof s === 'string' ? s : s?.name)).filter(Boolean)
         : [];
 
+    // WLD expose companyId au niveau racine ET smallCompany.id
+    const companyId = raw.companyId?.toString() || company.id?.toString() || 'unknown';
+
+    // Date de publication préférée: publishDate, fallback createdAt
+    const dateMs = raw.publishDate || raw.createdAt;
+
     return {
-        id: raw.id?.toString() || `${Date.now()}`,
-        company_id: company.id?.toString() || 'unknown',
+        id: raw.id?.toString() || raw.objectID?.toString() || `${Date.now()}_${Math.random().toString(36).slice(2)}`,
+        company_id: companyId,
         company_name: company.companyName?.trim() || 'Inconnue',
         company_sector: (company.sectors || [])[0] || null,
         title: raw.title?.trim() || 'Sans titre',
         description: (raw.rawDescription || raw.description)?.trim() || null,
         salary_min: salary.min ? parseInt(salary.min, 10) : null,
         salary_max: salary.max ? parseInt(salary.max, 10) : null,
-        currency: salary.currency?.trim() || 'EUR',
-        contract_type: contract,
+        currency: (salary.currency || details.currency || 'EUR').trim().toUpperCase(),
+        contract_type: contractType,
         experience_years: details.requiredExperience
             ? parseInt(details.requiredExperience, 10)
             : null,
-        remote_type: remote,
+        remote_type: remoteType,
         skills: JSON.stringify(skills),
-        created_at: raw.createdAt
-            ? new Date(raw.createdAt).toISOString()
+        created_at: dateMs
+            ? new Date(dateMs).toISOString()
             : new Date().toISOString(),
     };
 }
 
-/**
- * Fetch une page depuis l'API WLD
- */
+// ── Fetch / DB ──────────────────────────────────────────────
+
 async function fetchWldPage(page = 0, size = 100) {
     const url = new URL('/v1', WLD_BASE_URL);
     url.searchParams.set('page', page.toString());
@@ -79,9 +106,6 @@ async function fetchWldPage(page = 0, size = 100) {
     return res.json();
 }
 
-/**
- * Upsert une entreprise dans companies_wld (INSERT IGNORE)
- */
 async function upsertCompany(pool, company) {
     await pool.query(
         'INSERT IGNORE INTO companies_wld (id, name, sector) VALUES (?, ?, ?)',
@@ -89,9 +113,6 @@ async function upsertCompany(pool, company) {
     );
 }
 
-/**
- * Insère un job dans jobs_wld (INSERT IGNORE)
- */
 async function insertJob(pool, job) {
     await pool.query(
         `INSERT IGNORE INTO jobs_wld (
@@ -116,11 +137,13 @@ async function insertJob(pool, job) {
     );
 }
 
+// ── Core ingestion loop ─────────────────────────────────────
+
 /**
- * Lance l'ingestion complète depuis l'API WeLoveDevs.
- * Renvoie { inserted, skipped, errors }
+ * Ingestion générique : fetch + insert avec comptage précis.
+ * @param {number|null} maxPages - null = toutes les pages
  */
-async function run() {
+async function ingestLoop(maxPages = null) {
     if (!API_KEY) {
         throw new Error('WLD_API_KEY is not defined in environment.');
     }
@@ -131,102 +154,12 @@ async function run() {
     let inserted = 0;
     let skipped = 0;
     let errors = 0;
-
-    let keepGoing = true;
     let consecutiveErrors = 0;
 
-    while (keepGoing) {
-        let data;
-        try {
-            data = await fetchWldPage(page, size);
-            consecutiveErrors = 0;
-        } catch (err) {
-            console.error(`[Ingestion] Fetch error on page ${page}:`, err.message);
-            errors += 1;
-            consecutiveErrors += 1;
-            // Stop after 3 consecutive fetch failures to avoid hammering a dead API
-            if (consecutiveErrors >= 3) {
-                console.error('[Ingestion] 3 consecutive fetch failures. Stopping.');
-                break;
-            }
-            page += 1;
-            await delay(DELAY_MS);
-            continue;
-        }
+    while (true) {
+        // Stop si on a atteint le maxPages
+        if (maxPages !== null && page >= maxPages) break;
 
-        // Init totalCount from first page
-        if (totalCount === null) {
-            totalCount = data.totalCount || 0;
-            console.log(`[Ingestion] Total offers available: ${totalCount}`);
-        }
-
-        const jobs = data.values || [];
-        if (jobs.length === 0) {
-            keepGoing = false;
-        }
-
-        for (const raw of jobs) {
-            const normalized = normalizeJob(raw);
-
-            try {
-                await upsertCompany(pool, {
-                    id: normalized.company_id,
-                    name: normalized.company_name,
-                    sector: normalized.company_sector,
-                });
-
-                await insertJob(pool, normalized);
-
-                // MySQL doesn't tell us INSERT vs IGNORE, so we check if ID existed
-                const [existing] = await pool.query(
-                    'SELECT EXISTS(SELECT 1 FROM jobs_wld WHERE id = ?) as found',
-                    [normalized.id]
-                );
-                // Actually, we can't know after the insert... simpler approach:
-                // Just count rows processed. We'll approximate.
-                inserted += 1;
-            } catch (err) {
-                console.error(`[Ingestion] Insert error for job ${normalized.id}:`, err.message);
-                errors += 1;
-            }
-        }
-
-        // Next page
-        page += 1;
-        if (page * size >= totalCount) {
-            keepGoing = false;
-        }
-
-        // Rate limit: wait 1050ms before next page request
-        if (keepGoing) {
-            await delay(DELAY_MS);
-        }
-    }
-
-    // After all insertions, count how many rows actually existed already for a more accurate skip count
-    console.log('[Ingestion] Done fetching all pages.');
-
-    return { inserted, skipped, errors };
-}
-
-/**
- * Lance l'ingestion complète (seulement les N premières pages -- utile pour tests)
- */
-async function runLimited(maxPages = 1) {
-    if (!API_KEY) {
-        throw new Error('WLD_API_KEY is not defined in environment.');
-    }
-
-    let page = 0;
-    const size = 100;
-    let totalCount = null;
-    let inserted = 0;
-    let skipped = 0;
-    let errors = 0;
-
-    let consecutiveErrors = 0;
-
-    while (page < maxPages) {
         let data;
         try {
             data = await fetchWldPage(page, size);
@@ -262,9 +195,10 @@ async function runLimited(maxPages = 1) {
                     sector: normalized.company_sector,
                 });
 
+                // Déduplication explicite avant insert
                 const [existing] = await pool.query(
                     'SELECT 1 FROM jobs_wld WHERE id = ? LIMIT 1',
-                    [normalized.id]
+                    [normalized.id],
                 );
 
                 if (existing.length === 0) {
@@ -280,12 +214,25 @@ async function runLimited(maxPages = 1) {
         }
 
         page += 1;
-        if (page < maxPages) {
-            await delay(DELAY_MS);
-        }
+
+        // Arrêt naturel quand on a tout parcouru
+        if (page * size >= totalCount) break;
+
+        // Rate limit
+        await delay(DELAY_MS);
     }
 
-    return { inserted, skipped, errors };
+    return { inserted, skipped, errors, pagesFetched: page };
+}
+
+// ── Public API ────────────────────────────────────────────
+
+async function run() {
+    return ingestLoop(null); // toutes les pages
+}
+
+async function runLimited(maxPages = 1) {
+    return ingestLoop(maxPages);
 }
 
 module.exports = { run, runLimited, normalizeJob };
