@@ -8,6 +8,29 @@ function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// ── Safe parse helpers ──────────────────────────────────────
+
+function safeParseInt(value) {
+    if (value === null || value === undefined) return null;
+    const parsed = parseInt(value, 10);
+    return Number.isNaN(parsed) ? null : parsed;
+}
+
+/**
+ * Convertit une valeur WLD (epoch µs) en format MySQL DATETIME.
+ * WLD envoie les timestamps en microsecondes (16 chiffres), pas millisecondes.
+ */
+function toMySqlTimestamp(value) {
+    if (!value) return null;
+    // WLD dates are in microseconds — divide by 1000 to get milliseconds
+    const ms = Math.floor(Number(value) / 1000);
+    if (Number.isNaN(ms)) return null;
+    const d = new Date(ms);
+    if (Number.isNaN(d.getTime())) return null;
+    // Format: 2024-05-09 16:00:00
+    return d.toISOString().slice(0, 19).replace('T', ' ');
+}
+
 // ── Mapping helpers ───────────────────────────────────────
 
 /**
@@ -61,7 +84,8 @@ function normalizeJob(raw) {
     const companyId = raw.companyId?.toString() || company.id?.toString() || 'unknown';
 
     // Date de publication préférée: publishDate, fallback createdAt
-    const dateMs = raw.publishDate || raw.createdAt;
+    const dateValue = raw.publishDate || raw.createdAt;
+    const createdAt = toMySqlTimestamp(dateValue) || new Date().toISOString().slice(0, 19).replace('T', ' ');
 
     return {
         id: raw.id?.toString() || raw.objectID?.toString() || `${Date.now()}_${Math.random().toString(36).slice(2)}`,
@@ -70,18 +94,14 @@ function normalizeJob(raw) {
         company_sector: (company.sectors || [])[0] || null,
         title: raw.title?.trim() || 'Sans titre',
         description: (raw.rawDescription || raw.description)?.trim() || null,
-        salary_min: salary.min ? parseInt(salary.min, 10) : null,
-        salary_max: salary.max ? parseInt(salary.max, 10) : null,
+        salary_min: safeParseInt(salary.min),
+        salary_max: safeParseInt(salary.max),
         currency: (salary.currency || details.currency || 'EUR').trim().toUpperCase(),
         contract_type: contractType,
-        experience_years: details.requiredExperience
-            ? parseInt(details.requiredExperience, 10)
-            : null,
+        experience_years: safeParseInt(details.requiredExperience),
         remote_type: remoteType,
         skills: JSON.stringify(skills),
-        created_at: dateMs
-            ? new Date(dateMs).toISOString()
-            : new Date().toISOString(),
+        created_at: createdAt,
     };
 }
 

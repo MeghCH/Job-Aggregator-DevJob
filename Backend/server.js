@@ -8,6 +8,7 @@ const swaggerSpecs = require('./config/swagger');
 const authRoutes = require('./routes/authRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const ingestionRoutes = require('./routes/ingestionRoutes');
+const pool = require('./config/db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -62,34 +63,6 @@ app.use('/api/jobs', jobRoutes);
 // Ingestion routes
 app.use('/api/ingest', ingestionRoutes);
 
-// ── Scheduled ingestion from WeLoveDevs ────────────────────────
-const ingestionService = require('./services/ingestionService');
-const INGEST_SCHEDULE = process.env.INGEST_CRON_SCHEDULE || '0 * * * *'; // default: hourly
-
-if (process.env.WLD_API_KEY) {
-    // 1. Full ingestion on server boot (async, non-blocking)
-    if (process.env.WLD_INGEST_ON_START !== 'false') {
-        console.log('[Ingestion] First boot: launching full WLD ingestion...');
-        ingestionService.run()
-            .then(stats => console.log('[Ingestion] Boot ingestion done:', stats))
-            .catch(err => console.error('[Ingestion] Boot ingestion failed:', err.message));
-    }
-
-    // 2. Scheduled incremental ingestion (1 page per run)
-    console.log(`[Cron] Scheduling incremental WLD ingestion with pattern: ${INGEST_SCHEDULE}`);
-    cron.schedule(INGEST_SCHEDULE, async () => {
-        console.log('[Cron] Starting incremental WLD ingestion...');
-        try {
-            const stats = await ingestionService.runLimited(1); // fetch 1 page (100 offers) per run
-            console.log('[Cron] Incremental ingestion done:', stats);
-        } catch (err) {
-            console.error('[Cron] Incremental ingestion error:', err.message);
-        }
-    });
-} else {
-    console.warn('[Cron] WLD_API_KEY not set — skipping scheduled ingestion');
-}
-
 // Error handler for 404
 app.use((req, res) => {
     res.status(404).json({
@@ -110,6 +83,47 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
     console.log(`API Docs available at http://localhost:${PORT}/api-docs`);
+});
+
+// ── Scheduled ingestion from WeLoveDevs ────────────────────────
+// Doit attendre que le pool ait fini son bootstrap (tables/vues créées).
+const ingestionService = require('./services/ingestionService');
+const INGEST_SCHEDULE = process.env.INGEST_CRON_SCHEDULE || '0 * * * *'; // default: hourly
+
+pool.ready.then(() => {
+    if (!process.env.WLD_API_KEY) {
+        console.warn('[Cron] WLD_API_KEY not set — skipping scheduled ingestion');
+        return;
+    }
+
+    // 1. Full ingestion on server boot ONLY if jobs_wld is empty
+    // (avoids wasting API calls on every container restart)
+    if (process.env.WLD_INGEST_ON_START !== 'false') {
+        pool.query('SELECT COUNT(*) as cnt FROM jobs_wld')
+            .then(([rows]) => {
+                const existing = rows[0]?.cnt || 0;
+                if (existing === 0) {
+                    console.log('[Ingestion] Table jobs_wld is empty — launching full WLD ingestion...');
+                    return ingestionService.run();
+                }
+                console.log(`[Ingestion] Table jobs_wld already has ${existing} offers — skipping boot ingestion.`);
+                return { inserted: 0, skipped: 0, errors: 0, skippedBoot: true };
+            })
+            .then(stats => console.log('[Ingestion] Boot ingestion result:', stats))
+            .catch(err => console.error('[Ingestion] Boot ingestion failed:', err.message));
+    }
+
+    // 2. Scheduled incremental ingestion (1 page per run)
+    console.log(`[Cron] Scheduling incremental WLD ingestion with pattern: ${INGEST_SCHEDULE}`);
+    cron.schedule(INGEST_SCHEDULE, async () => {
+        console.log('[Cron] Starting incremental WLD ingestion...');
+        try {
+            const stats = await ingestionService.runLimited(1); // fetch 1 page (100 offers) per run
+            console.log('[Cron] Incremental ingestion done:', stats);
+        } catch (err) {
+            console.error('[Cron] Incremental ingestion error:', err.message);
+        }
+    });
 });
 
 module.exports = app;
