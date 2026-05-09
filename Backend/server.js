@@ -3,9 +3,11 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const swaggerUi = require('swagger-ui-express');
+const cron = require('node-cron');
 const swaggerSpecs = require('./config/swagger');
 const authRoutes = require('./routes/authRoutes');
 const jobRoutes = require('./routes/jobRoutes');
+const ingestionRoutes = require('./routes/ingestionRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -56,6 +58,28 @@ app.use('/api/auth', authRoutes);
 
 // Job routes
 app.use('/api/jobs', jobRoutes);
+
+// Ingestion routes
+app.use('/api/ingest', ingestionRoutes);
+
+// ── Scheduled ingestion from WeLoveDevs ────────────────────────
+const ingestionService = require('./services/ingestionService');
+const INGEST_SCHEDULE = process.env.INGEST_CRON_SCHEDULE || '0 * * * *'; // default: hourly
+
+if (process.env.WLD_API_KEY) {
+    console.log(`[Cron] Scheduling WLD ingestion with pattern: ${INGEST_SCHEDULE}`);
+    cron.schedule(INGEST_SCHEDULE, async () => {
+        console.log('[Cron] Starting WLD ingestion...');
+        try {
+            const stats = await ingestionService.runLimited(1); // fetch 1 page (100 offers) per run
+            console.log('[Cron] Ingestion done:', stats);
+        } catch (err) {
+            console.error('[Cron] Ingestion error:', err.message);
+        }
+    });
+} else {
+    console.warn('[Cron] WLD_API_KEY not set — skipping scheduled ingestion');
+}
 
 // Error handler for 404
 app.use((req, res) => {
