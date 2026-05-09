@@ -1,12 +1,20 @@
+"use client";
+
+import { useState } from "react";
 import Navbar from "@/components/NavBar";
 import SearchBar from "@/components/SearchBar";
 import FilterBar from "@/components/FilterBar";
 import JobList from "@/components/JobList";
 
 export default function OffresPage() {
+  const [activeFilter, setActiveFilter] = useState("Tous");
+  const [activeSort, setActiveSort] = useState("Recent");
+  const [query, setQuery] = useState("");
+  const [location, setLocation] = useState("");
+
   return (
     <div className="min-h-screen bg-white">
-        <Navbar />
+      <Navbar />
       <div className="max-w-4xl mx-auto px-6 py-10 flex flex-col gap-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 leading-tight">
@@ -15,11 +23,22 @@ export default function OffresPage() {
           </h1>
         </div>
 
-        <SearchBar />
+        <SearchBar
+          query={query}
+          location={location}
+          onQueryChange={setQuery}
+          onLocationChange={setLocation}
+        />
 
-        <FilterBar />
+        <FilterBar active={activeFilter} onChange={setActiveFilter} />
 
-        <JobList />
+        <JobList
+          activeFilter={activeFilter}
+          activeSort={activeSort}
+          onSortChange={setActiveSort}
+          query={query}
+          location={location}
+        />
       </div>
     </div>
   );

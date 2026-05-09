@@ -163,7 +163,7 @@ const AuthController = {
     async me(req, res) {
         try {
             const [users] = await pool.query(
-                'SELECT id, name, firstname, email, role, created_at FROM users WHERE id = ?',
+                'SELECT id, name, firstname, email, role, skills, location, created_at FROM users WHERE id = ?',
                 [req.user.userId]
             );
 
@@ -194,23 +194,25 @@ const AuthController = {
      */
     async updateMe(req, res) {
         try {
-            const { name, firstname, email } = req.body;
+            const { name, firstname, email, skills, location } = req.body;
 
-            if (!name && !firstname && !email) {
+            if (!name && !firstname && !email && skills === undefined && !location) {
                 return res.status(400).json({ success: false, message: 'No fields to update' });
             }
 
             const fields = [];
             const values = [];
-            if (name)      { fields.push('name = ?');      values.push(name); }
-            if (firstname) { fields.push('firstname = ?'); values.push(firstname); }
-            if (email)     { fields.push('email = ?');     values.push(email); }
+            if (name)              { fields.push('name = ?');      values.push(name); }
+            if (firstname)         { fields.push('firstname = ?'); values.push(firstname); }
+            if (email)             { fields.push('email = ?');     values.push(email); }
+            if (skills !== undefined) { fields.push('skills = ?'); values.push(JSON.stringify(skills)); }
+            if (location)          { fields.push('location = ?');  values.push(location); }
             values.push(req.user.userId);
 
             await pool.query(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`, values);
 
             const [updated] = await pool.query(
-                'SELECT id, name, firstname, email, role, created_at FROM users WHERE id = ?',
+                'SELECT id, name, firstname, email, role, skills, location, created_at FROM users WHERE id = ?',
                 [req.user.userId]
             );
 

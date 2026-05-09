@@ -15,22 +15,28 @@ type Props = {
   name?: string;
   firstname?: string;
   email?: string;
+  skills?: string[];
+  location?: string;
 };
 
-export default function ProfileHeader({ name, firstname, email }: Props) {
+export default function ProfileHeader({ name, firstname, email, skills: initialSkills = [], location: initialLocation = "" }: Props) {
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ name: name ?? "", firstname: firstname ?? "", email: email ?? "" });
-  const [saved, setSaved] = useState({ name: name ?? "", firstname: firstname ?? "", email: email ?? "" });
+  const [form, setForm] = useState({ name: name ?? "", firstname: firstname ?? "", email: email ?? "", location: initialLocation });
+  const [saved, setSaved] = useState({ name: name ?? "", firstname: firstname ?? "", email: email ?? "", location: initialLocation });
 
   useEffect(() => {
-    const updated = { name: name ?? "", firstname: firstname ?? "", email: email ?? "" };
+    const updated = { name: name ?? "", firstname: firstname ?? "", email: email ?? "", location: initialLocation };
     setForm(updated);
     setSaved(updated);
-  }, [name, firstname, email]);
-  const [skills, setSkills] = useState(["JS", "Python", "React", "Docker"]);
+  }, [name, firstname, email, initialLocation]);
+  const [skills, setSkills] = useState<string[]>(initialSkills);
+
+  useEffect(() => {
+    setSkills(initialSkills);
+  }, [initialSkills]);
 
   const handleSave = async () => {
-    await authApi.updateMe(form).catch(() => {});
+    await authApi.updateMe({ ...form, skills }).catch(() => {});
     setSaved(form);
     setEditing(false);
   };
@@ -100,6 +106,12 @@ export default function ProfileHeader({ name, firstname, email }: Props) {
                 type="email"
                 className="border border-indigo-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 outline-none focus:border-indigo-400"
               />
+              <input
+                value={form.location}
+                onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
+                placeholder="Ville, pays..."
+                className="border border-indigo-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 outline-none focus:border-indigo-400"
+              />
             </div>
           ) : (
             <div className="flex flex-col gap-2">
@@ -109,7 +121,7 @@ export default function ProfileHeader({ name, firstname, email }: Props) {
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <MapPin className="w-4 h-4 text-indigo-400" />
-                Strasbourg, France
+                {saved.location || "—"}
               </div>
             </div>
           )}

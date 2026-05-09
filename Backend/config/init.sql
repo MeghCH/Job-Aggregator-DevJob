@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS users (
     role ENUM('user','recruiter','admin') DEFAULT 'user',
     company VARCHAR(255) DEFAULT NULL,
     siret VARCHAR(14) DEFAULT NULL,
+    skills JSON DEFAULT NULL,
+    location VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 INSERT INTO users (firstname, name, email, password, role) 

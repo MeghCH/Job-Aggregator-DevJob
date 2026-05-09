@@ -12,6 +12,8 @@ type User = {
   name: string;
   firstname: string;
   email: string;
+  skills: string[] | null;
+  location: string | null;
 };
 
 const candidatures = [
@@ -48,6 +50,8 @@ export default function ProfilPage() {
           name={user?.name}
           firstname={user?.firstname}
           email={user?.email}
+          skills={user?.skills ?? []}
+          location={user?.location ?? ""}
         />
 
         <hr className="border-gray-100 mb-8" />

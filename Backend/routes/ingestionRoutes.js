@@ -1,0 +1,1 @@
+// Branche la route sur server.js comme les autres routes.

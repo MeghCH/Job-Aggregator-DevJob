@@ -1,19 +1,21 @@
 "use client";
 
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-const filters = ["CDI", "CDD", "Stage", "Alternance", "Tele Travail"];
+const filters = ["Tous", "CDI", "CDD", "Stage", "Alternance", "Tele Travail"];
 
-export default function FilterBar() {
-  const [active, setActive] = useState("CDI");
+type Props = {
+  active: string;
+  onChange: (filter: string) => void;
+};
 
+export default function FilterBar({ active, onChange }: Props) {
   return (
     <div className="flex items-center gap-3 flex-wrap">
       {filters.map((filter) => (
         <button
           key={filter}
-          onClick={() => setActive(filter)}
+          onClick={() => onChange(filter)}
           className={cn(
             "text-sm px-5 py-2 rounded-full border transition-colors",
             active === filter

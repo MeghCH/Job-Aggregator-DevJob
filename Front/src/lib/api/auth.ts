@@ -36,7 +36,7 @@ export const api = {
     return res.json();
   },
 
-  async updateMe(data: { name?: string; firstname?: string; email?: string }) {
+  async updateMe(data: { name?: string; firstname?: string; email?: string; skills?: string[]; location?: string }) {
     const res = await fetch(`${API_URL}/api/auth/me`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

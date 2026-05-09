@@ -1,17 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { Search, MapPin } from "lucide-react";
 
-export default function SearchBar() {
-  const [query, setQuery] = useState("");
-  const [location, setLocation] = useState("");
+type Props = {
+  query?: string;
+  location?: string;
+  onQueryChange?: (v: string) => void;
+  onLocationChange?: (v: string) => void;
+};
 
-  const handleSearch = () => {
-    if (!query && !location) return;
-    console.log("Recherche :", query, location);
-  };
-
+export default function SearchBar({ query = "", location = "", onQueryChange, onLocationChange }: Props) {
   return (
     <div className="flex items-center max-w-3xl border border-brand-200 rounded-xl overflow-hidden bg-white shadow-sm">
       <div className="flex items-center gap-2 px-4 flex-1">
@@ -19,10 +17,9 @@ export default function SearchBar() {
         <input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => onQueryChange?.(e.target.value)}
           placeholder="Saisir un metier ou un mot cle"
           className="w-full py-3 text-sm text-indigo-600 placeholder-brand-300 outline-none bg-transparent"
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
       </div>
 
@@ -33,19 +30,15 @@ export default function SearchBar() {
         <input
           type="text"
           value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          onChange={(e) => onLocationChange?.(e.target.value)}
           placeholder="Ville, departement ..."
           className="w-full py-3 text-sm text-indigo-600 placeholder-brand-300 outline-none bg-transparent"
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
       </div>
 
-      <button
-        onClick={handleSearch}
-        className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold px-7 py-3 transition-colors"
-      >
+      <div className="bg-indigo-500 text-white text-sm font-semibold px-7 py-3">
         Rechercher
-      </button>
+      </div>
     </div>
   );
 }
