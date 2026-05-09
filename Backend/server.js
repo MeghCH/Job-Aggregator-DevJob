@@ -67,14 +67,23 @@ const ingestionService = require('./services/ingestionService');
 const INGEST_SCHEDULE = process.env.INGEST_CRON_SCHEDULE || '0 * * * *'; // default: hourly
 
 if (process.env.WLD_API_KEY) {
-    console.log(`[Cron] Scheduling WLD ingestion with pattern: ${INGEST_SCHEDULE}`);
+    // 1. Full ingestion on server boot (async, non-blocking)
+    if (process.env.WLD_INGEST_ON_START !== 'false') {
+        console.log('[Ingestion] First boot: launching full WLD ingestion...');
+        ingestionService.run()
+            .then(stats => console.log('[Ingestion] Boot ingestion done:', stats))
+            .catch(err => console.error('[Ingestion] Boot ingestion failed:', err.message));
+    }
+
+    // 2. Scheduled incremental ingestion (1 page per run)
+    console.log(`[Cron] Scheduling incremental WLD ingestion with pattern: ${INGEST_SCHEDULE}`);
     cron.schedule(INGEST_SCHEDULE, async () => {
-        console.log('[Cron] Starting WLD ingestion...');
+        console.log('[Cron] Starting incremental WLD ingestion...');
         try {
             const stats = await ingestionService.runLimited(1); // fetch 1 page (100 offers) per run
-            console.log('[Cron] Ingestion done:', stats);
+            console.log('[Cron] Incremental ingestion done:', stats);
         } catch (err) {
-            console.error('[Cron] Ingestion error:', err.message);
+            console.error('[Cron] Incremental ingestion error:', err.message);
         }
     });
 } else {
