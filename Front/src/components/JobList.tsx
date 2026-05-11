@@ -24,7 +24,7 @@ type Job = {
   currency: string;
   contract_type: string;
   remote_type: string;
-  skills: string;
+  skills: string[] | null;
   experience_years: number;
   created_at: string;
 };
@@ -137,7 +137,7 @@ export default function JobList({ activeFilter, activeSort, onSortChange, query,
               location={job.remote_type}
               salary={job.salary_min && job.salary_max ? `${job.salary_min} – ${job.salary_max} €` : "Non précisé"}
               contractType={job.contract_type ?? "—"}
-              tags={JSON.parse(job.skills || "[]")}
+              tags={job.skills ?? []}
               postedAt={new Date(job.created_at).toLocaleDateString("fr-FR")}
               remote={job.remote_type}
             />
