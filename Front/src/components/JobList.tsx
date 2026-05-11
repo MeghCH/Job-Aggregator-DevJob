@@ -132,6 +132,7 @@ export default function JobList({ activeFilter, activeSort, onSortChange, query,
           filtered.map((job) => (
             <JobCard
               key={job.id}
+              id={job.id}
               title={job.title}
               company={job.company_id}
               location={job.remote_type}
