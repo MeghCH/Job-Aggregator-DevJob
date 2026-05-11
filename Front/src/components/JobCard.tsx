@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { Heart } from "lucide-react";
 
 type JobCardProps = {
+  id?: string | number;
   title: string;
   company: string;
   location: string;
@@ -12,6 +14,7 @@ type JobCardProps = {
 };
 
 export default function JobCard({
+  id,
   title,
   company,
   location,
@@ -22,7 +25,7 @@ export default function JobCard({
   remote,
 }: JobCardProps) {
   return (
-    <div className="flex items-start justify-between border border-indigo-100 bg-indigo-50/40 rounded-xl px-6 py-5 hover:border-indigo-300 transition-colors cursor-pointer">
+    <Link href={id ? `/offres/${encodeURIComponent(id)}` : "#"} className="flex items-start justify-between border border-indigo-100 bg-indigo-50/40 rounded-xl px-6 py-5 hover:border-indigo-300 transition-colors cursor-pointer">
       {/* Gauche */}
       <div className="flex flex-col gap-2">
         <h3 className="text-base font-semibold text-gray-900">{title}</h3>
@@ -60,6 +63,6 @@ export default function JobCard({
           <Heart className="w-4 h-4 text-indigo-400" />
         </button>
       </div>
-    </div>
+    </Link>
   );
 }

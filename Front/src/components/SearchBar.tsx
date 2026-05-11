@@ -36,9 +36,9 @@ export default function SearchBar({ query = "", location = "", onQueryChange, on
         />
       </div>
 
-      <div className="bg-indigo-500 text-white text-sm font-semibold px-7 py-3">
+      <button type="button" className="bg-indigo-500 hover:bg-indigo-600 transition-colors text-white text-sm font-semibold px-7 py-3 cursor-pointer">
         Rechercher
-      </div>
+      </button>
     </div>
   );
 }
