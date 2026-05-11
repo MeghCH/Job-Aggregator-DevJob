@@ -98,12 +98,12 @@ const JobController = {
 
     /**
      * @route GET /api/jobs
-     * @desc Get all job offers
+     * @desc Get all job offers (unified view: WLD + DJ)
      * @access Public
      */
     async getAll(req, res) {
         try {
-            const [jobs] = await pool.query('SELECT * FROM jobs_dj ORDER BY created_at DESC');
+            const [jobs] = await pool.query('SELECT * FROM unified_jobs ORDER BY created_at DESC');
 
             return res.status(200).json({
                 success: true,

@@ -22,7 +22,6 @@ CREATE TABLE IF NOT EXISTS jobs_wld (
     FOREIGN KEY (company_id) REFERENCES companies_wld(id)
 );
 
-
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     firstname VARCHAR(255) NOT NULL,
@@ -59,3 +58,46 @@ CREATE TABLE IF NOT EXISTS jobs_dj (
     skills JSON, 
     FOREIGN KEY (company_id) REFERENCES companies_dj(id)
 );
+
+-- Unified view: merges both WeLoveDevs and DevJobs sources into a single queryable table
+-- Must be created AFTER the tables it references exist.
+CREATE OR REPLACE VIEW unified_jobs AS
+SELECT
+    j.id,
+    j.company_id,
+    c.name AS company_name,
+    c.sector AS company_sector,
+    j.title,
+    j.description,
+    j.salary_min,
+    j.salary_max,
+    j.currency,
+    j.contract_type,
+    j.experience_years,
+    j.remote_type,
+    j.skills,
+    j.created_at,
+    'wld' AS source
+FROM jobs_wld j
+LEFT JOIN companies_wld c ON j.company_id = c.id
+
+UNION ALL
+
+SELECT
+    j.id,
+    j.company_id,
+    c.name AS company_name,
+    c.sector AS company_sector,
+    j.title,
+    j.description,
+    j.salary_min,
+    j.salary_max,
+    j.currency,
+    j.contract_type,
+    j.experience_years,
+    j.remote_type,
+    j.skills,
+    j.created_at,
+    'dj' AS source
+FROM jobs_dj j
+LEFT JOIN companies_dj c ON j.company_id = c.id;
