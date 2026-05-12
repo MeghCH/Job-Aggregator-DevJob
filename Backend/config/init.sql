@@ -59,6 +59,16 @@ CREATE TABLE IF NOT EXISTS jobs_dj (
     FOREIGN KEY (company_id) REFERENCES companies_dj(id)
 );
 
+CREATE TABLE IF NOT EXISTS applications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    job_id VARCHAR(255) NOT NULL,
+    job_source ENUM('wld', 'dj') NOT NULL,
+    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_application (user_id, job_id)
+);
+
 -- Unified view: merges both WeLoveDevs and DevJobs sources into a single queryable table
 -- Must be created AFTER the tables it references exist.
 CREATE OR REPLACE VIEW unified_jobs AS
