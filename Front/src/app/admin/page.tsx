@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import Navbar from "@/components/NavBar";
-import { Search } from "lucide-react";
+import { Search, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 const stats = [
   { n: "1 243", l: "Offres totales" },
@@ -86,19 +88,70 @@ const bannis = [
   },
 ];
 
+type IngestResult = { inserted: number; skipped: number; errors: number; pagesFetched: number };
+
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<"offres" | "users">("offres");
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
+  const [ingestLoading, setIngestLoading] = useState(false);
+  const [ingestResult, setIngestResult] = useState<IngestResult | null>(null);
+  const [ingestError, setIngestError] = useState("");
+
+  const handleIngest = async () => {
+    setIngestLoading(true);
+    setIngestResult(null);
+    setIngestError("");
+    try {
+      const res = await fetch(`${API_URL}/api/ingest`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIngestResult(data.data);
+      } else {
+        setIngestError(data.message || "Échec de l'ingestion.");
+      }
+    } catch {
+      setIngestError("Impossible de contacter le serveur.");
+    } finally {
+      setIngestLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-6 py-10 flex flex-col gap-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Interface <span className="text-indigo-600">d'administration</span>
-        </h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">
+            Interface <span className="text-indigo-600">d'administration</span>
+          </h1>
+          <button
+            onClick={handleIngest}
+            disabled={ingestLoading}
+            className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors cursor-pointer"
+          >
+            <RefreshCw className={cn("w-4 h-4", ingestLoading && "animate-spin")} />
+            {ingestLoading ? "Ingestion en cours..." : "Ingérer offres WeLoveDevs"}
+          </button>
+        </div>
+
+        {ingestResult && (
+          <div className="bg-green-50 border border-green-200 rounded-xl px-5 py-3 text-sm text-green-700 flex gap-6">
+            <span><span className="font-semibold">{ingestResult.inserted}</span> insérées</span>
+            <span><span className="font-semibold">{ingestResult.skipped}</span> ignorées</span>
+            <span><span className="font-semibold">{ingestResult.errors}</span> erreurs</span>
+            <span><span className="font-semibold">{ingestResult.pagesFetched}</span> pages récupérées</span>
+          </div>
+        )}
+        {ingestError && (
+          <div className="bg-red-50 border border-red-200 rounded-xl px-5 py-3 text-sm text-red-600">
+            {ingestError}
+          </div>
+        )}
 
         <div className="grid grid-cols-4 gap-3">
           {stats.map((s) => (
