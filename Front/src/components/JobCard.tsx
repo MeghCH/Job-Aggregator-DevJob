@@ -17,6 +17,7 @@ type JobCardProps = {
   remote: string;
   jobSource?: string;
   initialSaved?: boolean;
+  onUnsave?: () => void;
 };
 
 export default function JobCard({
@@ -31,6 +32,7 @@ export default function JobCard({
   remote,
   jobSource = "wld",
   initialSaved = false,
+  onUnsave,
 }: JobCardProps) {
   const [saved, setSaved] = useState(initialSaved);
 
@@ -41,12 +43,20 @@ export default function JobCard({
     if (!id) return;
 
     const jobId = String(id);
-    if (saved) {
-      await unsaveJob(jobId);
-      setSaved(false);
-    } else {
-      await saveJob(jobId, jobSource);
-      setSaved(true);
+    const prev = saved;
+    setSaved(!prev);
+
+    try {
+      const res = prev ? await unsaveJob(jobId) : await saveJob(jobId, jobSource);
+      if (!res?.success) {
+        console.error("Save job failed:", res);
+        setSaved(prev);
+      } else if (prev && onUnsave) {
+        onUnsave();
+      }
+    } catch (err) {
+      console.error("Save job error:", err);
+      setSaved(prev);
     }
   }
 

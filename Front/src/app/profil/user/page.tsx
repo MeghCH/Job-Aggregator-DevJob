@@ -87,6 +87,7 @@ export default function ProfilPage() {
                 remote={job.remote_type ?? "—"}
                 jobSource={job.job_source}
                 initialSaved={true}
+                onUnsave={() => setSavedJobs((prev) => prev.filter((j) => j.job_id !== job.job_id))}
               />
             ))}
           </div>
