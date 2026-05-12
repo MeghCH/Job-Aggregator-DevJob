@@ -3,7 +3,7 @@ const pool = require('../config/db');
 const CandidatureController = {
     async getMyApplications(req, res) {
         try {
-            const userId = req.user.id;
+            const userId = req.user.userId;
 
             const [rows] = await pool.query(
                 `SELECT a.id, a.job_id, a.job_source, a.applied_at,
@@ -25,7 +25,7 @@ const CandidatureController = {
 
     async apply(req, res) {
         try {
-            const userId = req.user.id;
+            const userId = req.user.userId;
             const { job_id, job_source } = req.body;
 
             if (!job_id || !job_source) {

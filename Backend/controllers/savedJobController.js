@@ -3,7 +3,7 @@ const pool = require('../config/db');
 const SavedJobController = {
     async getSavedJobs(req, res) {
         try {
-            const userId = req.user.id;
+            const userId = req.user.userId;
 
             const [rows] = await pool.query(
                 `SELECT s.id, s.job_id, s.job_source, s.saved_at,
@@ -25,7 +25,7 @@ const SavedJobController = {
 
     async getSavedIds(req, res) {
         try {
-            const userId = req.user.id;
+            const userId = req.user.userId;
 
             const [rows] = await pool.query(
                 'SELECT job_id FROM saved_jobs WHERE user_id = ?',
@@ -41,7 +41,7 @@ const SavedJobController = {
 
     async saveJob(req, res) {
         try {
-            const userId = req.user.id;
+            const userId = req.user.userId;
             const { job_id, job_source } = req.body;
 
             if (!job_id || !job_source) {
@@ -65,7 +65,7 @@ const SavedJobController = {
 
     async unsaveJob(req, res) {
         try {
-            const userId = req.user.id;
+            const userId = req.user.userId;
             const { job_id } = req.params;
 
             await pool.query(
