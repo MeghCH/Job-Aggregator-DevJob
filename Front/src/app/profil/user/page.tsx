@@ -6,7 +6,7 @@ import Navbar from "@/components/NavBar";
 import ProfileHeader from "@/components/ProfileHeader";
 import JobCard from "@/components/JobCard";
 import LogoutButton from "@/components/LogoutButton";
-import { authApi } from "@/lib/api";
+import { authApi, getMyApplications } from "@/lib/api";
 
 type User = {
   name: string;
@@ -16,10 +16,6 @@ type User = {
   location: string | null;
 };
 
-const candidatures = [
-  { id: 1, title: "Dev full stack H/F", company: "Snapp", location: "Paris 9e", salary: "42 - 52 K", contractType: "CDI", tags: ["JS", "React", "Next JS"], postedAt: "Il y a 3h", remote: "Partiel remote" },
-  { id: 2, title: "Dev full stack H/F", company: "Snapp", location: "Paris 9e", salary: "42 - 52 K", contractType: "CDI", tags: ["JS", "React", "Next JS"], postedAt: "Il y a 3h", remote: "Partiel remote" },
-];
 
 const offresSauvegardees = [
   { id: 3, title: "Dev full stack H/F", company: "Snapp", location: "Paris 9e", salary: "42 - 52 K", contractType: "CDI", tags: ["JS", "React", "Next JS"], postedAt: "Il y a 3h", remote: "Partiel remote" },
@@ -28,6 +24,7 @@ const offresSauvegardees = [
 
 export default function ProfilPage() {
   const [user, setUser] = useState<User | null>(null);
+  const [candidatures, setCandidatures] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -35,6 +32,10 @@ export default function ProfilPage() {
       if (!res?.success) { router.replace("/connexion"); return; }
       setUser(res.data);
     }).catch(() => router.replace("/connexion"));
+
+    getMyApplications().then((res) => {
+      if (res?.success) setCandidatures(res.data);
+    });
   }, [router]);
 
   return (
