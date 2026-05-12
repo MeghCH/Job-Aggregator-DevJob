@@ -6,7 +6,7 @@ import Navbar from "@/components/NavBar";
 import ProfileHeader from "@/components/ProfileHeader";
 import JobCard from "@/components/JobCard";
 import LogoutButton from "@/components/LogoutButton";
-import { authApi, getMyApplications } from "@/lib/api";
+import { authApi, getMyApplications, getSavedJobs } from "@/lib/api";
 
 type User = {
   name: string;
@@ -17,14 +17,10 @@ type User = {
 };
 
 
-const offresSauvegardees = [
-  { id: 3, title: "Dev full stack H/F", company: "Snapp", location: "Paris 9e", salary: "42 - 52 K", contractType: "CDI", tags: ["JS", "React", "Next JS"], postedAt: "Il y a 3h", remote: "Partiel remote" },
-  { id: 4, title: "Dev full stack H/F", company: "Snapp", location: "Paris 9e", salary: "42 - 52 K", contractType: "CDI", tags: ["JS", "React", "Next JS"], postedAt: "Il y a 3h", remote: "Partiel remote" },
-];
-
 export default function ProfilPage() {
   const [user, setUser] = useState<User | null>(null);
   const [candidatures, setCandidatures] = useState<any[]>([]);
+  const [savedJobs, setSavedJobs] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -35,6 +31,10 @@ export default function ProfilPage() {
 
     getMyApplications().then((res) => {
       if (res?.success) setCandidatures(res.data);
+    });
+
+    getSavedJobs().then((res) => {
+      if (res?.success) setSavedJobs(res.data);
     });
   }, [router]);
 
@@ -73,8 +73,21 @@ export default function ProfilPage() {
             Offres sauvegardées
           </h2>
           <div className="flex flex-col gap-3">
-            {offresSauvegardees.map((job) => (
-              <JobCard key={job.id} {...job} />
+            {savedJobs.map((job) => (
+              <JobCard
+                key={job.job_id}
+                id={job.job_id}
+                title={job.title ?? "—"}
+                company={job.company_name ?? "—"}
+                location={job.remote_type ?? "—"}
+                salary={job.salary_min && job.salary_max ? `${job.salary_min} – ${job.salary_max} €` : "Non précisé"}
+                contractType={job.contract_type ?? "—"}
+                tags={job.skills ?? []}
+                postedAt={new Date(job.saved_at).toLocaleDateString("fr-FR")}
+                remote={job.remote_type ?? "—"}
+                jobSource={job.job_source}
+                initialSaved={true}
+              />
             ))}
           </div>
         </div>

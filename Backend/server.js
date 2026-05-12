@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const ingestionRoutes = require('./routes/ingestionRoutes');
 const candidatureRoutes = require('./routes/candidatureRoutes');
+const savedJobRoutes = require('./routes/savedJobRoutes');
 const pool = require('./config/db');
 
 const app = express();
@@ -66,6 +67,9 @@ app.use('/api/ingest', ingestionRoutes);
 
 // Candidature routes
 app.use('/api/applications', candidatureRoutes);
+
+// Saved jobs routes
+app.use('/api/saved', savedJobRoutes);
 
 // Error handler for 404
 app.use((req, res) => {

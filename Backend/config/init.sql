@@ -59,6 +59,16 @@ CREATE TABLE IF NOT EXISTS jobs_dj (
     FOREIGN KEY (company_id) REFERENCES companies_dj(id)
 );
 
+CREATE TABLE IF NOT EXISTS saved_jobs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    job_id VARCHAR(255) NOT NULL,
+    job_source ENUM('wld', 'dj') NOT NULL,
+    saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_saved (user_id, job_id)
+);
+
 CREATE TABLE IF NOT EXISTS applications (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
