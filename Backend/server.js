@@ -8,6 +8,7 @@ const swaggerSpecs = require('./config/swagger');
 const authRoutes = require('./routes/authRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const ingestionRoutes = require('./routes/ingestionRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const pool = require('./config/db');
 
 const app = express();
@@ -62,6 +63,8 @@ app.use('/api/jobs', jobRoutes);
 
 // Ingestion routes
 app.use('/api/ingest', ingestionRoutes);
+// Admin routes
+app.use('/api/admin', adminRoutes);
 
 // Error handler for 404
 app.use((req, res) => {

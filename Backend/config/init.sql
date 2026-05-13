@@ -35,8 +35,10 @@ CREATE TABLE IF NOT EXISTS users (
     location VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+DELETE FROM users WHERE email = 'admin@exemple.com';
+
 INSERT INTO users (firstname, name, email, password, role) 
-VALUES ('Admin', 'Système', 'admin@exemple.com', 'votre_password', 'admin');
+VALUES ('Admin', 'Système', 'admin@exemple.com', '$2a$12$R9hazbYrDqBfBYbWvVf6eOExw0rQWJmBw5p8XF0vJ.3P7ZpGvY1uq', 'admin');
 
 CREATE TABLE IF NOT EXISTS companies_dj (
     id VARCHAR(255) PRIMARY KEY,
