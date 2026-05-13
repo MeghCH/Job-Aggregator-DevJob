@@ -23,6 +23,32 @@ const CandidatureController = {
         }
     },
 
+    async getApplicationById(req, res) {
+        try {
+            const userId = req.user.userId;
+            const { id } = req.params;
+
+            const [rows] = await pool.query(
+                `SELECT a.id, a.job_id, a.job_source, a.applied_at,
+                        j.title, j.company_name, j.contract_type, j.remote_type,
+                        j.salary_min, j.salary_max, j.currency, j.skills
+                 FROM applications a
+                 LEFT JOIN unified_jobs j ON a.job_id = j.id
+                 WHERE a.id = ? AND a.user_id = ?`,
+                [id, userId]
+            );
+
+            if (rows.length === 0) {
+                return res.status(404).json({ success: false, message: 'Application not found' });
+            }
+
+            return res.status(200).json({ success: true, data: rows[0] });
+        } catch (error) {
+            console.error('Get application by id error:', error);
+            return res.status(500).json({ success: false, message: 'Error fetching application' });
+        }
+    },
+
     async apply(req, res) {
         try {
             const userId = req.user.userId;
