@@ -58,10 +58,10 @@ WeLoveDevs offers are ingested via their official API and stored in the local da
 
 ```mermaid
 flowchart LR
-    A[WeLoveDevs API] -->|Ingestion manuelle| B[(jobs_wld)]
-    C[Recruteur DevJobs] -->|POST /api/jobs| D[(jobs_dj)]
+    A[WeLoveDevs API] -->|Manual Ingestion| B[(jobs_wld)]
+    C[Recruiter DevJobs] -->|POST /api/jobs| D[(jobs_dj)]
     B & D --> E[unified_jobs]
-    E --> F[Feed offres utilisateur]
+    E --> F[Feed user offers]
 ```
 
 ### Decision 3: Application System
