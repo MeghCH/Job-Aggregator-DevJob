@@ -19,11 +19,13 @@ type Job = {
   id: string;
   title: string;
   company_id: string;
+  company_name: string;
   salary_min: number;
   salary_max: number;
   currency: string;
   contract_type: string;
   remote_type: string;
+  location: string | null;
   skills: string[] | null;
   experience_years: number;
   created_at: string;
@@ -85,7 +87,10 @@ export default function JobList({ activeFilter, activeSort, onSortChange, query,
 
     if (location.trim()) {
       const loc = location.toLowerCase();
-      result = result.filter((j) => j.remote_type?.toLowerCase().includes(loc));
+      result = result.filter((j) => {
+        const locationText = j.location ?? j.remote_type ?? "";
+        return locationText.toLowerCase().includes(loc);
+      });
     }
 
     if (activeSort === "Recent") {
@@ -136,8 +141,8 @@ export default function JobList({ activeFilter, activeSort, onSortChange, query,
               key={job.id}
               id={job.id}
               title={job.title}
-              company={job.company_id}
-              location={job.remote_type}
+              company={job.company_name ?? job.company_id}
+              location={job.location ?? job.remote_type}
               salary={job.salary_min && job.salary_max ? `${job.salary_min} – ${job.salary_max} €` : "Non précisé"}
               contractType={job.contract_type ?? "—"}
               tags={job.skills ?? []}

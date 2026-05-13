@@ -36,6 +36,7 @@ const MIGRATIONS = [
         contract_type VARCHAR(50),
         experience_years INT,
         remote_type VARCHAR(50),
+        location VARCHAR(255),
         created_at DATETIME,
         skills JSON,
         FOREIGN KEY (company_id) REFERENCES companies_wld(id)
@@ -76,23 +77,27 @@ const MIGRATIONS = [
         contract_type VARCHAR(50),
         experience_years INT,
         remote_type VARCHAR(50),
+        location VARCHAR(255),
         created_at DATETIME,
         skills JSON,
         FOREIGN KEY (company_id) REFERENCES companies_dj(id)
     )`,
 
+    `ALTER TABLE jobs_wld ADD COLUMN location VARCHAR(255)`,
+    `ALTER TABLE jobs_dj ADD COLUMN location VARCHAR(255)`,
+
     `CREATE OR REPLACE VIEW unified_jobs AS
      SELECT
          j.id, j.company_id, c.name AS company_name, c.sector AS company_sector,
          j.title, j.description, j.salary_min, j.salary_max, j.currency,
-         j.contract_type, j.experience_years, j.remote_type, j.skills, j.created_at,
+         j.contract_type, j.experience_years, j.remote_type, j.location, j.skills, j.created_at,
          'wld' AS source
      FROM jobs_wld j LEFT JOIN companies_wld c ON j.company_id = c.id
      UNION ALL
      SELECT
          j.id, j.company_id, c.name AS company_name, c.sector AS company_sector,
          j.title, j.description, j.salary_min, j.salary_max, j.currency,
-         j.contract_type, j.experience_years, j.remote_type, j.skills, j.created_at,
+         j.contract_type, j.experience_years, j.remote_type, j.location, j.skills, j.created_at,
          'dj' AS source
      FROM jobs_dj j LEFT JOIN companies_dj c ON j.company_id = c.id`,
 ];
@@ -107,6 +112,8 @@ async function ensureSchema() {
                 console.warn('[DB] View mismatch, dropping and recreating...');
                 await pool.query('DROP VIEW IF EXISTS unified_jobs');
                 await pool.query(sql);
+            } else if (err.code === 'ER_DUP_FIELDNAME') {
+                // Column already exists — migration already applied
             } else {
                 throw err;
             }
