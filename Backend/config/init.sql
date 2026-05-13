@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS jobs_wld (
     contract_type VARCHAR(50),
     experience_years INT,
     remote_type VARCHAR(50),
+    location VARCHAR(255),
     created_at TIMESTAMP,
     skills JSON, 
     FOREIGN KEY (company_id) REFERENCES companies_wld(id)
@@ -56,6 +57,7 @@ CREATE TABLE IF NOT EXISTS jobs_dj (
     contract_type VARCHAR(50),
     experience_years INT,
     remote_type VARCHAR(50),
+    location VARCHAR(255),
     created_at TIMESTAMP,
     skills JSON, 
     FOREIGN KEY (company_id) REFERENCES companies_dj(id)
@@ -97,6 +99,7 @@ SELECT
     j.contract_type,
     j.experience_years,
     j.remote_type,
+    j.location,
     j.skills,
     j.created_at,
     'wld' AS source
@@ -118,6 +121,7 @@ SELECT
     j.contract_type,
     j.experience_years,
     j.remote_type,
+    j.location,
     j.skills,
     j.created_at,
     'dj' AS source
