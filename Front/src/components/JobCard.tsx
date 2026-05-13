@@ -1,5 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
+import { saveJob, unsaveJob } from "@/lib/api";
 
 type JobCardProps = {
   id?: string | number;
@@ -11,6 +15,9 @@ type JobCardProps = {
   tags: string[];
   postedAt: string;
   remote: string;
+  jobSource?: string;
+  initialSaved?: boolean;
+  onUnsave?: () => void;
 };
 
 export default function JobCard({
@@ -23,7 +30,36 @@ export default function JobCard({
   tags,
   postedAt,
   remote,
+  jobSource = "wld",
+  initialSaved = false,
+  onUnsave,
 }: JobCardProps) {
+  const [saved, setSaved] = useState(initialSaved);
+
+  async function handleSave(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!id) return;
+
+    const jobId = String(id);
+    const prev = saved;
+    setSaved(!prev);
+
+    try {
+      const res = prev ? await unsaveJob(jobId) : await saveJob(jobId, jobSource);
+      if (!res?.success) {
+        console.error("Save job failed:", res);
+        setSaved(prev);
+      } else if (prev && onUnsave) {
+        onUnsave();
+      }
+    } catch (err) {
+      console.error("Save job error:", err);
+      setSaved(prev);
+    }
+  }
+
   return (
     <Link href={id ? `/offres/${encodeURIComponent(id)}` : "#"} className="flex items-start justify-between border border-indigo-100 bg-indigo-50/40 rounded-xl px-6 py-5 hover:border-indigo-300 transition-colors cursor-pointer">
       {/* Gauche */}
@@ -33,7 +69,6 @@ export default function JobCard({
           {company} · {location}
         </p>
 
-        {/* Tags */}
         <div className="flex gap-2 flex-wrap">
           {tags.map((tag) => (
             <span
@@ -58,9 +93,10 @@ export default function JobCard({
         </span>
         <button
           aria-label="Sauvegarder cette offre"
+          onClick={handleSave}
           className="p-2 border border-indigo-200 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition-colors"
         >
-          <Heart className="w-4 h-4 text-indigo-400" />
+          <Heart className={`w-4 h-4 ${saved ? "fill-indigo-500 text-indigo-500" : "text-indigo-400"}`} />
         </button>
       </div>
     </Link>

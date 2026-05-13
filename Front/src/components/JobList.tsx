@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import JobCard from "./JobCard";
-import { jobsApi as api } from "@/lib/api";
+import { jobsApi as api, getSavedJobIds } from "@/lib/api";
 
 const sorts = ["Recent", "Pertinent", "Salaire"];
 
@@ -39,18 +39,20 @@ type Props = {
 
 export default function JobList({ activeFilter, activeSort, onSortChange, query, location }: Props) {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [savedIds, setSavedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await api.getAll();
+        const [res, ids] = await Promise.all([api.getAll(), getSavedJobIds()]);
         if (res.success) {
           setJobs(res.data);
         } else {
           setError("Erreur lors du chargement des offres.");
         }
+        setSavedIds(ids);
       } catch {
         setError("Impossible de contacter le serveur.");
       } finally {
@@ -141,6 +143,8 @@ export default function JobList({ activeFilter, activeSort, onSortChange, query,
               tags={job.skills ?? []}
               postedAt={new Date(job.created_at).toLocaleDateString("fr-FR")}
               remote={job.remote_type}
+              jobSource={(job as any).source ?? "wld"}
+              initialSaved={savedIds.includes(job.id)}
             />
           ))
         )}

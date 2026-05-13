@@ -135,6 +135,7 @@ router.post(
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
+router.get('/recruiter', authenticateToken, authorizeRoles('recruiter', 'admin'), JobController.getRecruiter);
 router.get('/', JobController.getAll);
 
 module.exports = router;
