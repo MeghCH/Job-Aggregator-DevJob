@@ -1,16 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/NavBar";
 import CandidateCard from "@/components/CandidateCard";
 import JobCardCompany from "@/components/JobCardCompany";
 import LogoutButton from "@/components/LogoutButton";
 import { Mail, MapPin, Pencil, Check, X } from "lucide-react";
+import { authApi, jobsApi } from "@/lib/api";
 
-const offres = [
-  { id: 1, title: "Dev full stack H/F", company: "Poisson Barbu", location: "Strasbourg", salary: "42 – 52 K", contractType: "CDI", tags: ["JS", "React", "Next JS"], postedAt: "Il y a 3h", remote: "Partiel remote", publishedAt: "02/04/2026" },
-  { id: 2, title: "Dev full stack H/F", company: "Poisson Barbu", location: "Strasbourg", salary: "40 – 45 K", contractType: "CDD", tags: ["Next JS", "Express", "Node.js"], postedAt: "Il y a 3h", remote: "Partiel remote", publishedAt: "30/03/2026" },
-];
+type Job = {
+  id: string;
+  company_id: string;
+  title: string;
+  salary_min: number | null;
+  salary_max: number | null;
+  currency: string | null;
+  contract_type: string | null;
+  remote_type: string | null;
+  skills: string | null;
+  created_at: string;
+};
 
 const candidats = [
   { id: 1, name: "Lucka Martin", title: "Fullstack Développeur", experience: "5ans d'experience", tags: ["JS", "React", "Next JS"], availability: "Disponible dès maintenant", location: "Paris", appliedTo: "Dev full stack H/F", sentAt: "03/04/2026" },
@@ -19,8 +28,24 @@ const candidats = [
 
 export default function ProfilAdminPage() {
   const [editing, setEditing] = useState(false);
-  const [saved, setSaved] = useState({ company: "Poisson Barbu", email: "RhpoissonBarbu@gmail.com", location: "Strasbourg, France" });
+  const [saved, setSaved] = useState({ company: "", email: "", location: "" });
   const [form, setForm] = useState(saved);
+  const [offres, setOffres] = useState<Job[]>([]);
+
+  useEffect(() => {
+    authApi.me().then((res) => {
+      if (res?.success) {
+        const { company, email, location } = res.data;
+        const profile = { company: company || "", email: email || "", location: location || "" };
+        setSaved(profile);
+        setForm(profile);
+      }
+    });
+
+    jobsApi.getRecruiterJobs().then((res) => {
+      if (res?.success) setOffres(res.data);
+    });
+  }, []);
 
   const handleSave = () => { setSaved(form); setEditing(false); };
   const handleCancel = () => { setForm(saved); setEditing(false); };
@@ -106,9 +131,31 @@ export default function ProfilAdminPage() {
             Mes offres
           </h2>
           <div className="flex flex-col gap-3">
-            {offres.map((offre) => (
-              <JobCardCompany key={offre.id} {...offre} />
-            ))}
+            {offres.length === 0 && (
+              <p className="text-sm text-gray-400 text-center">Aucune offre publiée.</p>
+            )}
+            {offres.map((offre) => {
+              const skills = (() => {
+                try { return JSON.parse(offre.skills || "[]"); } catch { return []; }
+              })();
+              const salary = offre.salary_min || offre.salary_max
+                ? `${offre.salary_min ?? ""} – ${offre.salary_max ?? ""} ${offre.currency ?? "€"}`.trim()
+                : "";
+              return (
+                <JobCardCompany
+                  key={offre.id}
+                  title={offre.title}
+                  company={saved.company}
+                  location=""
+                  salary={salary}
+                  contractType={offre.contract_type || ""}
+                  tags={skills}
+                  postedAt={new Date(offre.created_at).toLocaleDateString("fr-FR")}
+                  remote={offre.remote_type || ""}
+                  publishedAt={new Date(offre.created_at).toLocaleDateString("fr-FR")}
+                />
+              );
+            })}
           </div>
         </div>
 
