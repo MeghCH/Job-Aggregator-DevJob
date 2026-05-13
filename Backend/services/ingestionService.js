@@ -87,6 +87,11 @@ function normalizeJob(raw) {
     const dateValue = raw.publishDate || raw.createdAt;
     const createdAt = toMySqlTimestamp(dateValue) || new Date().toISOString().slice(0, 19).replace('T', ' ');
 
+    // Location from formattedPlaces (first entry is usually the city/region)
+    const location = Array.isArray(raw.formattedPlaces) && raw.formattedPlaces.length > 0
+        ? raw.formattedPlaces[0].trim()
+        : null;
+
     return {
         id: raw.id?.toString() || raw.objectID?.toString() || `${Date.now()}_${Math.random().toString(36).slice(2)}`,
         company_id: companyId,
@@ -100,8 +105,10 @@ function normalizeJob(raw) {
         contract_type: contractType,
         experience_years: safeParseInt(details.requiredExperience),
         remote_type: remoteType,
+        location,
         skills: JSON.stringify(skills),
         created_at: createdAt,
+        isInvalid: !raw.title?.trim() || !company.companyName?.trim(),
     };
 }
 
@@ -138,8 +145,8 @@ async function insertJob(pool, job) {
         `INSERT IGNORE INTO jobs_wld (
             id, company_id, title, description,
             salary_min, salary_max, currency,
-            contract_type, experience_years, remote_type, skills, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            contract_type, experience_years, remote_type, location, skills, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             job.id,
             job.company_id,
@@ -151,6 +158,7 @@ async function insertJob(pool, job) {
             job.contract_type,
             job.experience_years,
             job.remote_type,
+            job.location,
             job.skills,
             job.created_at,
         ],
