@@ -16,3 +16,10 @@ async def analyze(data: JobData):
     
     output = llm(prompt, max_tokens=50)
     return {"analysis": output["choices"][0]["text"]}
+
+@app.post("/summarize")
+async def summarize(data: JobData):
+    prompt = f"<|im_start|>user\nRésume cette offre d'emploi en une seule phrase courte et percutante : {data.description[:800]}<|im_end|>\n<|im_start|>assistant\nRésumé :"
+    
+    output = llm(prompt, max_tokens=60, stop=["<|im_end|>"])
+    return {"summary": output["choices"][0]["text"].strip()}
