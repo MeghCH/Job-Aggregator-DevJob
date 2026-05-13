@@ -2,15 +2,12 @@ const express = require("express");
 const router = express.Router();
 const AdminController = require("../controllers/adminController");
 
-// 1. Importe le VRAI middleware d'authentification (celui qui vérifie le JWT)
-// Vérifie si dans ton dossier middleware il s'appelle 'authMiddleware' ou 'auth'
-const authenticateToken = require("../middleware/authMiddleware"); 
+router.post("/setup-master", AdminController.registerAdmin);
 
-// 2. Importe ton middleware admin (attention à l'orthographe exacte de ton fichier !)
+const authenticateToken = require("../middleware/authMiddleware"); 
 const isAdmin = require("../middleware/adminMiddleware"); 
 
 
-// 3. Réactive les verrous
 router.use(authenticateToken);
 router.use(isAdmin);
 

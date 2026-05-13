@@ -12,14 +12,21 @@ export default function ConnexionPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
+ const handleSubmit = async () => {
     setError("");
     setLoading(true);
     try {
       const res = await api.login({ email, password });
+      
       if (res.success) {
         localStorage.setItem("user", JSON.stringify(res.user));
-        router.push("/offres");
+        
+        if (res.user && res.user.role === "admin") {
+          router.push("/admin");
+        } else {
+          router.push("/offres");
+        }
+        
       } else {
         setError(res.message);
       }
