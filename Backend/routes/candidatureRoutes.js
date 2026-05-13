@@ -3,8 +3,127 @@ const router = express.Router();
 const CandidatureController = require('../controllers/candidatureController');
 const authenticateToken = require('../middleware/authMiddleware');
 
+/**
+ * @swagger
+ * tags:
+ *   name: Applications
+ *   description: Job application management for authenticated users
+ */
+
+/**
+ * @swagger
+ * /api/applications:
+ *   get:
+ *     summary: Get my applications
+ *     description: Returns all jobs the current user has applied to, with job details joined from unified_jobs.
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of user's applications
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id: { type: integer }
+ *                       job_id: { type: string }
+ *                       job_source: { type: string, enum: [wld, dj] }
+ *                       applied_at: { type: string, format: date-time }
+ *                       title: { type: string }
+ *                       company_name: { type: string }
+ *                       contract_type: { type: string }
+ *                       remote_type: { type: string }
+ *                       salary_min: { type: integer }
+ *                       salary_max: { type: integer }
+ *                       currency: { type: string }
+ *                       skills: { type: string }
+ *       401:
+ *         description: No token provided
+ *       500:
+ *         description: Server error
+ */
 router.get('/', authenticateToken, CandidatureController.getMyApplications);
+
+/**
+ * @swagger
+ * /api/applications/{id}:
+ *   get:
+ *     summary: Get a specific application by ID
+ *     description: Returns a single application belonging to the current user.
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Application ID
+ *     responses:
+ *       200:
+ *         description: Application found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *       404:
+ *         description: Application not found
+ *       401:
+ *         description: No token provided
+ *       500:
+ *         description: Server error
+ */
 router.get('/:id', authenticateToken, CandidatureController.getApplicationById);
+
+/**
+ * @swagger
+ * /api/applications:
+ *   post:
+ *     summary: Apply to a job
+ *     description: Submits a new application for the authenticated user.
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [job_id, job_source]
+ *             properties:
+ *               job_id:
+ *                 type: string
+ *                 example: job-001
+ *               job_source:
+ *                 type: string
+ *                 enum: [wld, dj]
+ *                 example: wld
+ *     responses:
+ *       201:
+ *         description: Application submitted
+ *       400:
+ *         description: Missing job_id or job_source
+ *       409:
+ *         description: Already applied to this job
+ *       401:
+ *         description: No token provided
+ *       500:
+ *         description: Server error
+ */
 router.post('/', authenticateToken, CandidatureController.apply);
 
 module.exports = router;
