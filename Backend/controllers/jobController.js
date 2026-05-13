@@ -22,6 +22,7 @@ const JobController = {
                 currency,
                 experience_years,
                 remote_type,
+                location,
                 skills
             } = req.body;
 
@@ -51,8 +52,8 @@ const JobController = {
                 `INSERT INTO jobs_dj (
                     id, company_id, title, description,
                     salary_min, salary_max, currency,
-                    experience_years, remote_type, skills, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+                    experience_years, remote_type, location, skills, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
                 [
                     id,
                     company_id,
@@ -63,6 +64,7 @@ const JobController = {
                     currency || null,
                     experience_years || null,
                     remote_type || null,
+                    location || null,
                     skills ? JSON.stringify(skills) : null
                 ]
             );
@@ -118,7 +120,60 @@ const JobController = {
                 message: 'Error fetching job offers'
             });
         }
-    }
+    },
+
+    /**
+     * @route DELETE /api/jobs/clean-unknown
+     * @desc Delete job offers with unknown company or blank title (admin only)
+     * @access Private (Admin)
+     */
+    async cleanUnknown(req, res) {
+        try {
+            const [rows] = await pool.query(`
+                SELECT COUNT(*) as badCount
+                FROM jobs_wld j
+                JOIN companies_wld c ON j.company_id = c.id
+                WHERE c.name = 'Inconnue' OR j.title = 'Sans titre'
+            `);
+            const badCount = rows[0]?.badCount || 0;
+
+            if (badCount === 0) {
+                return res.status(200).json({
+                    success: true,
+                    message: 'No unknown or untitled jobs found.',
+                    deleted: 0
+                });
+            }
+
+            const [result] = await pool.query(`
+                DELETE j FROM jobs_wld j
+                JOIN companies_wld c ON j.company_id = c.id
+                WHERE c.name = 'Inconnue' OR j.title = 'Sans titre'
+            `);
+
+            const deleted = result.affectedRows || 0;
+
+            const [orphanResult] = await pool.query(`
+                DELETE c FROM companies_wld c
+                LEFT JOIN jobs_wld j ON j.company_id = c.id
+                WHERE j.id IS NULL
+            `);
+            const orphanDeleted = orphanResult.affectedRows || 0;
+
+            return res.status(200).json({
+                success: true,
+                message: `${deleted} unknown/untitled job(s) removed. ${orphanDeleted} orphaned company(ies) cleaned.`,
+                deleted,
+                orphanCompaniesDeleted: orphanDeleted
+            });
+        } catch (error) {
+            console.error('Clean unknown jobs error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Error cleaning unknown job offers'
+            });
+        }
+    },
 };
 
 module.exports = JobController;

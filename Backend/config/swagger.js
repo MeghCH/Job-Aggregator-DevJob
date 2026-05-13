@@ -46,6 +46,7 @@ const options = {
                         currency: { type: 'string', example: 'EUR' },
                         experience_years: { type: 'integer', example: 5 },
                         remote_type: { type: 'string', example: 'hybrid' },
+                        location: { type: 'string', example: 'Paris, France' },
                         skills: { type: 'string', example: '["JavaScript","React"]' },
                         created_at: { type: 'string', format: 'date-time' },
                     },
