@@ -163,7 +163,7 @@ const AuthController = {
     async me(req, res) {
         try {
             const [users] = await pool.query(
-                'SELECT id, name, firstname, email, role, skills, location, created_at FROM users WHERE id = ?',
+                'SELECT id, name, firstname, email, role, company, siret, skills, location, created_at FROM users WHERE id = ?',
                 [req.user.userId]
             );
 

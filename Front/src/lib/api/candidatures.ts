@@ -6,3 +6,10 @@ export async function getMyApplications() {
   });
   return res.json();
 }
+
+export async function getApplicationById(id: string) {
+  const res = await fetch(`${API_URL}/api/applications/${id}`, {
+    credentials: "include",
+  });
+  return res.json();
+}

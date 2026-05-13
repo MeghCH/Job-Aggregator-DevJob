@@ -1,6 +1,13 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 export const api = {
+  async getRecruiterJobs() {
+    const res = await fetch(`${API_URL}/api/jobs/recruiter`, {
+      credentials: "include",
+    });
+    return res.json();
+  },
+
   async getAll() {
     const res = await fetch(`${API_URL}/api/jobs`);
     return res.json();

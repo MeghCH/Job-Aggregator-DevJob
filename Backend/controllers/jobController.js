@@ -98,11 +98,39 @@ const JobController = {
         }
     },
 
-    /**
-     * @route GET /api/jobs
-     * @desc Get all job offers (unified view: WLD + DJ)
-     * @access Public
-     */
+    async getRecruiter(req, res) {
+        try {
+            const { userId, role } = req.user;
+
+            if (role === 'admin') {
+                const [jobs] = await pool.query('SELECT * FROM jobs_dj ORDER BY created_at DESC');
+                return res.status(200).json({ success: true, count: jobs.length, data: jobs });
+            }
+
+            const [users] = await pool.query(
+                'SELECT company FROM users WHERE id = ?',
+                [userId]
+            );
+
+            if (users.length === 0 || !users[0].company) {
+                return res.status(404).json({ success: false, message: 'No company linked to this account' });
+            }
+
+            const [jobs] = await pool.query(
+                `SELECT j.* FROM jobs_dj j
+                 JOIN companies_dj c ON j.company_id = c.id
+                 WHERE c.name = ?
+                 ORDER BY j.created_at DESC`,
+                [users[0].company]
+            );
+
+            return res.status(200).json({ success: true, count: jobs.length, data: jobs });
+        } catch (error) {
+            console.error('Get recruiter jobs error:', error);
+            return res.status(500).json({ success: false, message: 'Error fetching your jobs' });
+        }
+    },
+
     async getAll(req, res) {
         try {
             const [jobs] = await pool.query('SELECT * FROM unified_jobs ORDER BY created_at DESC');

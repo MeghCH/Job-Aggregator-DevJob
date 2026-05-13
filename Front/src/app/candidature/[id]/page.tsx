@@ -1,93 +1,112 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import Navbar from "@/components/NavBar";
 import CandidateCard from "@/components/CandidateCard";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Briefcase, MapPin, Euro } from "lucide-react";
+import { getApplicationById } from "@/lib/api/candidatures";
+
+type Application = {
+  id: number;
+  job_id: string;
+  job_source: string;
+  applied_at: string;
+  title: string;
+  company_name: string;
+  contract_type: string;
+  remote_type: string;
+  salary_min: number | null;
+  salary_max: number | null;
+  currency: string | null;
+  skills: string | null;
+};
 
 export default function CandidatureDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const [application, setApplication] = useState<Application | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getApplicationById(id)
+      .then((res) => {
+        if (res.success) {
+          setApplication(res.data);
+        } else {
+          setError(res.message || "Candidature introuvable");
+        }
+      })
+      .catch(() => setError("Erreur lors du chargement"))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  const formatDate = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString("fr-FR");
+
+  const parsedSkills = (): string[] => {
+    if (!application?.skills) return [];
+    try {
+      return JSON.parse(application.skills);
+    } catch {
+      return application.skills.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+  };
+
+  const formatSalary = () => {
+    if (!application?.salary_min && !application?.salary_max) return null;
+    const currency = application?.currency || "€";
+    if (application?.salary_min && application?.salary_max)
+      return `${application.salary_min} – ${application.salary_max} ${currency}`;
+    return `${application?.salary_min || application?.salary_max} ${currency}`;
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
 
       <div className="max-w-2xl mx-auto px-6 py-10 flex flex-col gap-6">
-        <div className="border border-indigo-200 rounded-xl p-6 flex flex-col gap-6">
-          <CandidateCard
-            name="Lucka Martin"
-            title="Fullstack Développeur"
-            experience="5ans d'experience"
-            tags={["JS", "React", "Next JS"]}
-            availability="Disponible dès maintenant"
-            location="Paris"
-            appliedTo="Dev full stack H/F"
-            sentAt="03/04/2026"
-          />
+        {loading && (
+          <p className="text-center text-gray-400 text-sm">Chargement...</p>
+        )}
 
-          <div className="grid grid-cols-2 gap-6">
-            <div className="flex flex-col gap-2">
-              <h3 className="text-sm font-semibold text-indigo-600">CV</h3>
-              <input
-                type="text"
-                readOnly
-                aria-label="Lien vers le CV"
-                value="http://www.example.com/myfile.pdf"
-                className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500 bg-white outline-none w-full"
-              />
-            </div>
+        {error && (
+          <p className="text-center text-red-500 text-sm">{error}</p>
+        )}
 
-            <div className="flex flex-col gap-3 justify-center">
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Mail className="w-4 h-4 text-indigo-400 shrink-0" />
-                Clarademoy@gmail.com
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Phone className="w-4 h-4 text-indigo-400 shrink-0" />
-                07 89 21 23 14
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <MapPin className="w-4 h-4 text-indigo-400 shrink-0" />
-                Strasbourg, France
-              </div>
-            </div>
-          </div>
+        {application && (
+          <div className="border border-indigo-200 rounded-xl p-6 flex flex-col gap-6">
+            <CandidateCard
+              name={application.company_name || "Entreprise inconnue"}
+              title={application.title || "Poste non renseigné"}
+              experience={application.contract_type || ""}
+              tags={parsedSkills()}
+              availability={application.remote_type || ""}
+              location=""
+              appliedTo={application.job_source}
+              sentAt={formatDate(application.applied_at)}
+            />
 
-          <div className="flex flex-col gap-3">
-            <h3 className="text-sm font-semibold text-indigo-600">
-              Lettre de motivation
-            </h3>
-            <div className="border border-gray-200 rounded-xl p-5 text-sm text-gray-700 leading-relaxed flex flex-col gap-4">
-              <p>
-                Post hoc impie perpetratum quod in aliis quoque iam timebatur,
-                tamquam licentia crudelitati indulta per suspicionum nebulas
-                aestimati quidam noxii damnabantur. quorum pars necati, alii
-                puniti bonorum multatione actique laribus suis extorres nullo
-                sibi relicto praeter querelas et lacrimas, stipe conlaticia
-                victitabant, et civili iustoque imperio ad voluntatem converso
-                cruentam, claudebantur opulentae domus et clarae.
-              </p>
-              <p>
-                Post hoc impie perpetratum quod in aliis quoque iam timebatur,
-                tamquam licentia crudelitati indulta per suspicionum nebulas
-                aestimati quidam noxii damnabantur. quorum pars necati, alii
-                puniti bonorum multatione actique laribus suis extorres nullo
-                sibi relicto praeter querelas et lacrimas, stipe conlaticia
-                victitabant, et civili iustoque imperio ad voluntatem converso
-                cruentam, claudebantur opulentae domus et clarae.
-              </p>
-              <p>
-                Novo denique perniciosoque exemplo idem Gallus ausus est inire
-                flagitium grave, quod Romae cum ultimo dedecore temptasse
-                aliquando dicitur Gallienus, et adhibitis paucis clam ferro
-                succinctis vesperi per tabernas palabatur et conpita quaeritando
-                Graeco sermone, cuius erat inpendio gnarus, quid de Caesare
-                quisque sentiret.
-              </p>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="flex flex-col gap-3 justify-center">
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Briefcase className="w-4 h-4 text-indigo-400 shrink-0" />
+                  {application.contract_type || "Contrat non renseigné"}
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <MapPin className="w-4 h-4 text-indigo-400 shrink-0" />
+                  {application.remote_type || "Lieu non renseigné"}
+                </div>
+                {formatSalary() && (
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <Euro className="w-4 h-4 text-indigo-400 shrink-0" />
+                    {formatSalary()}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="flex justify-center">
-          <button className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-12 py-3 rounded-lg transition-colors">
-            Ne convient pas
-          </button>
-        </div>
+        )}
       </div>
     </div>
   );
