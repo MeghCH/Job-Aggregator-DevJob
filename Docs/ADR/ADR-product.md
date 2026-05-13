@@ -1,67 +1,60 @@
-# ADR-PRODUCT — Décisions produit de la plateforme DevJobs
+# ADR-PRODUCT: DevJobs Platform Product Decisions
 
-**Date :** 13/05/2026
-**Statut :** Accepté
+**Date:** 05/13/2026
+**Status:** Accepted
 
 ---
 
-## Contexte
+## Context
 
-Le projet consiste à construire un job board centré sur les développeurs,
-en agrégeant des offres externes (WeLoveDevs) et en permettant aux
-recruteurs de publier leurs propres offres. La plateforme doit adresser
-deux types d'utilisateurs aux besoins très différents : les développeurs
-juniors en recherche d'emploi, et les recruteurs cherchant à toucher
-ce public.
+The project involves building a developer-centric job board by aggregating external offers (WeLoveDevs) and allowing recruiters to post their own listings. The platform must address two types of users with very different needs: junior developers looking for work, and recruiters seeking to reach this audience.
 
-Les plateformes existantes (LinkedIn, Indeed) sont généralistes et
-inadaptées aux développeurs juniors : interfaces complexes, offres
-"junior" exigeant 2+ ans d'expérience, processus de candidature lourd.
+Existing platforms (LinkedIn, Indeed) are generalist and ill-suited for junior developers: complex interfaces, "junior" offers requiring 2+ years of experience, and heavy application processes.
 
 ---
 
 ## Why
 
-### Utilisateurs cibles
+### Target Users
 
-**Lucas** — Développeur junior (21 ans, fin de formation)
-- Perdu sur les plateformes généralistes
-- Veut des offres honnêtes et adaptées à son niveau
-- Cherche un processus de candidature simple et rapide
+**Lucas** - Junior Developer (21 years old, finishing training)
 
-**Sarah** — Fondatrice de startup (34 ans)
-- Pas de département RH dédié
-- Veut toucher des profils tech motivés
-- Cherche à publier des offres rapidement et à suivre les candidatures
+- Lost on generalist platforms
+- Wants honest offers tailored to his level
+- Seeks a simple and fast application process
 
-Sans un espace dédié à chaque rôle, la plateforme ne peut pas répondre
-efficacement aux besoins de ces deux personas aux attentes opposées.
+**Sarah** - Startup Founder (34 years old)
+
+- No dedicated HR department
+- Wants to reach motivated tech profiles
+- Seeks to post offers quickly and track applications
+
+Without a dedicated space for each role, the platform cannot effectively meet the needs of these two personas with opposing expectations.
 
 ---
 
 ## How
 
-### Décision 1 — Deux espaces distincts
+### Decision 1: Two Distinct Spaces
 
-La plateforme est divisée en deux expériences séparées selon le rôle :
+The platform is divided into two separate experiences based on the user role:
 
-**Espace chercheur d'emploi (Lucas)**
-- Feed d'offres agrégées (WeLoveDevs + offres DevJobs)
-- Sauvegarde d'offres pour les consulter plus tard
-- Candidature en un clic depuis la fiche offre
-- Tableau de bord des candidatures avec suivi
+**Job Seeker Space (Lucas)**
 
-**Espace recruteur (Sarah)**
-- Publication d'offres d'emploi directement sur la plateforme
-- Tableau de bord des offres publiées par l'entreprise
-- Consultation des candidatures reçues par offre
+- Aggregated job feed (WeLoveDevs + DevJobs offers)
+- Save offers to view later
+- One-click application from the job detail page
+- Application dashboard with tracking
 
-### Décision 2 — Agrégation d'offres WeLoveDevs
+**Recruiter Space (Sarah)**
 
-Les offres WeLoveDevs sont ingérées via leur API officielle et stockées
-dans la base de données locale (`jobs_wld`). Les offres publiées
-directement par les recruteurs sont stockées dans `jobs_dj`.
-Une vue unifiée (`unified_jobs`) expose les deux sources au front.
+- Post job offers directly on the platform
+- Dashboard for jobs posted by the company
+- Consultation of applications received per offer
+
+### Decision 2: WeLoveDevs Job Aggregation
+
+WeLoveDevs offers are ingested via their official API and stored in the local database (`jobs_wld`). Offers posted directly by recruiters are stored in `jobs_dj`. A unified view (`unified_jobs`) exposes both sources to the frontend.
 
 ```mermaid
 flowchart LR
@@ -71,66 +64,56 @@ flowchart LR
     E --> F[Feed offres utilisateur]
 ```
 
-### Décision 3 — Système de candidature
+### Decision 3: Application System
 
-Un utilisateur peut postuler à n'importe quelle offre (WeLoveDevs ou
-DevJobs) depuis la fiche offre. La candidature est enregistrée dans
-la table `applications` avec la source (`wld` ou `dj`) pour permettre
-le suivi différencié.
+A user can apply to any offer (WeLoveDevs or DevJobs) from the job listing. The application is recorded in the `applications` table with the source (`wld` or `dj`) to allow differentiated tracking.
 
-Routes :
-- `POST /api/applications` — postuler
-- `GET /api/applications` — liste de mes candidatures
-- `GET /api/applications/:id` — détail d'une candidature
+**Routes:**
 
-### Décision 4 — Sauvegarde d'offres
+- `POST /api/applications` - apply
+- `GET /api/applications` - list of my applications
+- `GET /api/applications/:id` - application details
 
-Les utilisateurs peuvent sauvegarder des offres pour les consulter
-plus tard, sans postuler immédiatement. Ce système réduit la friction
-du parcours utilisateur en séparant la phase de découverte de la phase
-de candidature.
+### Decision 4: Saving Jobs
 
-Routes :
-- `POST /api/saved-jobs` — sauvegarder une offre
-- `DELETE /api/saved-jobs/:id` — retirer une offre sauvegardée
-- `GET /api/saved-jobs` — liste des offres sauvegardées
+Users can save offers to view them later without applying immediately. This system reduces friction in the user journey by separating the discovery phase from the application phase.
+
+**Routes:**
+
+- `POST /api/saved-jobs` - save a job
+- `DELETE /api/saved-jobs/:id` - remove a saved job
+- `GET /api/saved-jobs` - list of saved jobs
 
 ---
 
-## Trade-off
+## Trade-offs
 
-| Décision | Avantage | Inconvénient |
-|----------|----------|--------------|
-| Deux espaces distincts | Expérience adaptée à chaque rôle | Plus de pages à développer et maintenir |
-| Agrégation WeLoveDevs | Contenu immédiat sans effort de publication | Dépendance à une API externe, données en lecture seule |
-| Candidature en base | Suivi côté recruteur possible | Nécessite une authentification, pas de candidature anonyme |
-| Sauvegarde d'offres | Réduit la friction de candidature | Données supplémentaires à stocker par utilisateur |
-
----
-
-## Alternative rejetée
-
-### Plateforme généraliste (tous secteurs)
-
-**Pourquoi rejeté :** Les plateformes généralistes (Indeed, LinkedIn)
-souffrent d'un excès d'offres non pertinentes pour les développeurs.
-Se spécialiser sur les profils tech permet de mieux cibler les offres
-et de construire une communauté cohérente.
-
-### Candidature par email uniquement
-
-**Pourquoi rejeté :** Un système de candidature par email ne permet
-pas de suivi centralisé, ni de tableau de bord pour le recruteur.
-La valeur produit repose sur la capacité à suivre et gérer les
-candidatures depuis la plateforme.
+| Decision               | Advantage                                | Disadvantage                                       |
+| :--------------------- | :--------------------------------------- | :------------------------------------------------- |
+| Two distinct spaces    | Experience tailored to each role         | More pages to develop and maintain                 |
+| WeLoveDevs aggregation | Immediate content without posting effort | Dependency on an external API, read-only data      |
+| Database applications  | Recruiter-side tracking possible         | Requires authentication, no anonymous applications |
+| Job saving             | Reduces application friction             | Additional data to store per user                  |
 
 ---
 
-## Références
+## Rejected Alternatives
 
-- Personas : `Docs/persona.md`
-- Analyse concurrentielle : `Docs/recruitment-space.md`
-- Schéma base de données : `Docs/init.md`
-- Routes candidatures : `Backend/routes/candidatureRoutes.js`
-- Routes offres : `Backend/routes/jobRoutes.js`
-- Routes sauvegarde : `Backend/routes/savedJobRoutes.js`
+### Generalist Platform (All Sectors)
+
+**Why rejected:** Generalist platforms (Indeed, LinkedIn) suffer from an excess of irrelevant offers for developers. Specializing in tech profiles allows for better job targeting and builds a consistent community.
+
+### Application via Email Only
+
+**Why rejected:** An email-only application system does not allow for centralized tracking or a dashboard for the recruiter. The product value lies in the ability to track and manage applications directly from the platform.
+
+---
+
+## References
+
+- Personas: `Docs/persona.md`
+- Competitive Analysis: `Docs/recruitment-space.md`
+- Database Schema: `Docs/init.md`
+- Application Routes: `Backend/routes/candidatureRoutes.js`
+- Job Routes: `Backend/routes/jobRoutes.js`
+- Saving Routes: `Backend/routes/savedJobRoutes.js`
