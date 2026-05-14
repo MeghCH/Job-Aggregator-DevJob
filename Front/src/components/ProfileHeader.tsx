@@ -46,13 +46,20 @@ export default function ProfileHeader({ name, firstname, email, skills: initialS
     setEditing(false);
   };
 
-  const handleAdd = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleAdd = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
-    if (value && !skills.includes(value)) setSkills((prev) => [...prev, value]);
+    if (!value || skills.includes(value)) return;
+    const newSkills = [...skills, value];
+    setSkills(newSkills);
     e.target.value = "";
+    await authApi.updateMe({ skills: newSkills }).catch(() => {});
   };
 
-  const handleRemove = (skill: string) => setSkills((prev) => prev.filter((s) => s !== skill));
+  const handleRemove = async (skill: string) => {
+    const newSkills = skills.filter((s) => s !== skill);
+    setSkills(newSkills);
+    await authApi.updateMe({ skills: newSkills }).catch(() => {});
+  };
 
   return (
     <div className="flex flex-col items-center gap-6 py-8">
@@ -61,7 +68,7 @@ export default function ProfileHeader({ name, firstname, email, skills: initialS
         <span className="text-indigo-500">{saved.name}</span>
       </h1>
 
-      <div className="flex gap-16 w-full justify-center">
+      <div className="flex flex-col sm:flex-row gap-8 sm:gap-16 w-full justify-center items-center sm:items-start px-2 sm:px-0">
         {/* Informations */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-4">
@@ -144,7 +151,7 @@ export default function ProfileHeader({ name, firstname, email, skills: initialS
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
-          <div className="flex flex-wrap gap-2 max-w-65">
+          <div className="flex flex-wrap gap-2 max-w-xs sm:max-w-65">
             {skills.map((skill) => (
               <span key={skill} className="flex items-center gap-1.5 text-sm text-indigo-600 font-medium bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-1.5">
                 {skill}
@@ -157,7 +164,7 @@ export default function ProfileHeader({ name, firstname, email, skills: initialS
         </div>
       </div>
 
-      <button className="bg-green-200 hover:bg-green-300 text-gray-700 text-sm font-medium px-10 py-2.5 rounded-full transition-colors">
+      <button className="bg-green-200 hover:bg-green-300 text-gray-700 text-sm font-medium px-8 sm:px-10 py-2.5 rounded-full transition-colors w-full sm:w-auto text-center">
         Ouvert aux opportunités
       </button>
     </div>
