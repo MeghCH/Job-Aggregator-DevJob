@@ -14,7 +14,7 @@ export default function CandidaturePage() {
             <span className="text-indigo-600">la candidature.</span>
           </h1>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label
                 htmlFor="prenom"
@@ -43,7 +43,7 @@ export default function CandidaturePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label
                 htmlFor="sexe"
@@ -72,7 +72,7 @@ export default function CandidaturePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label
                 htmlFor="téléphone"
@@ -124,7 +124,7 @@ export default function CandidaturePage() {
             Documents de <span className="text-indigo-600">candidature.</span>
           </h2>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <button className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-8 py-3 rounded-lg transition-colors">
               CV
             </button>

@@ -6,7 +6,9 @@ import CandidateCard from "@/components/CandidateCard";
 import JobCardCompany from "@/components/JobCardCompany";
 import LogoutButton from "@/components/LogoutButton";
 import { Mail, MapPin, Pencil, Check, X } from "lucide-react";
+import Link from "next/link";
 import { authApi, jobsApi } from "@/lib/api";
+import { getApplicationsByJob } from "@/lib/api/candidatures";
 
 type Job = {
   id: string;
@@ -21,16 +23,25 @@ type Job = {
   created_at: string;
 };
 
-const candidats = [
-  { id: 1, name: "Lucka Martin", title: "Fullstack Développeur", experience: "5ans d'experience", tags: ["JS", "React", "Next JS"], availability: "Disponible dès maintenant", location: "Paris", appliedTo: "Dev full stack H/F", sentAt: "03/04/2026" },
-  { id: 2, name: "Sarah Florence", title: "Fullstack Développeur", experience: "7ans d'experience", tags: ["Next.js", "Express", "Node.js"], availability: "Disponible dès maintenant", location: "Lyon", appliedTo: "Dev full stack H/F", sentAt: "01/04/2026" },
-];
+type Candidat = {
+  id: number;
+  job_id: string;
+  job_source: string;
+  applied_at: string;
+  user_id: number;
+  firstname: string;
+  name: string;
+  candidate_skills: string | null;
+  location: string | null;
+  jobTitle: string;
+};
 
 export default function ProfilAdminPage() {
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState({ company: "", email: "", location: "" });
   const [form, setForm] = useState(saved);
   const [offres, setOffres] = useState<Job[]>([]);
+  const [candidats, setCandidats] = useState<Candidat[]>([]);
 
   useEffect(() => {
     authApi.me().then((res) => {
@@ -46,6 +57,17 @@ export default function ProfilAdminPage() {
       if (res?.success) setOffres(res.data);
     });
   }, []);
+
+  useEffect(() => {
+    if (offres.length === 0) return;
+    Promise.all(
+      offres.map((offre) =>
+        getApplicationsByJob(offre.id).then((res) =>
+          res.success ? res.data.map((c: Candidat) => ({ ...c, jobTitle: offre.title })) : []
+        )
+      )
+    ).then((results) => setCandidats(results.flat()));
+  }, [offres]);
 
   const handleSave = () => { setSaved(form); setEditing(false); };
   const handleCancel = () => { setForm(saved); setEditing(false); };
@@ -166,9 +188,28 @@ export default function ProfilAdminPage() {
             Candidats
           </h2>
           <div className="flex flex-col gap-3">
-            {candidats.map((candidat) => (
-              <CandidateCard key={candidat.id} {...candidat} />
-            ))}
+            {candidats.length === 0 && (
+              <p className="text-sm text-gray-400 text-center">Aucune candidature reçue.</p>
+            )}
+            {candidats.map((candidat) => {
+              const tags = (() => {
+                try { return JSON.parse(candidat.candidate_skills || "[]"); } catch { return []; }
+              })();
+              return (
+                <Link key={candidat.id} href={`/candidature/${candidat.id}`}>
+                  <CandidateCard
+                    name={`${candidat.firstname} ${candidat.name}`}
+                    title={candidat.jobTitle}
+                    experience=""
+                    tags={tags}
+                    availability=""
+                    location={candidat.location || ""}
+                    appliedTo={candidat.job_source}
+                    sentAt={new Date(candidat.applied_at).toLocaleDateString("fr-FR")}
+                  />
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>

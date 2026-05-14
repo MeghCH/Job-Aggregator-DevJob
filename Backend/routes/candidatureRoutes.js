@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const CandidatureController = require('../controllers/candidatureController');
 const authenticateToken = require('../middleware/authMiddleware');
+const authorizeRoles = require('../middleware/roleMiddleware');
 
 /**
  * @swagger
@@ -86,6 +87,33 @@ router.get('/', authenticateToken, CandidatureController.getMyApplications);
  *       500:
  *         description: Server error
  */
+/**
+ * @swagger
+ * /api/applications/job/{jobId}:
+ *   get:
+ *     summary: Get all applications for a specific job (recruiter only)
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: jobId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Job ID
+ *     responses:
+ *       200:
+ *         description: List of candidates who applied to this job
+ *       403:
+ *         description: Job does not belong to your company
+ *       401:
+ *         description: No token provided
+ *       500:
+ *         description: Server error
+ */
+router.get('/job/:jobId', authenticateToken, authorizeRoles('recruiter', 'admin'), CandidatureController.getApplicationsByJob);
+
 router.get('/:id', authenticateToken, CandidatureController.getApplicationById);
 
 /**
@@ -125,5 +153,47 @@ router.get('/:id', authenticateToken, CandidatureController.getApplicationById);
  *         description: Server error
  */
 router.post('/', authenticateToken, CandidatureController.apply);
+
+/**
+ * @swagger
+ * /api/applications/{id}:
+ *   patch:
+ *     summary: Update application status (recruiter/admin only)
+ *     description: Allows a recruiter to accept or reject a candidate's application. Recruiters can only update applications for jobs belonging to their company.
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Application ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [pending, accepted, rejected]
+ *                 example: accepted
+ *     responses:
+ *       200:
+ *         description: Status updated
+ *       400:
+ *         description: Invalid status value
+ *       403:
+ *         description: Application not found or not authorized
+ *       401:
+ *         description: No token provided
+ *       500:
+ *         description: Server error
+ */
+router.patch('/:id', authenticateToken, authorizeRoles('recruiter', 'admin'), CandidatureController.updateApplicationStatus);
 
 module.exports = router;

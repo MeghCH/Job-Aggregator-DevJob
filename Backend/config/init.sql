@@ -78,6 +78,7 @@ CREATE TABLE IF NOT EXISTS applications (
     user_id INT NOT NULL,
     job_id VARCHAR(255) NOT NULL,
     job_source ENUM('wld', 'dj') NOT NULL,
+    status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE KEY unique_application (user_id, job_id)

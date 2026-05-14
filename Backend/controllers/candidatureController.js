@@ -49,6 +49,82 @@ const CandidatureController = {
         }
     },
 
+    async getApplicationsByJob(req, res) {
+        try {
+            const { userId, role } = req.user;
+            const { jobId } = req.params;
+
+            if (role !== 'admin') {
+                const [users] = await pool.query(
+                    'SELECT company FROM users WHERE id = ?',
+                    [userId]
+                );
+
+                if (users.length === 0 || !users[0].company) {
+                    return res.status(404).json({ success: false, message: 'No company linked to this account' });
+                }
+
+                const [jobs] = await pool.query(
+                    `SELECT j.id FROM jobs_dj j
+                     JOIN companies_dj c ON j.company_id = c.id
+                     WHERE j.id = ? AND c.name = ?`,
+                    [jobId, users[0].company]
+                );
+
+                if (jobs.length === 0) {
+                    return res.status(403).json({ success: false, message: 'This job does not belong to your company' });
+                }
+            }
+
+            const [rows] = await pool.query(
+                `SELECT a.id, a.job_id, a.job_source, a.applied_at,
+                        u.id AS user_id, u.firstname, u.name, u.email, u.skills AS candidate_skills, u.location
+                 FROM applications a
+                 JOIN users u ON a.user_id = u.id
+                 WHERE a.job_id = ?
+                 ORDER BY a.applied_at DESC`,
+                [jobId]
+            );
+
+            return res.status(200).json({ success: true, count: rows.length, data: rows });
+        } catch (error) {
+            console.error('Get applications by job error:', error);
+            return res.status(500).json({ success: false, message: 'Error fetching applications' });
+        }
+    },
+
+    async updateApplicationStatus(req, res) {
+        try {
+            const { userId, role } = req.user;
+            const { id } = req.params;
+            const { status } = req.body;
+
+            if (!status || !['accepted', 'rejected', 'pending'].includes(status)) {
+                return res.status(400).json({ success: false, message: 'status must be pending, accepted or rejected' });
+            }
+
+            const [rows] = await pool.query(
+                `SELECT a.id, a.job_id FROM applications a
+                 JOIN jobs_dj j ON a.job_id = j.id
+                 JOIN companies_dj c ON j.company_id = c.id
+                 JOIN users u ON u.id = ?
+                 WHERE a.id = ? AND (? = 'admin' OR c.name = u.company)`,
+                [userId, id, role]
+            );
+
+            if (rows.length === 0) {
+                return res.status(403).json({ success: false, message: 'Application not found or not authorized' });
+            }
+
+            await pool.query('UPDATE applications SET status = ? WHERE id = ?', [status, id]);
+
+            return res.status(200).json({ success: true, message: `Application ${status}` });
+        } catch (error) {
+            console.error('Update application status error:', error);
+            return res.status(500).json({ success: false, message: 'Error updating application status' });
+        }
+    },
+
     async apply(req, res) {
         try {
             const userId = req.user.userId;
