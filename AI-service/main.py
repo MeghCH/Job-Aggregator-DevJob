@@ -5,94 +5,97 @@ import re
 
 app = FastAPI()
 
-# Configuration optimisée pour la rapidité (< 5s par offre requis )
-MODEL_PATH = "./models/SmolLM2-360M-Instruct-Q8_0.gguf"
+MODEL_PATH = "./models/qwen2.5-0.5b-instruct-q5_0.gguf"
 
 try:
     llm = Llama(
         model_path=MODEL_PATH,
-        n_ctx=1024, # Réduit pour gagner en vitesse
+        n_ctx=1024,
         n_threads=4,
-        verbose=False # Moins de logs pour la clarté
+        verbose=False
     )
     print("Agent chargé avec succès !")
+
 except Exception as e:
     print(f"Erreur lors du chargement : {e}")
 
 class JobData(BaseModel):
     description: str
 
+
 def clean_text(text: str):
-    # Nettoyage HTML et limitation pour ne pas saturer le petit modèle [cite: 84]
-    text = re.sub(r'<[^>]+>', '', text)
-    return text.strip()[:600] 
+    text = re.sub(r"<[^>]+>", "", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()[:700]
+
+
+def safe_response(text: str):
+    text = text.strip()
+
+    # Supprime caractères bizarres
+    text = re.sub(r"[\n\r\t]", " ", text)
+
+    # Supprime répétitions
+    text = re.sub(r"\s+", " ", text)
+
+    return text
+
 
 @app.post("/analyze")
 async def analyze(data: JobData):
     desc = clean_text(data.description)
     
+    # On précise "plusieurs" et on enlève la virgule du stop pour le laisser lister
     prompt = (
-        "Instructions: Extrait les mots-clés techniques sans répétition.\n"
-        "###\n"
-        "Offre: Cherche dev Python, Django et Docker.\n"
-        "Compétences: Python, Django, Docker\n"
-        "###\n"
-        f"Offre: {desc}\n"
-        "Compétences:"
+        f"<|im_start|>system\nTu es un extracteur de données techniques. Extraits toutes les technologies, langages et frameworks mentionnés. Réponds uniquement par une liste séparée par des virgules.<|im_end|>\n"
+        f"<|im_start|>user\nOffre : {desc}\nExtraire toutes les technos :<|im_end|>\n"
+        f"<|im_start|>assistant\n"
     )
-    
+
     output = llm(
-        prompt, 
-        max_tokens=50, 
-        temperature=0, 
-        repeat_penalty=1.5, # Augmenté pour stopper les répétitions (ex: Python, Python...)
-        stop=["###", "\n"]
+        prompt,
+        max_tokens=60, # On augmente un peu pour laisser de la place à plusieurs mots
+        temperature=0,
+        repeat_penalty=1.2,
+        # IMPORTANT : On retire "," des stop sequences
+        stop=["<|im_end|>", "\n\n", "Offre:"] 
     )
+
+    res = safe_response(output["choices"][0]["text"])
     
-    raw_res = output["choices"][0]["text"].strip()
+    # On nettoie et on s'assure de récupérer chaque élément
+    raw_list = res.split(",")
+    technos = [t.strip().capitalize() for t in raw_list if len(t.strip()) > 1]
     
-    # --- NETTOYAGE ANTI-DOUBLONS EN PYTHON ---
-    # On sépare par les virgules, on enlève les espaces, et on garde les mots uniques
-    keywords = [k.strip() for k in raw_res.split(",")]
-    unique_keywords = list(dict.fromkeys(keywords)) # Supprime les doublons en gardant l'ordre
-    
-    final_res = ", ".join(unique_keywords)
-    
-    return {"analysis": final_res if final_res else "Non détecté"}
+    # Supprime les doublons
+    unique_technos = list(dict.fromkeys(technos))
+
+    return {"analysis": unique_technos if unique_technos else ["Non détecté"]}
+
 
 @app.post("/summarize")
 async def summarize(data: JobData):
     desc = clean_text(data.description)
-    
-    # On force le modèle à identifier les points clés AVANT de rédiger
-    # C'est comme une check-list mentale pour l'IA
-    prompt = (
-        "Instructions: Identifie le Poste, la Techno, le Lieu et l'Avantage, puis résume.\n"
-        "###\n"
-        "Offre: Développeur PHP chez Google à Paris, 50k, remote.\n"
-        "Poste: Développeur PHP\n"
-        "Lieu: Paris (Remote)\n"
-        "Résumé: Ce poste est une opportunité de Développeur PHP chez Google à Paris proposant du télétravail.\n"
-        "###\n"
-        f"Offre: {desc}\n"
-        "Poste:"
-    )
-    
-    output = llm(
-        prompt, 
-        max_tokens=95, # On augmente pour lui laisser la place de "réfléchir"
-        temperature=0.1, 
-        stop=["###", "\n\n"],
-        repeat_penalty=1.2
-    )
-    
-    raw_text = output["choices"][0]["text"].strip()
-    
-    # On extrait uniquement la partie après "Résumé:" pour l'utilisateur
-    if "Résumé:" in raw_text:
-        res = raw_text.split("Résumé:")[1].strip()
-    else:
-        # Si le modèle a juste écrit la phrase directement
-        res = raw_text.split("\n")[-1].replace("Résumé:", "").strip()
 
-    return {"summary": res if res else "Résumé en cours de génération..."}
+    # Format ChatML pour forcer le résumé en français
+    prompt = (
+        f"<|im_start|>system\nTu es un assistant RH. Résume l'offre en une seule phrase simple et pro en français. Maximum 25 mots.<|im_end|>\n"
+        f"<|im_start|>user\nRésumer cette offre : {desc}<|im_end|>\n"
+        f"<|im_start|>assistant\nCe poste consiste à"
+    )
+
+    output = llm(
+        prompt,
+        max_tokens=60,
+        temperature=0,
+        repeat_penalty=1.3,
+        stop=["<|im_end|>", "\n"]
+    )
+
+    res = safe_response(output["choices"][0]["text"])
+    
+    # On s'assure que la phrase finit proprement
+    if "." in res:
+        res = res[:res.rfind(".")+1]
+        
+    return {"summary": "Ce poste consiste à " + res}

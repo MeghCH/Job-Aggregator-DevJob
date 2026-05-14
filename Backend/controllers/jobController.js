@@ -1,5 +1,5 @@
 const pool = require('../config/db');
-
+const axios = require('axios');
 /**
  * @description Job Controller
  * Handles job offer creation and retrieval
@@ -34,6 +34,24 @@ const JobController = {
                 });
             }
 
+            let ai_summary = null;
+            let ai_tags = null;
+            if (description) {
+                try {
+                    // 1. On appelle ton API IA pour le résumé
+                    // On utilise 'ai-service' car c'est le nom dans ton docker-compose
+                    const resSum = await axios.post('http://ai-service:8000/summarize', { description });
+                    ai_summary = resSum.data.summary;
+
+                    // 2. On appelle ton API IA pour les technos (Analyze)
+                    const resAna = await axios.post('http://ai-service:8000/analyze', { description });
+                    ai_tags = JSON.stringify(resAna.data.analysis); // On stocke la liste en JSON
+                } catch (iaError) {
+                    console.error("Erreur IA (le serveur FastAPI est-il lancé ?) :", iaError.message);
+                    // On ne bloque pas la création de l'offre si l'IA échoue
+                }
+            }
+
             // Check if company exists
             const [companies] = await pool.query(
                 'SELECT * FROM companies_dj WHERE id = ?',
@@ -52,8 +70,8 @@ const JobController = {
                 `INSERT INTO jobs_dj (
                     id, company_id, title, description,
                     salary_min, salary_max, currency,
-                    experience_years, remote_type, location, skills, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+                    experience_years, remote_type, location, skills, ai_summary, ai_tags, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
                 [
                     id,
                     company_id,
@@ -65,7 +83,9 @@ const JobController = {
                     experience_years || null,
                     remote_type || null,
                     location || null,
-                    skills ? JSON.stringify(skills) : null
+                    skills ? JSON.stringify(skills) : null,
+                    ai_summary,
+                    ai_tags
                 ]
             );
 
