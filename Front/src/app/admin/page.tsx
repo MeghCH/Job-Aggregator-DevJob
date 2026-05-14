@@ -124,15 +124,15 @@ export default function AdminPage() {
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      <div className="max-w-3xl mx-auto px-6 py-10 flex flex-col gap-6">
-        <div className="flex items-center justify-between">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 flex flex-col gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <h1 className="text-2xl font-bold text-gray-900">
             Interface <span className="text-indigo-600">d'administration</span>
           </h1>
           <button
             onClick={handleIngest}
             disabled={ingestLoading}
-            className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors cursor-pointer"
+            className="flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors cursor-pointer w-full sm:w-auto"
           >
             <RefreshCw className={cn("w-4 h-4", ingestLoading && "animate-spin")} />
             {ingestLoading ? "Ingestion en cours..." : "Ingérer offres WeLoveDevs"}
@@ -140,7 +140,7 @@ export default function AdminPage() {
         </div>
 
         {ingestResult && (
-          <div className="bg-green-50 border border-green-200 rounded-xl px-5 py-3 text-sm text-green-700 flex gap-6">
+          <div className="bg-green-50 border border-green-200 rounded-xl px-5 py-3 text-sm text-green-700 flex flex-wrap gap-3 sm:gap-6">
             <span><span className="font-semibold">{ingestResult.inserted}</span> insérées</span>
             <span><span className="font-semibold">{ingestResult.skipped}</span> ignorées</span>
             <span><span className="font-semibold">{ingestResult.errors}</span> erreurs</span>
@@ -153,7 +153,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {stats.map((s) => (
             <div
               key={s.l}
@@ -195,7 +195,7 @@ export default function AdminPage() {
                 {offresEnAttente.map((offre) => (
                   <div
                     key={offre.id}
-                    className="flex items-center justify-between border border-indigo-100 bg-indigo-50/40 rounded-xl px-5 py-4"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-indigo-100 bg-indigo-50/40 rounded-xl px-5 py-4"
                   >
                     <div>
                       <p className="text-sm font-semibold text-gray-900">
@@ -214,7 +214,7 @@ export default function AdminPage() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex gap-2 shrink-0 ml-4">
+                    <div className="flex flex-wrap gap-2 sm:shrink-0">
                       <button className="text-xs bg-green-50 text-green-700 border border-green-300 rounded-lg px-3 py-1.5 hover:bg-green-100 transition-colors">
                         Approuver
                       </button>
@@ -238,7 +238,7 @@ export default function AdminPage() {
                 {offresSignalees.map((offre) => (
                   <div
                     key={offre.id}
-                    className="flex items-center justify-between border border-red-100 bg-red-50/30 rounded-xl px-5 py-4"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-red-100 bg-red-50/30 rounded-xl px-5 py-4"
                   >
                     <div>
                       <p className="text-sm font-semibold text-gray-900">
@@ -257,7 +257,7 @@ export default function AdminPage() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex gap-2 shrink-0 ml-4">
+                    <div className="flex flex-wrap gap-2 sm:shrink-0">
                       <button className="text-xs bg-green-50 text-green-700 border border-green-300 rounded-lg px-3 py-1.5 hover:bg-green-100 transition-colors">
                         Garder
                       </button>
@@ -277,7 +277,7 @@ export default function AdminPage() {
 
         {activeTab === "users" && (
           <div className="flex flex-col gap-6">
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1 flex items-center gap-2 border border-indigo-100 bg-indigo-50/40 rounded-lg px-3 h-10">
                 <Search className="w-4 h-4 text-indigo-300 shrink-0" />
                 <input
@@ -291,7 +291,7 @@ export default function AdminPage() {
               <select
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
-                className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-3 text-sm text-gray-500 outline-none"
+                className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-3 h-10 text-sm text-gray-500 outline-none w-full sm:w-auto"
               >
                 <option value="all">Tous les rôles</option>
                 <option value="user">Utilisateur</option>
@@ -308,7 +308,7 @@ export default function AdminPage() {
                 {utilisateurs.map((u) => (
                   <div
                     key={u.id}
-                    className="flex items-center justify-between border border-indigo-100 bg-indigo-50/40 rounded-xl px-5 py-3"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-indigo-100 bg-indigo-50/40 rounded-xl px-5 py-3"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-600 shrink-0">
@@ -323,7 +323,7 @@ export default function AdminPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0 ml-4">
+                    <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
                       <span className="text-xs bg-indigo-50 text-indigo-600 border border-indigo-100 px-2.5 py-0.5 rounded-full font-medium">
                         Utilisateur
                       </span>
@@ -347,7 +347,7 @@ export default function AdminPage() {
                 {entreprises.map((u) => (
                   <div
                     key={u.id}
-                    className="flex items-center justify-between border border-indigo-100 bg-indigo-50/40 rounded-xl px-5 py-3"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-indigo-100 bg-indigo-50/40 rounded-xl px-5 py-3"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-xs font-bold text-green-600 shrink-0">
@@ -362,7 +362,7 @@ export default function AdminPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0 ml-4">
+                    <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
                       <span className="text-xs bg-green-50 text-green-600 border border-green-100 px-2.5 py-0.5 rounded-full font-medium">
                         Entreprise
                       </span>
@@ -386,7 +386,7 @@ export default function AdminPage() {
                 {bannis.map((u) => (
                   <div
                     key={u.id}
-                    className="flex items-center justify-between border border-red-100 bg-red-50/30 rounded-xl px-5 py-3"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-red-100 bg-red-50/30 rounded-xl px-5 py-3"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-xs font-bold text-red-400 shrink-0">
@@ -401,7 +401,7 @@ export default function AdminPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0 ml-4">
+                    <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
                       <span className="text-xs bg-red-50 text-red-500 border border-red-200 px-2.5 py-0.5 rounded-full font-medium">
                         Banni
                       </span>

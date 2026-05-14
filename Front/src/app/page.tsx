@@ -152,11 +152,6 @@ export default function HomePage() {
           </p>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="mt-auto border-t border-gray-200 py-6 text-center text-xs text-gray-500">
-        © {new Date().getFullYear()} DevJobs — Tous droits réservés
-      </footer>
     </div>
   );
 }

@@ -30,10 +30,10 @@ const AuthController = {
                 });
             }
 
-            if (userRole === 'recruiter' && (!company || !siret)) {
+            if (userRole === 'recruiter' && !company) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Recruiters must provide company name and SIRET'
+                    message: 'Recruiters must provide a company name'
                 });
             }
 

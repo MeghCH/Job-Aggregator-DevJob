@@ -61,7 +61,7 @@ export default function JobCard({
   }
 
   return (
-    <Link href={id ? `/offres/${encodeURIComponent(id)}` : "#"} className="flex items-start justify-between border border-indigo-100 bg-indigo-50/40 rounded-xl px-6 py-5 hover:border-indigo-300 transition-colors cursor-pointer">
+    <Link href={id ? `/offres/${encodeURIComponent(id)}` : "#"} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-0 border border-indigo-100 bg-indigo-50/40 rounded-xl px-4 sm:px-6 py-4 sm:py-5 hover:border-indigo-300 transition-colors cursor-pointer">
       {/* Gauche */}
       <div className="flex flex-col gap-2">
         <h3 className="text-base font-semibold text-gray-900">{title}</h3>
@@ -86,7 +86,7 @@ export default function JobCard({
       </div>
 
       {/* Droite */}
-      <div className="flex flex-col items-end gap-3 shrink-0 ml-6">
+      <div className="flex flex-row sm:flex-col items-center sm:items-end gap-3 shrink-0 sm:ml-6 flex-wrap">
         <span className="text-sm font-semibold text-indigo-600">{salary}</span>
         <span className="text-xs bg-indigo-500 text-white px-3 py-1 rounded-full font-medium">
           {contractType}

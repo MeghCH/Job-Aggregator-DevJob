@@ -42,7 +42,7 @@ export default function ProfilPage() {
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      <div className="max-w-3xl mx-auto px-6">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
         <div className="flex justify-end pt-6">
           <LogoutButton />
         </div>
