@@ -93,6 +93,38 @@ const CandidatureController = {
         }
     },
 
+    async updateApplicationStatus(req, res) {
+        try {
+            const { userId, role } = req.user;
+            const { id } = req.params;
+            const { status } = req.body;
+
+            if (!status || !['accepted', 'rejected', 'pending'].includes(status)) {
+                return res.status(400).json({ success: false, message: 'status must be pending, accepted or rejected' });
+            }
+
+            const [rows] = await pool.query(
+                `SELECT a.id, a.job_id FROM applications a
+                 JOIN jobs_dj j ON a.job_id = j.id
+                 JOIN companies_dj c ON j.company_id = c.id
+                 JOIN users u ON u.id = ?
+                 WHERE a.id = ? AND (? = 'admin' OR c.name = u.company)`,
+                [userId, id, role]
+            );
+
+            if (rows.length === 0) {
+                return res.status(403).json({ success: false, message: 'Application not found or not authorized' });
+            }
+
+            await pool.query('UPDATE applications SET status = ? WHERE id = ?', [status, id]);
+
+            return res.status(200).json({ success: true, message: `Application ${status}` });
+        } catch (error) {
+            console.error('Update application status error:', error);
+            return res.status(500).json({ success: false, message: 'Error updating application status' });
+        }
+    },
+
     async apply(req, res) {
         try {
             const userId = req.user.userId;

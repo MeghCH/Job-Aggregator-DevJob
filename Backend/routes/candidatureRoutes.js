@@ -154,4 +154,46 @@ router.get('/:id', authenticateToken, CandidatureController.getApplicationById);
  */
 router.post('/', authenticateToken, CandidatureController.apply);
 
+/**
+ * @swagger
+ * /api/applications/{id}:
+ *   patch:
+ *     summary: Update application status (recruiter/admin only)
+ *     description: Allows a recruiter to accept or reject a candidate's application. Recruiters can only update applications for jobs belonging to their company.
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Application ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [pending, accepted, rejected]
+ *                 example: accepted
+ *     responses:
+ *       200:
+ *         description: Status updated
+ *       400:
+ *         description: Invalid status value
+ *       403:
+ *         description: Application not found or not authorized
+ *       401:
+ *         description: No token provided
+ *       500:
+ *         description: Server error
+ */
+router.patch('/:id', authenticateToken, authorizeRoles('recruiter', 'admin'), CandidatureController.updateApplicationStatus);
+
 module.exports = router;
