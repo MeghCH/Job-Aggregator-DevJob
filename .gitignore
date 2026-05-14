@@ -19,3 +19,5 @@ welovedevs_api.txt
 *.json
 
 *.gguf
+
+__pycache__/
