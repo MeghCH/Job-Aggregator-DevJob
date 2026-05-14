@@ -13,3 +13,10 @@ export async function getApplicationById(id: string) {
   });
   return res.json();
 }
+
+export async function getApplicationsByJob(jobId: string) {
+  const res = await fetch(`${API_URL}/api/applications/job/${jobId}`, {
+    credentials: "include",
+  });
+  return res.json();
+}

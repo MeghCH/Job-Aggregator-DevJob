@@ -65,7 +65,7 @@ export default function CandidatureDetailPage() {
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      <div className="max-w-2xl mx-auto px-6 py-10 flex flex-col gap-6">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col gap-6">
         {loading && (
           <p className="text-center text-gray-400 text-sm">Chargement...</p>
         )}
@@ -75,7 +75,7 @@ export default function CandidatureDetailPage() {
         )}
 
         {application && (
-          <div className="border border-indigo-200 rounded-xl p-6 flex flex-col gap-6">
+          <div className="border border-indigo-200 rounded-xl p-4 sm:p-6 flex flex-col gap-6">
             <CandidateCard
               name={application.company_name || "Entreprise inconnue"}
               title={application.title || "Poste non renseigné"}
@@ -87,23 +87,21 @@ export default function CandidatureDetailPage() {
               sentAt={formatDate(application.applied_at)}
             />
 
-            <div className="grid grid-cols-2 gap-6">
-              <div className="flex flex-col gap-3 justify-center">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <Briefcase className="w-4 h-4 text-indigo-400 shrink-0" />
-                  {application.contract_type || "Contrat non renseigné"}
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <MapPin className="w-4 h-4 text-indigo-400 shrink-0" />
-                  {application.remote_type || "Lieu non renseigné"}
-                </div>
-                {formatSalary() && (
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Euro className="w-4 h-4 text-indigo-400 shrink-0" />
-                    {formatSalary()}
-                  </div>
-                )}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <Briefcase className="w-4 h-4 text-indigo-400 shrink-0" />
+                {application.contract_type || "Contrat non renseigné"}
               </div>
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <MapPin className="w-4 h-4 text-indigo-400 shrink-0" />
+                {application.remote_type || "Lieu non renseigné"}
+              </div>
+              {formatSalary() && (
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Euro className="w-4 h-4 text-indigo-400 shrink-0" />
+                  {formatSalary()}
+                </div>
+              )}
             </div>
           </div>
         )}

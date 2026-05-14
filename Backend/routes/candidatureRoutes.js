@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const CandidatureController = require('../controllers/candidatureController');
 const authenticateToken = require('../middleware/authMiddleware');
+const authorizeRoles = require('../middleware/roleMiddleware');
 
 /**
  * @swagger
@@ -86,6 +87,33 @@ router.get('/', authenticateToken, CandidatureController.getMyApplications);
  *       500:
  *         description: Server error
  */
+/**
+ * @swagger
+ * /api/applications/job/{jobId}:
+ *   get:
+ *     summary: Get all applications for a specific job (recruiter only)
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: jobId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Job ID
+ *     responses:
+ *       200:
+ *         description: List of candidates who applied to this job
+ *       403:
+ *         description: Job does not belong to your company
+ *       401:
+ *         description: No token provided
+ *       500:
+ *         description: Server error
+ */
+router.get('/job/:jobId', authenticateToken, authorizeRoles('recruiter', 'admin'), CandidatureController.getApplicationsByJob);
+
 router.get('/:id', authenticateToken, CandidatureController.getApplicationById);
 
 /**
