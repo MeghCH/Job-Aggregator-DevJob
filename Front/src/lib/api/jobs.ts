@@ -34,3 +34,25 @@ export const api = {
     return res.json();
   },
 };
+export const api = {
+
+  async summarizeJob(description: string) {
+    const res = await fetch(`${API_URL}/api/jobs/summarize`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ description }),
+    });
+    return res.json();
+  },
+
+  async analyzeJob(description: string) {
+    const res = await fetch(`${API_URL}/api/jobs/analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ description }),
+    });
+    return res.json();
+  },
+};

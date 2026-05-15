@@ -118,6 +118,61 @@ const JobController = {
         }
     },
 
+    async summarize(req, res) {
+        try {
+            const { description } = req.body;
+
+            if (!description) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Description is required'
+                });
+            }
+
+            const response = await axios.post('http://ai-service:8000/summarize', { description });
+            
+            return res.status(200).json({
+                success: true,
+                summary: response.data.summary
+            });
+        } catch (error) {
+            console.error('Summarize error:', error.message);
+            return res.status(500).json({
+                success: false,
+                message: 'Error communicating with AI service'
+            });
+        }
+    },
+    /**
+     * @route POST /api/jobs/analyze
+     * @desc Analyze job description to extract skills and tags
+     */
+    async analyze(req, res) {
+        try {
+            const { description } = req.body;
+
+            if (!description) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Description is required'
+                });
+            }
+
+            const response = await axios.post('http://ai-service:8000/analyze', { description });
+            
+            return res.status(200).json({
+                success: true,
+                analysis: response.data.analysis
+            });
+        } catch (error) {
+            console.error('Analyze error:', error.message);
+            return res.status(500).json({
+                success: false,
+                message: 'Error communicating with AI service for analysis'
+            });
+        }
+    },
+
     async getRecruiter(req, res) {
         try {
             const { userId, role } = req.user;

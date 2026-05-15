@@ -79,10 +79,15 @@ async def summarize(data: JobData):
 
     # Format ChatML pour forcer le résumé en français
     prompt = (
-        f"<|im_start|>system\nTu es un assistant RH. Résume l'offre en une seule phrase simple et pro en français. Maximum 25 mots.<|im_end|>\n"
-        f"<|im_start|>user\nRésumer cette offre : {desc}<|im_end|>\n"
-        f"<|im_start|>assistant\nCe poste consiste à"
-    )
+    f"<|im_start|>system\n"
+    f"Tu es un expert en recrutement tech. TON RÔLE : Extraire la valeur technique.\n"
+    f"CONSIGNE STRICTE : Tu dois obligatoirement citer le titre du poste et la stack technique (langages/frameworks).\n"
+    f"FORMAT : Développeur [Rôle] ([Stack]) pour [Mission].\n"
+    f"LIMITE : 25 mots maximum. Pas de blabla.<|im_end|>\n"
+    f"<|im_start|>user\n"
+    f"Résume cette offre de manière technique et précise : {desc}<|im_end|>\n"
+    f"<|im_start|>assistant\n"
+)
 
     output = llm(
         prompt,

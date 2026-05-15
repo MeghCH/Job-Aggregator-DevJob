@@ -145,6 +145,7 @@ router.get('/', JobController.getAll);
  * summary: Summarize a job description using AI
  * tags: [Jobs]
  */
-router.post('/summarize', authenticateToken, JobController.summarize);
+router.post('/summarize', JobController.summarize);
+router.post('/analyze', JobController.analyze);
 
 module.exports = router;
