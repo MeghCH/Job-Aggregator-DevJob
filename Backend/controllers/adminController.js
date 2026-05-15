@@ -156,14 +156,7 @@ const AdminController = {
                 "SELECT COUNT(*) as adminCount FROM users WHERE role = 'admin'"
             );
 
-            /* REGARDE ICI : J'AI AJOUTÉ CE COMMENTAIRE POUR ACCÉPTER TA REQUÊTE TEMPORAIREMENT
-            if (adminCheck[0].adminCount > 0) {
-                return res.status(403).json({
-                    success: false,
-                    message: "Action interdite. Un administrateur système a déjà été configuré."
-                });
-            }
-            FIN DU COMMENTAIRE TEMPORAIRE */
+    
 
             const { name, firstname, email, password, company, siret } = req.body;
 

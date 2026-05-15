@@ -62,6 +62,8 @@ CREATE TABLE IF NOT EXISTS jobs_dj (
     skills JSON, 
     FOREIGN KEY (company_id) REFERENCES companies_dj(id)
 );
+ALTER TABLE jobs_dj ADD COLUMN ai_summary TEXT;
+ALTER TABLE jobs_dj ADD COLUMN ai_tags JSON;
 
 CREATE TABLE IF NOT EXISTS saved_jobs (
     id INT AUTO_INCREMENT PRIMARY KEY,

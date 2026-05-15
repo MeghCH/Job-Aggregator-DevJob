@@ -138,4 +138,14 @@ router.post(
 router.get('/recruiter', authenticateToken, authorizeRoles('recruiter', 'admin'), JobController.getRecruiter);
 router.get('/', JobController.getAll);
 
+/**
+ * @swagger
+ * /api/jobs/summarize:
+ * post:
+ * summary: Summarize a job description using AI
+ * tags: [Jobs]
+ */
+router.post('/summarize', JobController.summarize);
+router.post('/analyze', JobController.analyze);
+
 module.exports = router;
