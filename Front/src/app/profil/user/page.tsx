@@ -62,17 +62,25 @@ export default function ProfilPage() {
             Mes candidatures
           </h2>
           <div className="flex flex-col gap-3">
+            {candidatures.length === 0 && (
+              <p className="text-sm text-gray-500 text-center">Aucune candidature envoyée.</p>
+            )}
             {candidatures.map((job) => (
               <JobCard key={job.id} {...job} />
             ))}
           </div>
         </div>
 
+        <hr className="border-gray-100 mb-8" />
+
         <div className="flex flex-col gap-4 mb-12">
           <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest text-center">
             Offres sauvegardées
           </h2>
           <div className="flex flex-col gap-3">
+            {savedJobs.length === 0 && (
+              <p className="text-sm text-gray-500 text-center">Aucune offre sauvegardée.</p>
+            )}
             {savedJobs.map((job) => (
               <JobCard
                 key={job.job_id}

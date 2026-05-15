@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role ENUM('user','recruiter','admin') DEFAULT 'user',
+    role ENUM('user','recruiter','admin','banned') DEFAULT 'user',
     company VARCHAR(255) DEFAULT NULL,
     siret VARCHAR(14) DEFAULT NULL,
     skills JSON DEFAULT NULL,
