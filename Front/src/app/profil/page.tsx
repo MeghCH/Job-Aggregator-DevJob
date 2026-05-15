@@ -14,7 +14,9 @@ export default function ProfilRedirect() {
         return;
       }
       const role = res.data?.role;
-      router.replace(role === "recruiter" ? "/profil/company" : "/profil/user");
+      if (role === "admin") router.replace("/admin");
+      else if (role === "recruiter") router.replace("/profil/company");
+      else router.replace("/profil/user");
     }).catch(() => router.replace("/connexion"));
   }, [router]);
 

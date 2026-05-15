@@ -102,7 +102,7 @@ export default function ProfilAdminPage() {
                   <button onClick={handleSave} aria-label="Sauvegarder" className="text-green-500 hover:text-green-700 transition-colors">
                     <Check className="w-4 h-4" />
                   </button>
-                  <button onClick={handleCancel} aria-label="Annuler" className="text-gray-400 hover:text-gray-600 transition-colors">
+                  <button onClick={handleCancel} aria-label="Annuler" className="text-gray-500 hover:text-gray-600 transition-colors">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
@@ -139,7 +139,7 @@ export default function ProfilAdminPage() {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <MapPin className="w-4 h-4 text-indigo-500" />
-                  {saved.location}
+                  {saved.location || <span className="italic text-gray-500">Non renseignée</span>}
                 </div>
               </div>
             )}
@@ -154,7 +154,7 @@ export default function ProfilAdminPage() {
           </h2>
           <div className="flex flex-col gap-3">
             {offres.length === 0 && (
-              <p className="text-sm text-gray-400 text-center">Aucune offre publiée.</p>
+              <p className="text-sm text-gray-500 text-center">Aucune offre publiée.</p>
             )}
             {offres.map((offre) => {
               const skills = (() => {
@@ -189,7 +189,7 @@ export default function ProfilAdminPage() {
           </h2>
           <div className="flex flex-col gap-3">
             {candidats.length === 0 && (
-              <p className="text-sm text-gray-400 text-center">Aucune candidature reçue.</p>
+              <p className="text-sm text-gray-500 text-center">Aucune candidature reçue.</p>
             )}
             {candidats.map((candidat) => {
               const tags = (() => {

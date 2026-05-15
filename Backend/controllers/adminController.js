@@ -13,7 +13,7 @@ const AdminController = {
     async getAllUsers(req, res) {
         try {
             const [users] = await pool.query(
-                'SELECT id, name, firstname, email, role, company, siret, created_at FROM users ORDER BY created_at DESC'
+                'SELECT id, name, firstname, email, role, company, siret, created_at, banned_at FROM users ORDER BY created_at DESC'
             );
 
             return res.status(200).json({
@@ -80,8 +80,17 @@ const AdminController = {
                 updates.password = await bcrypt.hash(updates.password, 12);
             }
 
+            delete updates.banned_at;
+
+            let extraSet = '';
+            if (updates.role === 'banned') {
+                extraSet = ', banned_at = NOW()';
+            } else if (updates.role && updates.role !== 'banned') {
+                extraSet = ', banned_at = NULL';
+            }
+
             const keys = Object.keys(updates);
-            const query = `UPDATE users SET ${keys.map(key => `${key} = ?`).join(', ')} WHERE id = ?`;
+            const query = `UPDATE users SET ${keys.map(key => `${key} = ?`).join(', ')}${extraSet} WHERE id = ?`;
             const values = [...Object.values(updates), id];
 
             const [result] = await pool.query(query, values);

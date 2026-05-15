@@ -27,6 +27,11 @@ export default function Navbar() {
     ? [...baseLinks, { label: "Publier une offre", href: "/publier" }, { label: "Profil", href: "/profil" }]
     : [...baseLinks, { label: "Profil", href: "/profil" }];
 
+  const isActive = (href: string) =>
+    pathname === href ||
+    (href !== "/" && pathname.startsWith(href + "/")) ||
+    (href === "/profil" && role === "admin" && pathname === "/admin");
+
   return (
     <nav className="border-b border-gray-100 bg-white">
       <div className="flex items-center justify-between px-4 sm:px-8 py-4 gap-12">
@@ -42,7 +47,7 @@ export default function Navbar() {
               href={link.href}
               className={cn(
                 "text-sm transition-colors",
-                pathname === link.href
+                isActive(link.href)
                   ? "text-indigo-700 font-semibold"
                   : "text-gray-800 hover:text-indigo-500",
               )}
@@ -71,7 +76,7 @@ export default function Navbar() {
               href={link.href}
               className={cn(
                 "text-sm py-2.5 px-3 rounded-lg transition-colors",
-                pathname === link.href
+                isActive(link.href)
                   ? "text-indigo-700 font-semibold bg-indigo-50"
                   : "text-gray-800 hover:text-indigo-500 hover:bg-indigo-50/50",
               )}
