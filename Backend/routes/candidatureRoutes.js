@@ -34,7 +34,7 @@ const authenticateToken = require('../middleware/authMiddleware');
  *                     type: object
  *                     properties:
  *                       id: { type: integer }
- *                       job_id: { type: string }
+ *                       job_id: { type: integer }
  *                       job_source: { type: string, enum: [wld, dj] }
  *                       applied_at: { type: string, format: date-time }
  *                       title: { type: string }
@@ -106,8 +106,8 @@ router.get('/:id', authenticateToken, CandidatureController.getApplicationById);
  *             required: [job_id, job_source]
  *             properties:
  *               job_id:
- *                 type: string
- *                 example: job-001
+ *                 type: integer
+ *                 example: 1
  *               job_source:
  *                 type: string
  *                 enum: [wld, dj]

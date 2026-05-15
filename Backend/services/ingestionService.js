@@ -93,7 +93,7 @@ function normalizeJob(raw) {
         : null;
 
     return {
-        id: raw.id?.toString() || raw.objectID?.toString() || `${Date.now()}_${Math.random().toString(36).slice(2)}`,
+        external_id: raw.id?.toString() || raw.objectID?.toString() || `${Date.now()}_${Math.random().toString(36).slice(2)}`,
         company_id: companyId,
         company_name: company.companyName?.trim() || 'Inconnue',
         company_sector: (company.sectors || [])[0] || null,
@@ -143,12 +143,12 @@ async function upsertCompany(pool, company) {
 async function insertJob(pool, job) {
     await pool.query(
         `INSERT IGNORE INTO jobs_wld (
-            id, company_id, title, description,
+            external_id, company_id, title, description,
             salary_min, salary_max, currency,
             contract_type, experience_years, remote_type, location, skills, created_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-            job.id,
+            job.external_id,
             job.company_id,
             job.title,
             job.description,
@@ -225,8 +225,8 @@ async function ingestLoop(maxPages = null) {
 
                 // Déduplication explicite avant insert
                 const [existing] = await pool.query(
-                    'SELECT 1 FROM jobs_wld WHERE id = ? LIMIT 1',
-                    [normalized.id],
+                    'SELECT 1 FROM jobs_wld WHERE external_id = ? LIMIT 1',
+                    [normalized.external_id],
                 );
 
                 if (existing.length === 0) {

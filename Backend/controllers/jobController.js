@@ -13,7 +13,7 @@ const JobController = {
     async create(req, res) {
         try {
             const {
-                id,
+                external_id,
                 company_id,
                 title,
                 description,
@@ -27,10 +27,10 @@ const JobController = {
             } = req.body;
 
             // Required fields
-            if (!id || !company_id || !title) {
+            if (!company_id || !title) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Please provide id, company_id and title'
+                    message: 'Please provide company_id and title'
                 });
             }
 
@@ -47,15 +47,15 @@ const JobController = {
                 });
             }
 
-            // Insert into jobs_dj
+            // Insert into jobs_dj (id is auto-increment)
             const [result] = await pool.query(
                 `INSERT INTO jobs_dj (
-                    id, company_id, title, description,
+                    external_id, company_id, title, description,
                     salary_min, salary_max, currency,
                     experience_years, remote_type, location, skills, created_at
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
                 [
-                    id,
+                    external_id || null,
                     company_id,
                     title,
                     description || null,
@@ -69,9 +69,10 @@ const JobController = {
                 ]
             );
 
+            const newId = result.insertId;
             const [newJob] = await pool.query(
                 'SELECT * FROM jobs_dj WHERE id = ?',
-                [id]
+                [newId]
             );
 
             return res.status(201).json({
@@ -87,7 +88,7 @@ const JobController = {
             if (error.code === 'ER_DUP_ENTRY') {
                 return res.status(409).json({
                     success: false,
-                    message: 'A job with this id already exists'
+                    message: 'A job with this external_id already exists'
                 });
             }
 
