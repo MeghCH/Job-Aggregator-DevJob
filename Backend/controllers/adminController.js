@@ -202,4 +202,51 @@ const AdminController = {
     } 
 }; 
 
+// GET /api/admin/jobs
+export const getAllJobsForAdmin = async (req, res) => {
+    try {
+        // Ici on prend TOUT, même les 'pending' et les 'rejected'
+        const [rows] = await db.execute(`
+            SELECT j.*, c.name as company_name 
+            FROM jobs_dj j
+            LEFT JOIN companies_dj c ON j.company_id = c.id
+            ORDER BY j.created_at DESC
+        `);
+        res.json({ success: true, jobs: rows });
+    } catch (error) {
+        res.status(500).json({ error: "Erreur lors de la récupération" });
+    }
+};
+
+// PATCH /api/admin/jobs/:id (Pour approuver ou refuser)
+export const updateJobStatus = async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body; // Doit être 'approved' ou 'rejected'
+
+    try {
+        await db.execute(
+            'UPDATE jobs_dj SET status = ? WHERE id = ?',
+            [status, id]
+        );
+        res.json({ success: true, message: `L'offre est maintenant : ${status}` });
+    } catch (error) {
+        res.status(500).json({ error: "Erreur lors de la mise à jour" });
+    }
+};
+
+// DELETE /api/admin/jobs/:id (Soft Delete pour protéger 'applications')
+export const deleteJob = async (req, res) => {
+    const { id } = req.params;
+    try {
+        // On ne supprime pas la ligne, on la cache
+        await db.execute(
+            'UPDATE jobs_dj SET is_deleted = TRUE WHERE id = ?',
+            [id]
+        );
+        res.json({ success: true, message: "Offre supprimée du site (archivée en base)" });
+    } catch (error) {
+        res.status(500).json({ error: "Erreur lors de la suppression" });
+    }
+};
+
 module.exports = AdminController;
