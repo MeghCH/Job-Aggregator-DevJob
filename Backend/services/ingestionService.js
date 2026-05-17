@@ -119,7 +119,6 @@ function normalizeJob(raw) {
         location,
         skills: JSON.stringify(skills),
         created_at: createdAt,
-        isInvalid: !raw.title?.trim() || companyName === 'Inconnue',
     };
 }
 
