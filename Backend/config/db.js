@@ -26,7 +26,8 @@ const MIGRATIONS = [
     )`,
 
     `CREATE TABLE IF NOT EXISTS jobs_wld (
-        id VARCHAR(255) PRIMARY KEY,
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        external_id VARCHAR(255) NOT NULL UNIQUE,
         company_id VARCHAR(255),
         title VARCHAR(255) NOT NULL,
         description TEXT,
@@ -68,7 +69,8 @@ const MIGRATIONS = [
     )`,
 
     `CREATE TABLE IF NOT EXISTS jobs_dj (
-        id VARCHAR(255) PRIMARY KEY,
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        external_id VARCHAR(255) NOT NULL UNIQUE,
         company_id VARCHAR(255),
         title VARCHAR(255) NOT NULL,
         description TEXT,

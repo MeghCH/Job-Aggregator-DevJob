@@ -13,8 +13,14 @@ const candidatureRoutes = require('./routes/candidatureRoutes');
 const savedJobRoutes = require('./routes/savedJobRoutes');
 const pool = require('./config/db');
 
+const path = require('path');
+const fs = require('fs');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 // Middleware
 app.use(cors({
@@ -24,6 +30,9 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Static uploads
+app.use('/uploads', express.static(uploadDir));
 
 // Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
@@ -59,6 +68,13 @@ app.get('/api/health', (req, res) => {
 
 // Auth routes
 app.use('/api/auth', authRoutes);
+
+// ── Ingestion health check at startup ─────────────────
+if (process.env.WLD_API_KEY) {
+    console.log('[Ingestion] WLD_API_KEY is set');
+} else {
+    console.warn('[Ingestion] WLD_API_KEY is NOT set — ingestion will fail');
+}
 
 // Job routes
 app.use('/api/jobs', jobRoutes);

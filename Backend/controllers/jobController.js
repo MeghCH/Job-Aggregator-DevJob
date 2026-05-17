@@ -13,8 +13,7 @@ const JobController = {
     async create(req, res) {
         try {
             const {
-                id,
-                company_id,
+                external_id,
                 title,
                 description,
                 salary_min,
@@ -26,54 +25,48 @@ const JobController = {
                 skills
             } = req.body;
 
-            // Required fields
-            if (!id || !company_id || !title) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Please provide id, company_id and title'
-                });
+            if (!title) {
+                return res.status(400).json({ success: false, message: 'Le titre est requis' });
             }
+
+            // Récupérer l'entreprise du recruteur connecté
+            const [users] = await pool.query('SELECT company, siret FROM users WHERE id = ?', [req.user.userId]);
+            if (!users.length || !users[0].company) {
+                return res.status(400).json({ success: false, message: 'Aucune entreprise liée à votre compte' });
+            }
+            const companyName = users[0].company;
+            const companyId = `company_${companyName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+
+            // Upsert de l'entreprise dans companies_dj
+            await pool.query(
+                'INSERT INTO companies_dj (id, name) VALUES (?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name)',
+                [companyId, companyName]
+            );
 
             let ai_summary = null;
             let ai_tags = null;
             if (description) {
                 try {
-                    // 1. On appelle ton API IA pour le résumé
-                    // On utilise 'ai-service' car c'est le nom dans ton docker-compose
                     const resSum = await axios.post('http://ai-service:8000/summarize', { description });
                     ai_summary = resSum.data.summary;
-
-                    // 2. On appelle ton API IA pour les technos (Analyze)
                     const resAna = await axios.post('http://ai-service:8000/analyze', { description });
-                    ai_tags = JSON.stringify(resAna.data.analysis); // On stocke la liste en JSON
+                    ai_tags = JSON.stringify(resAna.data.analysis);
                 } catch (iaError) {
-                    console.error("Erreur IA (le serveur FastAPI est-il lancé ?) :", iaError.message);
-                    // On ne bloque pas la création de l'offre si l'IA échoue
+                    console.error("Erreur IA :", iaError.message);
                 }
             }
 
-            // Check if company exists
-            const [companies] = await pool.query(
-                'SELECT * FROM companies_dj WHERE id = ?',
-                [company_id]
-            );
+            const company_id = companyId;
 
-            if (companies.length === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Company not found'
-                });
-            }
-
-            // Insert into jobs_dj
+            // Insert into jobs_dj (id is auto-increment)
             const [result] = await pool.query(
                 `INSERT INTO jobs_dj (
-                    id, company_id, title, description,
+                    external_id, company_id, title, description,
                     salary_min, salary_max, currency,
                     experience_years, remote_type, location, skills, ai_summary, ai_tags, created_at
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
                 [
-                    id,
+                    external_id || `dj_${Date.now()}_${Math.random().toString(36).slice(2)}`,
                     company_id,
                     title,
                     description || null,
@@ -89,9 +82,10 @@ const JobController = {
                 ]
             );
 
+            const newId = result.insertId;
             const [newJob] = await pool.query(
                 'SELECT * FROM jobs_dj WHERE id = ?',
-                [id]
+                [newId]
             );
 
             return res.status(201).json({
@@ -107,7 +101,7 @@ const JobController = {
             if (error.code === 'ER_DUP_ENTRY') {
                 return res.status(409).json({
                     success: false,
-                    message: 'A job with this id already exists'
+                    message: 'A job with this external_id already exists'
                 });
             }
 
@@ -203,6 +197,49 @@ const JobController = {
         } catch (error) {
             console.error('Get recruiter jobs error:', error);
             return res.status(500).json({ success: false, message: 'Error fetching your jobs' });
+        }
+    },
+
+    async getById(req, res) {
+        try {
+            const { id } = req.params;
+            const { source } = req.query;
+
+            let query = 'SELECT * FROM unified_jobs WHERE id = ?';
+            const params = [id];
+
+            if (source) {
+                query += ' AND source = ?';
+                params.push(source);
+            }
+
+            const [rows] = await pool.query(query, params);
+
+            if (rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Job not found'
+                });
+            }
+
+            if (rows.length > 1) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Multiple jobs found with this ID. Please provide a ?source=wld or ?source=dj query parameter.'
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                data: rows[0]
+            });
+
+        } catch (error) {
+            console.error('Get job by id error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Error fetching job offer'
+            });
         }
     },
 

@@ -166,6 +166,7 @@ export default function ProfilAdminPage() {
               return (
                 <JobCardCompany
                   key={offre.id}
+                  href={`/offres/${offre.id}?source=dj`}
                   title={offre.title}
                   company={saved.company}
                   location=""

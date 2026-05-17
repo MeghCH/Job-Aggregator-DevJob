@@ -41,7 +41,8 @@ const options = {
                 Job: {
                     type: 'object',
                     properties: {
-                        id: { type: 'string', example: 'job-001' },
+                        id: { type: 'integer', example: 1 },
+                        external_id: { type: 'string', example: '-OryapSOhW7-SHvNc_Ho' },
                         company_id: { type: 'string', example: 'comp-001' },
                         company_name: { type: 'string', example: 'Acme Corp' },
                         title: { type: 'string', example: 'Senior Fullstack Developer' },
@@ -61,7 +62,7 @@ const options = {
                     type: 'object',
                     properties: {
                         id: { type: 'integer', example: 1 },
-                        job_id: { type: 'string', example: 'job-001' },
+                        job_id: { type: 'integer', example: 1 },
                         job_source: { type: 'string', example: 'wld' },
                         applied_at: { type: 'string', format: 'date-time' },
                         title: { type: 'string', example: 'Senior Fullstack Developer' },

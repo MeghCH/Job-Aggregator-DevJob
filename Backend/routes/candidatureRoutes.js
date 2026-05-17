@@ -3,6 +3,7 @@ const router = express.Router();
 const CandidatureController = require('../controllers/candidatureController');
 const authenticateToken = require('../middleware/authMiddleware');
 const authorizeRoles = require('../middleware/roleMiddleware');
+const upload = require('../middleware/uploadMiddleware');
 
 /**
  * @swagger
@@ -35,7 +36,7 @@ const authorizeRoles = require('../middleware/roleMiddleware');
  *                     type: object
  *                     properties:
  *                       id: { type: integer }
- *                       job_id: { type: string }
+ *                       job_id: { type: integer }
  *                       job_source: { type: string, enum: [wld, dj] }
  *                       applied_at: { type: string, format: date-time }
  *                       title: { type: string }
@@ -134,8 +135,8 @@ router.get('/:id', authenticateToken, CandidatureController.getApplicationById);
  *             required: [job_id, job_source]
  *             properties:
  *               job_id:
- *                 type: string
- *                 example: job-001
+ *                 type: integer
+ *                 example: 1
  *               job_source:
  *                 type: string
  *                 enum: [wld, dj]
@@ -152,7 +153,11 @@ router.get('/:id', authenticateToken, CandidatureController.getApplicationById);
  *       500:
  *         description: Server error
  */
-router.post('/', authenticateToken, CandidatureController.apply);
+router.post('/', authenticateToken, upload.fields([
+    { name: 'cv', maxCount: 1 },
+    { name: 'cover_letter', maxCount: 1 },
+    { name: 'extra_documents', maxCount: 1 },
+]), CandidatureController.apply);
 
 /**
  * @swagger
