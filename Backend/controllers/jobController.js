@@ -101,24 +101,66 @@ const JobController = {
      * @desc Get all job offers
      * @access Public
      */
-    async getAll(req, res) {
-        try {
-            const [jobs] = await pool.query('SELECT * FROM jobs_dj ORDER BY created_at DESC');
+  async getAll(req, res) {
+    try {
+        const [jobs] = await pool.query('SELECT * FROM jobs_dj ORDER BY created_at DESC');
+        return res.status(200).json({
+            success: true,
+            count: jobs.length,
+            data: jobs
+        });
+    } catch (error) {
+        console.error('Get jobs error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error fetching job offers'
+        });
+    }
+},
+async update(req, res) {
+    try {
+        const { id } = req.params;
+        const { title, description, salary_min, salary_max, currency, experience_years, remote_type, skills } = req.body;
 
-            return res.status(200).json({
-                success: true,
-                count: jobs.length,
-                data: jobs
-            });
-
-        } catch (error) {
-            console.error('Get jobs error:', error);
-            return res.status(500).json({
+        const [jobs] = await pool.query('SELECT * FROM jobs_dj WHERE id = ?', [id]);
+        if (jobs.length === 0) {
+            return res.status(404).json({
                 success: false,
-                message: 'Error fetching job offers'
+                message: 'Job not found'
             });
         }
+
+        await pool.query(
+            `UPDATE jobs_dj SET
+                title = COALESCE(?, title),
+                description = COALESCE(?, description),
+                salary_min = COALESCE(?, salary_min),
+                salary_max = COALESCE(?, salary_max),
+                currency = COALESCE(?, currency),
+                experience_years = COALESCE(?, experience_years),
+                remote_type = COALESCE(?, remote_type),
+                skills = COALESCE(?, skills)
+            WHERE id = ?`,
+            [title, description, salary_min, salary_max, currency, experience_years, remote_type, skills ? JSON.stringify(skills) : null, id]
+        );
+
+        const [updatedJob] = await pool.query('SELECT * FROM jobs_dj WHERE id = ?', [id]);
+        return res.status(200).json({
+            success: true,
+            message: 'Job offer updated successfully',
+            data: updatedJob[0]
+        });
+
+    } catch (error) {
+        console.error('Update job error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error updating job offer'
+        });
     }
-};
+}
+
+ }
+
 
 module.exports = JobController;

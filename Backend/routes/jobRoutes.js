@@ -137,4 +137,7 @@ router.post(
  */
 router.get('/', JobController.getAll);
 
+
+router.patch('/:id', authenticateToken, authorizeRoles('recruiter', 'admin'), JobController.update);
+
 module.exports = router;
