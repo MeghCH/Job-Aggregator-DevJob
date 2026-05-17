@@ -42,7 +42,7 @@ export default function JobCard({
 
     if (!id) return;
 
-    const jobId = String(id);
+    const jobId = Number(id);
     const prev = saved;
     setSaved(!prev);
 

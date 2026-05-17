@@ -60,6 +60,13 @@ app.get('/api/health', (req, res) => {
 // Auth routes
 app.use('/api/auth', authRoutes);
 
+// ── Ingestion health check at startup ─────────────────
+if (process.env.WLD_API_KEY) {
+    console.log('[Ingestion] WLD_API_KEY is set');
+} else {
+    console.warn('[Ingestion] WLD_API_KEY is NOT set — ingestion will fail');
+}
+
 // Job routes
 app.use('/api/jobs', jobRoutes);
 

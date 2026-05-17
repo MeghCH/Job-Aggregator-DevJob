@@ -13,7 +13,7 @@ const JobController = {
     async create(req, res) {
         try {
             const {
-                id,
+                external_id,
                 company_id,
                 title,
                 description,
@@ -27,10 +27,10 @@ const JobController = {
             } = req.body;
 
             // Required fields
-            if (!id || !company_id || !title) {
+            if (!company_id || !title) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Please provide id, company_id and title'
+                    message: 'Please provide company_id and title'
                 });
             }
 
@@ -65,15 +65,15 @@ const JobController = {
                 });
             }
 
-            // Insert into jobs_dj
+            // Insert into jobs_dj (id is auto-increment)
             const [result] = await pool.query(
                 `INSERT INTO jobs_dj (
-                    id, company_id, title, description,
+                    external_id, company_id, title, description,
                     salary_min, salary_max, currency,
                     experience_years, remote_type, location, skills, ai_summary, ai_tags, created_at
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
                 [
-                    id,
+                    external_id || null,
                     company_id,
                     title,
                     description || null,
@@ -89,9 +89,10 @@ const JobController = {
                 ]
             );
 
+            const newId = result.insertId;
             const [newJob] = await pool.query(
                 'SELECT * FROM jobs_dj WHERE id = ?',
-                [id]
+                [newId]
             );
 
             return res.status(201).json({
@@ -107,7 +108,7 @@ const JobController = {
             if (error.code === 'ER_DUP_ENTRY') {
                 return res.status(409).json({
                     success: false,
-                    message: 'A job with this id already exists'
+                    message: 'A job with this external_id already exists'
                 });
             }
 
@@ -203,6 +204,49 @@ const JobController = {
         } catch (error) {
             console.error('Get recruiter jobs error:', error);
             return res.status(500).json({ success: false, message: 'Error fetching your jobs' });
+        }
+    },
+
+    async getById(req, res) {
+        try {
+            const { id } = req.params;
+            const { source } = req.query;
+
+            let query = 'SELECT * FROM unified_jobs WHERE id = ?';
+            const params = [id];
+
+            if (source) {
+                query += ' AND source = ?';
+                params.push(source);
+            }
+
+            const [rows] = await pool.query(query, params);
+
+            if (rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Job not found'
+                });
+            }
+
+            if (rows.length > 1) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Multiple jobs found with this ID. Please provide a ?source=wld or ?source=dj query parameter.'
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                data: rows[0]
+            });
+
+        } catch (error) {
+            console.error('Get job by id error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Error fetching job offer'
+            });
         }
     },
 

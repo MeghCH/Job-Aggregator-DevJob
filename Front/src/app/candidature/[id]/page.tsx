@@ -9,7 +9,7 @@ import { getApplicationById } from "@/lib/api/candidatures";
 
 type Application = {
   id: number;
-  job_id: string;
+  job_id: number;
   job_source: string;
   applied_at: string;
   title: string;

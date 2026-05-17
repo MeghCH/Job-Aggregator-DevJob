@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS companies_wld (
     sector VARCHAR(255)
 );
 CREATE TABLE IF NOT EXISTS jobs_wld (
-    id VARCHAR(255) PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    external_id VARCHAR(255) NOT NULL UNIQUE,
     company_id VARCHAR(255),
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -47,7 +48,8 @@ CREATE TABLE IF NOT EXISTS companies_dj (
     sector VARCHAR(255)
 );
 CREATE TABLE IF NOT EXISTS jobs_dj (
-    id VARCHAR(255) PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    external_id VARCHAR(255) NOT NULL UNIQUE,
     company_id VARCHAR(255),
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -68,22 +70,22 @@ ALTER TABLE jobs_dj ADD COLUMN ai_tags JSON;
 CREATE TABLE IF NOT EXISTS saved_jobs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    job_id VARCHAR(255) NOT NULL,
+    job_id INT NOT NULL,
     job_source ENUM('wld', 'dj') NOT NULL,
     saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_saved (user_id, job_id)
+    UNIQUE KEY unique_saved (user_id, job_source, job_id)
 );
 
 CREATE TABLE IF NOT EXISTS applications (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    job_id VARCHAR(255) NOT NULL,
+    job_id INT NOT NULL,
     job_source ENUM('wld', 'dj') NOT NULL,
     status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_application (user_id, job_id)
+    UNIQUE KEY unique_application (user_id, job_source, job_id)
 );
 
 -- Unified view: merges both WeLoveDevs and DevJobs sources into a single queryable table

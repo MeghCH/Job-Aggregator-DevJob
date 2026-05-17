@@ -34,7 +34,7 @@ const authenticateToken = require('../middleware/authMiddleware');
  *                     type: object
  *                     properties:
  *                       id: { type: integer }
- *                       job_id: { type: string }
+ *                       job_id: { type: integer }
  *                       job_source: { type: string, enum: [wld, dj] }
  *                       saved_at: { type: string, format: date-time }
  *                       title: { type: string }
@@ -57,7 +57,7 @@ router.get('/', authenticateToken, SavedJobController.getSavedJobs);
  * /api/saved/ids:
  *   get:
  *     summary: Get saved job IDs
- *     description: Returns a flat array of job_id strings for the current user (useful for UI heart-toggle state).
+ *     description: Returns a flat array of job_id integers for the current user (useful for UI heart-toggle state).
  *     tags: [Saved Jobs]
  *     security:
  *       - bearerAuth: []
@@ -73,8 +73,8 @@ router.get('/', authenticateToken, SavedJobController.getSavedJobs);
  *                 data:
  *                   type: array
  *                   items:
- *                     type: string
- *                   example: ["job-001", "-OryapSOhW7-SHvNc_Ho"]
+ *                     type: integer
+ *                   example: [1, 2, 3]
  *       401:
  *         description: No token provided
  *       500:
@@ -100,8 +100,8 @@ router.get('/ids', authenticateToken, SavedJobController.getSavedIds);
  *             required: [job_id, job_source]
  *             properties:
  *               job_id:
- *                 type: string
- *                 example: job-001
+ *                 type: integer
+ *                 example: 1
  *               job_source:
  *                 type: string
  *                 enum: [wld, dj]
