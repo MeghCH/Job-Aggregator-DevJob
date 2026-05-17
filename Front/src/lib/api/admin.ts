@@ -39,3 +39,10 @@ export async function deleteAdminUser(id: number): Promise<{ success: boolean; m
   });
   return res.json();
 }
+
+export async function getAdminUserById(id: number): Promise<{ success: boolean; data: AdminUser }> {
+  const res = await fetch(`${API_URL}/api/admin/users/${id}`, {
+    credentials: "include",
+  });
+  return res.json();
+}

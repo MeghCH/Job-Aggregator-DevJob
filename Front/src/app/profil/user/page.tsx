@@ -65,9 +65,32 @@ export default function ProfilPage() {
             {candidatures.length === 0 && (
               <p className="text-sm text-gray-500 text-center">Aucune candidature envoyée.</p>
             )}
-            {candidatures.map((job) => (
-              <JobCard key={job.id} {...job} />
-            ))}
+            {candidatures.map((app) => {
+              const skills = (() => {
+                if (!app.skills) return [];
+                if (Array.isArray(app.skills)) return app.skills;
+                try { return JSON.parse(app.skills); } catch { return []; }
+              })();
+              const salary = app.salary_min || app.salary_max
+                ? `${app.salary_min ?? ""} – ${app.salary_max ?? ""} ${app.currency ?? "€"}`.trim()
+                : "Non précisé";
+              return (
+                <JobCard
+                  key={app.id}
+                  id={app.job_id}
+                  href={`/candidature/${app.id}`}
+                  title={app.title ?? "Poste non renseigné"}
+                  company={app.company_name ?? "—"}
+                  location={app.remote_type ?? "—"}
+                  salary={salary}
+                  contractType={app.contract_type ?? "—"}
+                  tags={skills}
+                  postedAt={new Date(app.applied_at).toLocaleDateString("fr-FR")}
+                  remote={app.remote_type ?? "—"}
+                  jobSource={app.job_source ?? "wld"}
+                />
+              );
+            })}
           </div>
         </div>
 

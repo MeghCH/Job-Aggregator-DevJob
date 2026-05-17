@@ -14,7 +14,6 @@ const JobController = {
         try {
             const {
                 external_id,
-                company_id,
                 title,
                 description,
                 salary_min,
@@ -26,44 +25,38 @@ const JobController = {
                 skills
             } = req.body;
 
-            // Required fields
-            if (!company_id || !title) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Please provide company_id and title'
-                });
+            if (!title) {
+                return res.status(400).json({ success: false, message: 'Le titre est requis' });
             }
+
+            // Récupérer l'entreprise du recruteur connecté
+            const [users] = await pool.query('SELECT company, siret FROM users WHERE id = ?', [req.user.userId]);
+            if (!users.length || !users[0].company) {
+                return res.status(400).json({ success: false, message: 'Aucune entreprise liée à votre compte' });
+            }
+            const companyName = users[0].company;
+            const companyId = `company_${companyName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+
+            // Upsert de l'entreprise dans companies_dj
+            await pool.query(
+                'INSERT INTO companies_dj (id, name) VALUES (?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name)',
+                [companyId, companyName]
+            );
 
             let ai_summary = null;
             let ai_tags = null;
             if (description) {
                 try {
-                    // 1. On appelle ton API IA pour le résumé
-                    // On utilise 'ai-service' car c'est le nom dans ton docker-compose
                     const resSum = await axios.post('http://ai-service:8000/summarize', { description });
                     ai_summary = resSum.data.summary;
-
-                    // 2. On appelle ton API IA pour les technos (Analyze)
                     const resAna = await axios.post('http://ai-service:8000/analyze', { description });
-                    ai_tags = JSON.stringify(resAna.data.analysis); // On stocke la liste en JSON
+                    ai_tags = JSON.stringify(resAna.data.analysis);
                 } catch (iaError) {
-                    console.error("Erreur IA (le serveur FastAPI est-il lancé ?) :", iaError.message);
-                    // On ne bloque pas la création de l'offre si l'IA échoue
+                    console.error("Erreur IA :", iaError.message);
                 }
             }
 
-            // Check if company exists
-            const [companies] = await pool.query(
-                'SELECT * FROM companies_dj WHERE id = ?',
-                [company_id]
-            );
-
-            if (companies.length === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Company not found'
-                });
-            }
+            const company_id = companyId;
 
             // Insert into jobs_dj (id is auto-increment)
             const [result] = await pool.query(
@@ -73,7 +66,7 @@ const JobController = {
                     experience_years, remote_type, location, skills, ai_summary, ai_tags, created_at
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
                 [
-                    external_id || null,
+                    external_id || `dj_${Date.now()}_${Math.random().toString(36).slice(2)}`,
                     company_id,
                     title,
                     description || null,

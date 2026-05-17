@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS jobs_dj (
     remote_type VARCHAR(50),
     location VARCHAR(255),
     created_at TIMESTAMP,
-    skills JSON, 
+    skills JSON,
     FOREIGN KEY (company_id) REFERENCES companies_dj(id)
 );
 ALTER TABLE jobs_dj ADD COLUMN ai_summary TEXT;
@@ -83,6 +83,16 @@ CREATE TABLE IF NOT EXISTS applications (
     job_id INT NOT NULL,
     job_source ENUM('wld', 'dj') NOT NULL,
     status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
+    cv_path VARCHAR(512) DEFAULT NULL,
+    cover_letter_path VARCHAR(512) DEFAULT NULL,
+    extra_documents_path VARCHAR(512) DEFAULT NULL,
+    applicant_firstname VARCHAR(100) DEFAULT NULL,
+    applicant_name VARCHAR(100) DEFAULT NULL,
+    applicant_gender VARCHAR(20) DEFAULT NULL,
+    applicant_email VARCHAR(255) DEFAULT NULL,
+    applicant_phone VARCHAR(30) DEFAULT NULL,
+    applicant_postal_code VARCHAR(10) DEFAULT NULL,
+    applicant_city VARCHAR(100) DEFAULT NULL,
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE KEY unique_application (user_id, job_source, job_id)

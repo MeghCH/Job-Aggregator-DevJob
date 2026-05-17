@@ -3,6 +3,7 @@ const router = express.Router();
 const CandidatureController = require('../controllers/candidatureController');
 const authenticateToken = require('../middleware/authMiddleware');
 const authorizeRoles = require('../middleware/roleMiddleware');
+const upload = require('../middleware/uploadMiddleware');
 
 /**
  * @swagger
@@ -152,7 +153,11 @@ router.get('/:id', authenticateToken, CandidatureController.getApplicationById);
  *       500:
  *         description: Server error
  */
-router.post('/', authenticateToken, CandidatureController.apply);
+router.post('/', authenticateToken, upload.fields([
+    { name: 'cv', maxCount: 1 },
+    { name: 'cover_letter', maxCount: 1 },
+    { name: 'extra_documents', maxCount: 1 },
+]), CandidatureController.apply);
 
 /**
  * @swagger

@@ -136,6 +136,7 @@ router.post(
  *               $ref: '#/components/schemas/Error'
  */
 router.get('/recruiter', authenticateToken, authorizeRoles('recruiter', 'admin'), JobController.getRecruiter);
+router.get('/:id', JobController.getById);
 router.get('/', JobController.getAll);
 
 /**

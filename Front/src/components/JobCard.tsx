@@ -18,6 +18,7 @@ type JobCardProps = {
   jobSource?: string;
   initialSaved?: boolean;
   onUnsave?: () => void;
+  href?: string;
 };
 
 export default function JobCard({
@@ -27,12 +28,13 @@ export default function JobCard({
   location,
   salary,
   contractType,
-  tags,
+  tags = [],
   postedAt,
   remote,
   jobSource = "wld",
   initialSaved = false,
   onUnsave,
+  href,
 }: JobCardProps) {
   const [saved, setSaved] = useState(initialSaved);
 
@@ -61,7 +63,7 @@ export default function JobCard({
   }
 
   return (
-    <Link href={id ? `/offres/${encodeURIComponent(id)}` : "#"} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-0 border border-indigo-100 bg-indigo-50/40 rounded-xl px-4 sm:px-6 py-4 sm:py-5 hover:border-indigo-300 transition-colors cursor-pointer">
+    <Link href={href ?? (id ? `/offres/${encodeURIComponent(id)}?source=${encodeURIComponent(jobSource)}` : "#")} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-0 border border-indigo-100 bg-indigo-50/40 rounded-xl px-4 sm:px-6 py-4 sm:py-5 hover:border-indigo-300 transition-colors cursor-pointer">
       {/* Gauche */}
       <div className="flex flex-col gap-2">
         <h3 className="text-base font-semibold text-gray-900">{title}</h3>

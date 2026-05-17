@@ -25,18 +25,42 @@ const CandidatureController = {
 
     async getApplicationById(req, res) {
         try {
-            const userId = req.user.userId;
+            const { userId, role } = req.user;
             const { id } = req.params;
 
-            const [rows] = await pool.query(
-                `SELECT a.id, a.job_id, a.job_source, a.applied_at,
-                        j.title, j.company_name, j.contract_type, j.remote_type,
-                        j.salary_min, j.salary_max, j.currency, j.skills
-                 FROM applications a
-                 LEFT JOIN unified_jobs j ON a.job_id = j.id
-                 WHERE a.id = ? AND a.user_id = ?`,
-                [id, userId]
-            );
+            let rows;
+
+            if (role === 'recruiter' || role === 'admin') {
+                // Recruiter: can view any application for a job belonging to their company
+                [rows] = await pool.query(
+                    `SELECT a.id, a.job_id, a.job_source, a.applied_at, a.status,
+                            a.cv_path, a.cover_letter_path, a.extra_documents_path,
+                            a.applicant_firstname, a.applicant_name, a.applicant_gender,
+                            a.applicant_email, a.applicant_phone, a.applicant_postal_code, a.applicant_city,
+                            j.title, j.company_name, j.contract_type, j.remote_type,
+                            j.salary_min, j.salary_max, j.currency, j.skills,
+                            u.firstname, u.name, u.email, u.skills AS candidate_skills, u.location
+                     FROM applications a
+                     LEFT JOIN unified_jobs j ON a.job_id = j.id AND a.job_source = j.source
+                     JOIN users u ON a.user_id = u.id
+                     WHERE a.id = ?`,
+                    [id]
+                );
+            } else {
+                // Applicant: can only view their own application
+                [rows] = await pool.query(
+                    `SELECT a.id, a.job_id, a.job_source, a.applied_at, a.status,
+                            a.cv_path, a.cover_letter_path, a.extra_documents_path,
+                            a.applicant_firstname, a.applicant_name, a.applicant_gender,
+                            a.applicant_email, a.applicant_phone, a.applicant_postal_code, a.applicant_city,
+                            j.title, j.company_name, j.contract_type, j.remote_type,
+                            j.salary_min, j.salary_max, j.currency, j.skills
+                     FROM applications a
+                     LEFT JOIN unified_jobs j ON a.job_id = j.id AND a.job_source = j.source
+                     WHERE a.id = ? AND a.user_id = ?`,
+                    [id, userId]
+                );
+            }
 
             if (rows.length === 0) {
                 return res.status(404).json({ success: false, message: 'Application not found' });
@@ -134,9 +158,21 @@ const CandidatureController = {
                 return res.status(400).json({ success: false, message: 'job_id and job_source are required' });
             }
 
+            const cv = req.files?.cv?.[0]?.filename ?? null;
+            const coverLetter = req.files?.cover_letter?.[0]?.filename ?? null;
+            const extraDocs = req.files?.extra_documents?.[0]?.filename ?? null;
+
+            const { firstname, name, gender, email, phone, postal_code, city } = req.body;
+
             await pool.query(
-                'INSERT INTO applications (user_id, job_id, job_source) VALUES (?, ?, ?)',
-                [userId, job_id, job_source]
+                `INSERT INTO applications
+                    (user_id, job_id, job_source, cv_path, cover_letter_path, extra_documents_path,
+                     applicant_firstname, applicant_name, applicant_gender, applicant_email,
+                     applicant_phone, applicant_postal_code, applicant_city)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [userId, job_id, job_source, cv, coverLetter, extraDocs,
+                 firstname ?? null, name ?? null, gender ?? null, email ?? null,
+                 phone ?? null, postal_code ?? null, city ?? null]
             );
 
             return res.status(201).json({ success: true, message: 'Application submitted' });

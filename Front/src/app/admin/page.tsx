@@ -7,11 +7,8 @@ import ProfileHeader from "@/components/ProfileHeader";
 import { Search, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getAdminUsers, updateAdminUser, deleteAdminUser, AdminUser } from "@/lib/api/admin";
+import { triggerIngestion, IngestResult } from "@/lib/api/ingestion";
 import { authApi } from "@/lib/api";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-
-type IngestResult = { inserted: number; skipped: number; errors: number; pagesFetched: number };
 
 function getInitials(user: AdminUser) {
   return `${user.firstname?.[0] ?? ""}${user.name?.[0] ?? ""}`.toUpperCase();
@@ -108,13 +105,9 @@ export default function AdminPage() {
     setIngestResult(null);
     setIngestError("");
     try {
-      const res = await fetch(`${API_URL}/api/ingest`, {
-        method: "POST",
-        credentials: "include",
-      });
-      const data = await res.json();
+      const data = await triggerIngestion();
       if (data.success) {
-        setIngestResult(data.data);
+        setIngestResult(data.data ?? null);
       } else {
         setIngestError(data.message || "Échec de l'ingestion.");
       }
