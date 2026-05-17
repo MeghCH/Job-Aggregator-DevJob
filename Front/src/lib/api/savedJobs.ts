@@ -5,13 +5,13 @@ export async function getSavedJobs() {
     return res.json();
 }
 
-export async function getSavedJobIds(): Promise<string[]> {
+export async function getSavedJobIds(): Promise<number[]> {
     const res = await fetch(`${API_URL}/api/saved/ids`, { credentials: "include" });
     const json = await res.json();
     return json?.success ? json.data : [];
 }
 
-export async function saveJob(job_id: string, job_source: string) {
+export async function saveJob(job_id: number, job_source: string) {
     const res = await fetch(`${API_URL}/api/saved`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -21,8 +21,8 @@ export async function saveJob(job_id: string, job_source: string) {
     return res.json();
 }
 
-export async function unsaveJob(job_id: string) {
-    const res = await fetch(`${API_URL}/api/saved/${encodeURIComponent(job_id)}`, {
+export async function unsaveJob(job_id: number) {
+    const res = await fetch(`${API_URL}/api/saved/${job_id}`, {
         method: "DELETE",
         credentials: "include",
     });

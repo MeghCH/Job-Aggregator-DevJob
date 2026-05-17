@@ -16,7 +16,7 @@ const CONTRACT_MAP: Record<string, string[]> = {
 };
 
 type Job = {
-  id: string;
+  id: number;
   title: string;
   company_id: string;
   company_name: string;
@@ -41,7 +41,7 @@ type Props = {
 
 export default function JobList({ activeFilter, activeSort, onSortChange, query, location }: Props) {
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [savedIds, setSavedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 

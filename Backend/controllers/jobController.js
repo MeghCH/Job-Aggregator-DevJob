@@ -132,6 +132,49 @@ const JobController = {
         }
     },
 
+    async getById(req, res) {
+        try {
+            const { id } = req.params;
+            const { source } = req.query;
+
+            let query = 'SELECT * FROM unified_jobs WHERE id = ?';
+            const params = [id];
+
+            if (source) {
+                query += ' AND source = ?';
+                params.push(source);
+            }
+
+            const [rows] = await pool.query(query, params);
+
+            if (rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Job not found'
+                });
+            }
+
+            if (rows.length > 1) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Multiple jobs found with this ID. Please provide a ?source=wld or ?source=dj query parameter.'
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                data: rows[0]
+            });
+
+        } catch (error) {
+            console.error('Get job by id error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Error fetching job offer'
+            });
+        }
+    },
+
     async getAll(req, res) {
         try {
             const [jobs] = await pool.query('SELECT * FROM unified_jobs ORDER BY created_at DESC');

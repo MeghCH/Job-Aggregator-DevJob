@@ -81,7 +81,18 @@ function normalizeJob(raw) {
         : [];
 
     // WLD expose companyId au niveau racine ET smallCompany.id
-    const companyId = raw.companyId?.toString() || company.id?.toString() || 'unknown';
+    // Quand les deux sont null, on utilise un slug du nom pour ne pas tout merger sur 'unknown'
+    const companyName = company.companyName?.trim()
+        || company.name?.trim()
+        || raw.companyName?.trim()
+        || raw.company?.name?.trim()
+        || 'Inconnue';
+
+    const companyId = raw.companyId?.toString()
+        || company.id?.toString()
+        || (companyName !== 'Inconnue'
+            ? `name_${companyName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`
+            : 'unknown');
 
     // Date de publication préférée: publishDate, fallback createdAt
     const dateValue = raw.publishDate || raw.createdAt;
@@ -95,7 +106,7 @@ function normalizeJob(raw) {
     return {
         external_id: raw.id?.toString() || raw.objectID?.toString() || `${Date.now()}_${Math.random().toString(36).slice(2)}`,
         company_id: companyId,
-        company_name: company.companyName?.trim() || 'Inconnue',
+        company_name: companyName,
         company_sector: (company.sectors || [])[0] || null,
         title: raw.title?.trim() || 'Sans titre',
         description: (raw.rawDescription || raw.description)?.trim() || null,
@@ -108,7 +119,7 @@ function normalizeJob(raw) {
         location,
         skills: JSON.stringify(skills),
         created_at: createdAt,
-        isInvalid: !raw.title?.trim() || !company.companyName?.trim(),
+        isInvalid: !raw.title?.trim() || companyName === 'Inconnue',
     };
 }
 
@@ -127,7 +138,9 @@ async function fetchWldPage(page = 0, size = 100) {
     });
 
     if (!res.ok) {
-        throw new Error(`WLD API returned ${res.status}: ${await res.text()}`);
+        const body = await res.text();
+        console.error(`[Ingestion] WLD API HTTP ${res.status}: ${body}`);
+        throw new Error(`WLD API returned ${res.status}: ${body}`);
     }
 
     return res.json();
@@ -135,7 +148,8 @@ async function fetchWldPage(page = 0, size = 100) {
 
 async function upsertCompany(pool, company) {
     await pool.query(
-        'INSERT IGNORE INTO companies_wld (id, name, sector) VALUES (?, ?, ?)',
+        `INSERT INTO companies_wld (id, name, sector) VALUES (?, ?, ?)
+         ON DUPLICATE KEY UPDATE name = VALUES(name), sector = VALUES(sector)`,
         [company.id, company.name, company.sector],
     );
 }
