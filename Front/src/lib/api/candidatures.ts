@@ -49,6 +49,14 @@ export async function apply(
   return res.json();
 }
 
+export async function deleteApplication(id: number | string) {
+  const res = await fetch(`${API_URL}/api/applications/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  return res.json();
+}
+
 export async function updateApplicationStatus(
   id: number | string,
   status: "pending" | "accepted" | "rejected"

@@ -200,5 +200,6 @@ router.post('/', authenticateToken, upload.fields([
  *         description: Server error
  */
 router.patch('/:id', authenticateToken, authorizeRoles('recruiter', 'admin'), CandidatureController.updateApplicationStatus);
+router.delete('/:id', authenticateToken, CandidatureController.deleteApplication);
 
 module.exports = router;

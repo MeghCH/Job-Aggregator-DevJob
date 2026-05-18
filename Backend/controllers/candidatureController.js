@@ -149,6 +149,42 @@ const CandidatureController = {
         }
     },
 
+    async deleteApplication(req, res) {
+        try {
+            const { userId, role } = req.user;
+            const { id } = req.params;
+
+            let rows;
+
+            if (role === 'recruiter' || role === 'admin') {
+                [rows] = await pool.query(
+                    `SELECT a.id FROM applications a
+                     JOIN jobs_dj j ON a.job_id = j.id
+                     JOIN companies_dj c ON j.company_id = c.id
+                     JOIN users u ON u.id = ?
+                     WHERE a.id = ? AND (? = 'admin' OR c.name = u.company)`,
+                    [userId, id, role]
+                );
+            } else {
+                [rows] = await pool.query(
+                    'SELECT id FROM applications WHERE id = ? AND user_id = ?',
+                    [id, userId]
+                );
+            }
+
+            if (rows.length === 0) {
+                return res.status(403).json({ success: false, message: 'Application not found or not authorized' });
+            }
+
+            await pool.query('DELETE FROM applications WHERE id = ?', [id]);
+
+            return res.status(200).json({ success: true, message: 'Application deleted' });
+        } catch (error) {
+            console.error('Delete application error:', error);
+            return res.status(500).json({ success: false, message: 'Error deleting application' });
+        }
+    },
+
     async apply(req, res) {
         try {
             const userId = req.user.userId;

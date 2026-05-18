@@ -167,6 +167,7 @@ router.post(
  *         description: Server error
  */
 router.get('/recruiter', authenticateToken, authorizeRoles('recruiter', 'admin'), JobController.getRecruiter);
+router.delete('/:id', authenticateToken, authorizeRoles('recruiter', 'admin'), JobController.deleteById);
 router.get('/:id', JobController.getById);
 router.get('/', JobController.getAll);
 

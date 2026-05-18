@@ -58,4 +58,12 @@ export const api = {
     });
     return res.json();
   },
+
+  async deleteJob(id: string | number) {
+    const res = await fetch(`${API_URL}/api/jobs/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    return res.json();
+  },
 };

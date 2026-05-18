@@ -7,6 +7,7 @@ import ProfileHeader from "@/components/ProfileHeader";
 import JobCard from "@/components/JobCard";
 import LogoutButton from "@/components/LogoutButton";
 import { authApi, getMyApplications, getSavedJobs } from "@/lib/api";
+import { deleteApplication } from "@/lib/api/candidatures";
 
 type User = {
   name: string;
@@ -80,14 +81,18 @@ export default function ProfilPage() {
                   id={app.job_id}
                   href={`/candidature/${app.id}`}
                   title={app.title ?? "Poste non renseigné"}
-                  company={app.company_name ?? "—"}
-                  location={app.remote_type ?? "—"}
+                  company={app.company_name ?? "-"}
+                  location={app.remote_type ?? "-"}
                   salary={salary}
-                  contractType={app.contract_type ?? "—"}
+                  contractType={app.contract_type ?? "-"}
                   tags={skills}
                   postedAt={new Date(app.applied_at).toLocaleDateString("fr-FR")}
-                  remote={app.remote_type ?? "—"}
+                  remote={app.remote_type ?? "-"}
                   jobSource={app.job_source ?? "wld"}
+                  onDelete={async () => {
+                    const res = await deleteApplication(app.id);
+                    if (res?.success) setCandidatures((prev) => prev.filter((c) => c.id !== app.id));
+                  }}
                 />
               );
             })}

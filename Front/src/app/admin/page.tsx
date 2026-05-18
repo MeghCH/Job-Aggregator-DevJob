@@ -146,11 +146,6 @@ export default function AdminPage() {
     { n: "5", l: "Signalements" },
   ];
 
-  const offresEnAttente = [
-    { id: 1, title: "Dev full stack H/F", company: "Poisson Barbu", location: "Strasbourg", date: "02/04/2026", type: "CDI" },
-    { id: 2, title: "Alternance Data Engineer", company: "Snapp", location: "Paris", date: "01/04/2026", type: "Alternance" },
-  ];
-
   const offresSignalees = [
     { id: 3, title: "Stage UX Designer", company: "Entreprise inconnue", location: "Lyon", date: "03/04/2026", type: "Stage" },
   ];
@@ -335,46 +330,6 @@ export default function AdminPage() {
           <div className="flex flex-col gap-6">
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
-                Offres en attente de validation
-              </p>
-              <div className="flex flex-col gap-2">
-                {offresEnAttente.map((offre) => (
-                  <div
-                    key={offre.id}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-indigo-100 bg-indigo-50/40 rounded-xl px-5 py-4"
-                  >
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{offre.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {offre.company} · {offre.location} · Soumis le {offre.date}
-                      </p>
-                      <div className="flex gap-2 mt-2">
-                        <span className="text-xs bg-amber-100 text-amber-700 border border-amber-300 px-2 py-0.5 rounded-md">
-                          En attente
-                        </span>
-                        <span className="text-xs bg-indigo-100 text-indigo-600 border border-indigo-200 px-2 py-0.5 rounded-md">
-                          {offre.type}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2 sm:shrink-0">
-                      <button className="text-xs bg-green-100 text-green-800 border border-green-400 rounded-lg px-3 py-1.5 hover:bg-green-200 transition-colors">
-                        Approuver
-                      </button>
-                      <button className="text-xs bg-red-100 text-red-800 border border-red-400 rounded-lg px-3 py-1.5 hover:bg-red-200 transition-colors">
-                        Refuser
-                      </button>
-                      <button className="text-xs bg-gray-50 text-gray-600 border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-100 transition-colors">
-                        Supprimer
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
                 Offres signalées
               </p>
               <div className="flex flex-col gap-2">
@@ -507,6 +462,7 @@ export default function AdminPage() {
 
                 {(roleFilter === "all" || roleFilter === "banned") && (
                   <div>
+                    <hr className="border-gray-100 mb-6" />
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
                       Comptes bannis
                     </p>

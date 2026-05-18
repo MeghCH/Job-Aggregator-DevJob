@@ -18,6 +18,7 @@ type JobCardProps = {
   jobSource?: string;
   initialSaved?: boolean;
   onUnsave?: () => void;
+  onDelete?: () => void;
   href?: string;
 };
 
@@ -34,6 +35,7 @@ export default function JobCard({
   jobSource = "wld",
   initialSaved = false,
   onUnsave,
+  onDelete,
   href,
 }: JobCardProps) {
   const [saved, setSaved] = useState(initialSaved);
@@ -63,7 +65,7 @@ export default function JobCard({
   }
 
   return (
-    <Link href={href ?? (id ? `/offres/${encodeURIComponent(id)}?source=${encodeURIComponent(jobSource)}` : "#")} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-0 border border-indigo-100 bg-indigo-50/40 rounded-xl px-4 sm:px-6 py-4 sm:py-5 hover:border-indigo-300 transition-colors cursor-pointer">
+    <Link href={href ?? (id ? `/offres/${encodeURIComponent(id)}?source=${encodeURIComponent(jobSource)}` : "#")} className="relative flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-0 border border-indigo-100 bg-indigo-50/40 rounded-xl px-4 sm:px-6 py-4 sm:py-5 hover:border-indigo-300 transition-colors cursor-pointer">
       {/* Gauche */}
       <div className="flex flex-col gap-2">
         <h3 className="text-base font-semibold text-gray-900">{title}</h3>
@@ -101,6 +103,22 @@ export default function JobCard({
           <Heart className={`w-4 h-4 ${saved ? "fill-indigo-500 text-indigo-500" : "text-indigo-400"}`} />
         </button>
       </div>
+
+      {onDelete && (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onDelete();
+          }}
+          aria-label="Supprimer la candidature"
+          className="absolute top-2 right-2 text-gray-300 hover:text-red-500 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
+            <path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z" />
+          </svg>
+        </button>
+      )}
     </Link>
   );
 }

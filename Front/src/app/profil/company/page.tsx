@@ -8,7 +8,7 @@ import LogoutButton from "@/components/LogoutButton";
 import { Mail, MapPin, Pencil, Check, X } from "lucide-react";
 import Link from "next/link";
 import { authApi, jobsApi } from "@/lib/api";
-import { getApplicationsByJob } from "@/lib/api/candidatures";
+import { getApplicationsByJob, deleteApplication } from "@/lib/api/candidatures";
 
 type Job = {
   id: string;
@@ -161,7 +161,7 @@ export default function ProfilAdminPage() {
                 try { return JSON.parse(offre.skills || "[]"); } catch { return []; }
               })();
               const salary = offre.salary_min || offre.salary_max
-                ? `${offre.salary_min ?? ""} – ${offre.salary_max ?? ""} ${offre.currency ?? "€"}`.trim()
+                ? `${offre.salary_min ?? ""} - ${offre.salary_max ?? ""} ${offre.currency ?? "€"}`.trim()
                 : "";
               return (
                 <JobCardCompany
@@ -176,6 +176,10 @@ export default function ProfilAdminPage() {
                   postedAt={new Date(offre.created_at).toLocaleDateString("fr-FR")}
                   remote={offre.remote_type || ""}
                   publishedAt={new Date(offre.created_at).toLocaleDateString("fr-FR")}
+                  onDelete={async () => {
+                    const res = await jobsApi.deleteJob(offre.id);
+                    if (res?.success) setOffres((prev) => prev.filter((o) => o.id !== offre.id));
+                  }}
                 />
               );
             })}
@@ -184,11 +188,11 @@ export default function ProfilAdminPage() {
 
         <hr className="border-gray-100 mb-8" />
 
-        <div className="flex flex-col gap-4 mb-12">
+        <div className="flex flex-col gap-4 mb-12 mt-4">
           <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest text-center">
             Candidats
           </h2>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 mt-2">
             {candidats.length === 0 && (
               <p className="text-sm text-gray-500 text-center">Aucune candidature reçue.</p>
             )}
@@ -207,6 +211,10 @@ export default function ProfilAdminPage() {
                     location={candidat.location || ""}
                     appliedTo={candidat.job_source}
                     sentAt={new Date(candidat.applied_at).toLocaleDateString("fr-FR")}
+                    onDelete={async () => {
+                      const res = await deleteApplication(candidat.id);
+                      if (res?.success) setCandidats((prev) => prev.filter((c) => c.id !== candidat.id));
+                    }}
                   />
                 </Link>
               );
