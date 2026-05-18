@@ -167,40 +167,17 @@ router.post(
  *         description: Server error
  */
 router.get('/recruiter', authenticateToken, authorizeRoles('recruiter', 'admin'), JobController.getRecruiter);
-router.delete('/:id', authenticateToken, authorizeRoles('recruiter', 'admin'), JobController.deleteById);
+router.get('/:id', JobController.getById);
+router.get('/', JobController.getAll);
 
 /**
  * @swagger
- * /api/jobs/{id}:
- *   get:
- *     summary: Get a job offer by ID
- *     tags: [Jobs]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Job ID
- *       - in: query
- *         name: source
- *         schema:
- *           type: string
- *           enum: [wld, dj]
- *         description: Filter by source (optional, if multiple jobs share the same ID)
- *     responses:
- *       200:
- *         description: Job found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Job'
- *       404:
- *         description: Job not found
- *       400:
- *         description: Multiple jobs found — source filter required
+ * /api/jobs/summarize:
+ * post:
+ * summary: Summarize a job description using AI
+ * tags: [Jobs]
  */
-router.get('/:id', JobController.getById);
-router.get('/', JobController.getAll);
+router.post('/summarize', JobController.summarize);
+router.post('/analyze', JobController.analyze);
 
 module.exports = router;

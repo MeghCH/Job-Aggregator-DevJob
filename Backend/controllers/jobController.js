@@ -1,5 +1,5 @@
 const pool = require('../config/db');
-
+const axios = require('axios');
 /**
  * @description Job Controller
  * Handles job offer creation and retrieval
@@ -14,7 +14,6 @@ const JobController = {
         try {
             const {
                 external_id,
-                company_id,
                 title,
                 description,
                 salary_min,
@@ -26,36 +25,48 @@ const JobController = {
                 skills
             } = req.body;
 
-            // Required fields
-            if (!company_id || !title) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Please provide company_id and title'
-                });
+            if (!title) {
+                return res.status(400).json({ success: false, message: 'Le titre est requis' });
             }
 
-            // Check if company exists
-            const [companies] = await pool.query(
-                'SELECT * FROM companies_dj WHERE id = ?',
-                [company_id]
+            // Récupérer l'entreprise du recruteur connecté
+            const [users] = await pool.query('SELECT company, siret FROM users WHERE id = ?', [req.user.userId]);
+            if (!users.length || !users[0].company) {
+                return res.status(400).json({ success: false, message: 'Aucune entreprise liée à votre compte' });
+            }
+            const companyName = users[0].company;
+            const companyId = `company_${companyName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+
+            // Upsert de l'entreprise dans companies_dj
+            await pool.query(
+                'INSERT INTO companies_dj (id, name) VALUES (?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name)',
+                [companyId, companyName]
             );
 
-            if (companies.length === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Company not found'
-                });
+            let ai_summary = null;
+            let ai_tags = null;
+            if (description) {
+                try {
+                    const resSum = await axios.post('http://ai-service:8000/summarize', { description });
+                    ai_summary = resSum.data.summary;
+                    const resAna = await axios.post('http://ai-service:8000/analyze', { description });
+                    ai_tags = JSON.stringify(resAna.data.analysis);
+                } catch (iaError) {
+                    console.error("Erreur IA :", iaError.message);
+                }
             }
+
+            const company_id = companyId;
 
             // Insert into jobs_dj (id is auto-increment)
             const [result] = await pool.query(
                 `INSERT INTO jobs_dj (
                     external_id, company_id, title, description,
                     salary_min, salary_max, currency,
-                    experience_years, remote_type, location, skills, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+                    experience_years, remote_type, location, skills, ai_summary, ai_tags, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
                 [
-                    external_id || null,
+                    external_id || `dj_${Date.now()}_${Math.random().toString(36).slice(2)}`,
                     company_id,
                     title,
                     description || null,
@@ -65,7 +76,9 @@ const JobController = {
                     experience_years || null,
                     remote_type || null,
                     location || null,
-                    skills ? JSON.stringify(skills) : null
+                    skills ? JSON.stringify(skills) : null,
+                    ai_summary,
+                    ai_tags
                 ]
             );
 
@@ -95,6 +108,61 @@ const JobController = {
             return res.status(500).json({
                 success: false,
                 message: 'Error creating job offer'
+            });
+        }
+    },
+
+    async summarize(req, res) {
+        try {
+            const { description } = req.body;
+
+            if (!description) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Description is required'
+                });
+            }
+
+            const response = await axios.post('http://ai-service:8000/summarize', { description });
+            
+            return res.status(200).json({
+                success: true,
+                summary: response.data.summary
+            });
+        } catch (error) {
+            console.error('Summarize error:', error.message);
+            return res.status(500).json({
+                success: false,
+                message: 'Error communicating with AI service'
+            });
+        }
+    },
+    /**
+     * @route POST /api/jobs/analyze
+     * @desc Analyze job description to extract skills and tags
+     */
+    async analyze(req, res) {
+        try {
+            const { description } = req.body;
+
+            if (!description) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Description is required'
+                });
+            }
+
+            const response = await axios.post('http://ai-service:8000/analyze', { description });
+            
+            return res.status(200).json({
+                success: true,
+                analysis: response.data.analysis
+            });
+        } catch (error) {
+            console.error('Analyze error:', error.message);
+            return res.status(500).json({
+                success: false,
+                message: 'Error communicating with AI service for analysis'
             });
         }
     },

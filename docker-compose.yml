@@ -45,6 +45,8 @@ services:
       DB_PORT: 3306
     ports:
       - "3000:3000"
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -65,7 +67,14 @@ services:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     networks:
       - backend_network
-
+  ai-service:
+    build: ./AI-service
+    container_name: jobaggregator-ai
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - backend_network
   tests:
     image: curlimages/curl:latest
     container_name: jobaggregator-tests
@@ -138,6 +147,7 @@ services:
 
 volumes:
   db_data:
+  uploads_data:
 
 networks:
   backend_network:

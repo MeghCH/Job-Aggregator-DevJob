@@ -14,8 +14,6 @@ export const api = {
   },
 
   async createJob(data: {
-    id: string;
-    company_id: string;
     title: string;
     description?: string;
     salary_min?: number;
@@ -23,6 +21,7 @@ export const api = {
     currency?: string;
     experience_years?: number;
     remote_type?: "remote" | "hybrid" | "onsite";
+    location?: string;
     skills?: string[];
   }) {
     const res = await fetch(`${API_URL}/api/jobs`, {
@@ -30,6 +29,32 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  async getById(id: string | number, source?: string) {
+    const params = source ? `?source=${encodeURIComponent(source)}` : "";
+    const res = await fetch(`${API_URL}/api/jobs/${encodeURIComponent(id)}${params}`);
+    return res.json();
+  },
+
+  async summarizeJob(description: string) {
+    const res = await fetch(`${API_URL}/api/jobs/summarize`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ description }),
+    });
+    return res.json();
+  },
+
+  async analyzeJob(description: string) {
+    const res = await fetch(`${API_URL}/api/jobs/analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ description }),
     });
     return res.json();
   },

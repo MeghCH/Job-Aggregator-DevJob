@@ -57,7 +57,8 @@ const MIGRATIONS = [
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`,
 
-    `ALTER TABLE users MODIFY COLUMN role ENUM('user','recruiter','admin') DEFAULT 'user'`,
+    `ALTER TABLE users MODIFY COLUMN role ENUM('user','recruiter','admin','banned') DEFAULT 'user'`,
+    `ALTER TABLE users ADD COLUMN banned_at TIMESTAMP NULL DEFAULT NULL`,
     `ALTER TABLE jobs_wld MODIFY COLUMN created_at DATETIME`,
     `ALTER TABLE jobs_dj MODIFY COLUMN created_at DATETIME`,
 

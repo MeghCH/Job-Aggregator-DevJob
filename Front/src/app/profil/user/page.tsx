@@ -42,7 +42,7 @@ export default function ProfilPage() {
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      <div className="max-w-3xl mx-auto px-6">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
         <div className="flex justify-end pt-6">
           <LogoutButton />
         </div>
@@ -62,17 +62,48 @@ export default function ProfilPage() {
             Mes candidatures
           </h2>
           <div className="flex flex-col gap-3">
-            {candidatures.map((job) => (
-              <JobCard key={job.id} {...job} />
-            ))}
+            {candidatures.length === 0 && (
+              <p className="text-sm text-gray-500 text-center">Aucune candidature envoyée.</p>
+            )}
+            {candidatures.map((app) => {
+              const skills = (() => {
+                if (!app.skills) return [];
+                if (Array.isArray(app.skills)) return app.skills;
+                try { return JSON.parse(app.skills); } catch { return []; }
+              })();
+              const salary = app.salary_min || app.salary_max
+                ? `${app.salary_min ?? ""} – ${app.salary_max ?? ""} ${app.currency ?? "€"}`.trim()
+                : "Non précisé";
+              return (
+                <JobCard
+                  key={app.id}
+                  id={app.job_id}
+                  href={`/candidature/${app.id}`}
+                  title={app.title ?? "Poste non renseigné"}
+                  company={app.company_name ?? "—"}
+                  location={app.remote_type ?? "—"}
+                  salary={salary}
+                  contractType={app.contract_type ?? "—"}
+                  tags={skills}
+                  postedAt={new Date(app.applied_at).toLocaleDateString("fr-FR")}
+                  remote={app.remote_type ?? "—"}
+                  jobSource={app.job_source ?? "wld"}
+                />
+              );
+            })}
           </div>
         </div>
+
+        <hr className="border-gray-100 mb-8" />
 
         <div className="flex flex-col gap-4 mb-12">
           <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest text-center">
             Offres sauvegardées
           </h2>
           <div className="flex flex-col gap-3">
+            {savedJobs.length === 0 && (
+              <p className="text-sm text-gray-500 text-center">Aucune offre sauvegardée.</p>
+            )}
             {savedJobs.map((job) => (
               <JobCard
                 key={job.job_id}
