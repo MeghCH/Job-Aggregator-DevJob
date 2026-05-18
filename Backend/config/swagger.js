@@ -108,6 +108,13 @@ const options = {
                         message: { type: 'string' },
                     },
                 },
+                Success: {
+                    type: 'object',
+                    properties: {
+                        success: { type: 'boolean', example: true },
+                        message: { type: 'string', example: 'Operation completed successfully' },
+                    },
+                },
             },
         },
     },

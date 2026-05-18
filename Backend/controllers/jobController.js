@@ -195,6 +195,93 @@ const JobController = {
     },
 
     /**
+     * @route DELETE /api/jobs/:id
+     * @desc Delete a job offer by ID
+     * @access Private (Owner/Recruiter for jobs_dj, Admin for jobs_wld)
+     */
+    async deleteById(req, res) {
+        try {
+            const { id } = req.params;
+            const { userId, role } = req.user;
+
+            // 1. Try jobs_dj first (manually created jobs)
+            const [djJobs] = await pool.query(
+                'SELECT * FROM jobs_dj WHERE id = ?',
+                [id]
+            );
+
+            if (djJobs.length > 0) {
+                const job = djJobs[0];
+
+                if (role !== 'admin') {
+                    const [users] = await pool.query(
+                        'SELECT company FROM users WHERE id = ?',
+                        [userId]
+                    );
+
+                    if (users.length === 0 || !users[0].company) {
+                        return res.status(403).json({
+                            success: false,
+                            message: 'Forbidden — no company linked to your account'
+                        });
+                    }
+
+                    const [companies] = await pool.query(
+                        'SELECT name FROM companies_dj WHERE id = ?',
+                        [job.company_id]
+                    );
+
+                    if (companies.length === 0 || companies[0].name !== users[0].company) {
+                        return res.status(403).json({
+                            success: false,
+                            message: 'You can only delete your own company jobs'
+                        });
+                    }
+                }
+
+                await pool.query('DELETE FROM jobs_dj WHERE id = ?', [id]);
+                return res.status(200).json({
+                    success: true,
+                    message: 'Job deleted successfully'
+                });
+            }
+
+            // 2. Try jobs_wld (ingested jobs) — admin only
+            const [wldJobs] = await pool.query(
+                'SELECT * FROM jobs_wld WHERE id = ?',
+                [id]
+            );
+
+            if (wldJobs.length > 0) {
+                if (role !== 'admin') {
+                    return res.status(403).json({
+                        success: false,
+                        message: 'Only admins can delete ingested jobs'
+                    });
+                }
+
+                await pool.query('DELETE FROM jobs_wld WHERE id = ?', [id]);
+                return res.status(200).json({
+                    success: true,
+                    message: 'Job deleted successfully'
+                });
+            }
+
+            return res.status(404).json({
+                success: false,
+                message: 'Job not found'
+            });
+
+        } catch (error) {
+            console.error('Delete job error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Error deleting job offer'
+            });
+        }
+    },
+
+    /**
      * @route DELETE /api/jobs/clean-unknown
      * @desc Delete job offers with unknown company or blank title (admin only)
      * @access Private (Admin)
