@@ -1,9 +1,17 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from llama_cpp import Llama
+from fastapi.middleware.cors import CORSMiddleware
 import re
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 MODEL_PATH = "./models/qwen2.5-0.5b-instruct-q5_0.gguf"
 
@@ -80,12 +88,16 @@ async def summarize(data: JobData):
     # Format ChatML pour forcer le résumé en français
     prompt = (
     f"<|im_start|>system\n"
-    f"Tu es un expert en recrutement tech. TON RÔLE : Extraire la valeur technique.\n"
-    f"CONSIGNE STRICTE : Tu dois obligatoirement citer le titre du poste et la stack technique (langages/frameworks).\n"
-    f"FORMAT : Développeur [Rôle] ([Stack]) pour [Mission].\n"
-    f"LIMITE : 25 mots maximum. Pas de blabla.<|im_end|>\n"
+    f"You are an expert tech recruiter. Your task is to summarize job offers technically and concisely.\n"
+    f"CRITICAL RULES:\n"
+    f"1. You MUST respond in FRENCH.\n"
+    f"2. Extract the core role, the technical stack (languages/frameworks), and the company's sector.\n"
+    f"3. If the company's business sector is not mentioned, omit it completely.\n"
+    f"4. If the remote policy is 'hybrid' or 'remote', you MUST use the exact word 'TÉLÉTRAVAIL'.\n"
+    f"5. STRICT FORMAT: Développeur [Rôle] ([Stack]) pour [Mission].\n"
+    f"6. LENGTH CONSTRAINT: Maximum 25 words. No fluff, no introductory text, get straight to the point.<|im_end|>\n"
     f"<|im_start|>user\n"
-    f"Résume cette offre de manière technique et précise : {desc}<|im_end|>\n"
+    f"Summarize this job offer technically and accurately: {desc}<|im_end|>\n"
     f"<|im_start|>assistant\n"
 )
 

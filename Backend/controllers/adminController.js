@@ -197,7 +197,7 @@ export const getAllJobsForAdmin = async (req, res) => {
     try {
         const [rows] = await pool.query(`
             SELECT j.*, c.name as company_name 
-            FROM jobs_dj j                             -- 1. Correction du nom de la table
+            FROM jobs_dj j                             
             LEFT JOIN companies_dj c ON j.company_id = c.id -- 2. Jointure sur c.id (pas external_id)
             ORDER BY j.created_at DESC
         `);
@@ -214,11 +214,11 @@ export const getAllJobsForAdmin = async (req, res) => {
  * @desc Approuver ou refuser un job
  */
 export const updateJobStatus = async (req, res) => {
-    const { id } = req.params; // C'est le texte "crypto-com..."
+    const { id } = req.params;
     const { status } = req.body;
 
     try {
-        // CORRECTION : On cible bien 'jobs_dj' et on cherche par 'external_id'
+      
         const [result] = await pool.query(
             'UPDATE jobs_dj SET status = ? WHERE external_id = ?', 
             [status, id]
@@ -241,10 +241,8 @@ export const updateJobStatus = async (req, res) => {
  * @desc Soft delete un job
  */
 export const deleteJob = async (req, res) => {
-    const { id } = req.params; // C'est le texte "crypto-com..."
-
+    const { id } = req.params;
     try {
-        // CORRECTION : On cible bien 'jobs_dj' et on cherche par 'external_id'
         const [result] = await pool.query(
             'UPDATE jobs_dj SET is_deleted = TRUE WHERE external_id = ?', 
             [id]

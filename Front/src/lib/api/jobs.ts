@@ -67,3 +67,23 @@ export const api = {
     return res.json();
   },
 };
+// Dans ton fichier de requêtes frontend (ex: lib/api/jobs.ts ou @/lib/api)
+export async function summarizeJobWithAI(description: string) {
+  try {
+    // On appelle ton backend Express (port 3000) sur la route qu'on a créée
+    const response = await fetch("http://localhost:3000/api/jobs/summarize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ description }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Erreur serveur backend : ${response.status}`);
+    }
+
+    return await response.json(); // Retourne { success: true, summary: "..." }
+  } catch (error) {
+    console.error("Erreur lors de l'appel de la passerelle IA :", error);
+    return { success: false, error: "Impossible de générer le résumé." };
+  }
+}
