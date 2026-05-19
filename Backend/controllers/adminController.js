@@ -1,11 +1,11 @@
-import pool from '../config/db.js';
-import bcrypt from 'bcryptjs';
+const pool = require('../config/db');
+const bcrypt = require('bcryptjs');
 
 /**
  * @route GET /api/admin/users
  * @desc Get all users (Admin only)
  */
-export const getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
     try {
         const [users] = await pool.query(
             'SELECT id, name, firstname, email, role, company, siret, created_at, banned_at FROM users ORDER BY created_at DESC'
@@ -29,7 +29,7 @@ export const getAllUsers = async (req, res) => {
  * @route GET /api/admin/users/:id
  * @desc Get a specific user by ID
  */
-export const getUserById = async (req, res) => {
+const getUserById = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -62,7 +62,7 @@ export const getUserById = async (req, res) => {
  * @route PATCH /api/admin/users/:id
  * @desc Update user partially
  */
-export const updateUser = async (req, res) => {
+const updateUser = async (req, res) => {
     try {
         const { id } = req.params;
         const updates = req.body;
@@ -106,7 +106,7 @@ export const updateUser = async (req, res) => {
  * @route DELETE /api/admin/users/:id
  * @desc Delete a user
  */
-export const deleteUser = async (req, res) => {
+const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -144,7 +144,7 @@ export const deleteUser = async (req, res) => {
  * @route POST /api/admin/setup-master
  * @desc Créer le TOUT PREMIER compte administrateur
  */
-export const registerAdmin = async (req, res) => {
+const registerAdmin = async (req, res) => {
     try {
         const [adminCheck] = await pool.query(
             "SELECT COUNT(*) as adminCount FROM users WHERE role = 'admin'"
@@ -193,7 +193,7 @@ export const registerAdmin = async (req, res) => {
  * @route GET /api/admin/jobs
  * @desc Récupérer tous les jobs pour l'admin
  */
-export const getAllJobsForAdmin = async (req, res) => {
+const getAllJobsForAdmin = async (req, res) => {
     try {
         const [rows] = await pool.query(`
             SELECT j.*, c.name as company_name 
@@ -213,7 +213,7 @@ export const getAllJobsForAdmin = async (req, res) => {
  * @route PATCH /api/admin/jobs/:id
  * @desc Approuver ou refuser un job
  */
-export const updateJobStatus = async (req, res) => {
+const updateJobStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
@@ -240,7 +240,7 @@ export const updateJobStatus = async (req, res) => {
  * @route DELETE /api/admin/jobs/:id
  * @desc Soft delete un job
  */
-export const deleteJob = async (req, res) => {
+const deleteJob = async (req, res) => {
     const { id } = req.params;
     try {
         const [result] = await pool.query(
@@ -258,4 +258,15 @@ export const deleteJob = async (req, res) => {
         console.error('Erreur SQL DELETE :', error);
         return res.status(500).json({ error: "Erreur lors de la suppression" });
     }
+};
+
+module.exports = {
+    getAllUsers,
+    getUserById,
+    updateUser,
+    deleteUser,
+    registerAdmin,
+    getAllJobsForAdmin,
+    updateJobStatus,
+    deleteJob,
 };

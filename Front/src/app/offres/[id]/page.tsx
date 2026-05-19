@@ -4,8 +4,9 @@ import { useEffect, useState, Suspense } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/NavBar";
-import { Euro, Briefcase, MapPin, Clock } from "lucide-react";
+import { Euro, Briefcase, MapPin, Clock, Flag } from "lucide-react";
 import { api } from "@/lib/api/jobs";
+import { reportJob } from "@/lib/api/reports";
 
 const REMOTE_LABELS: Record<string, string> = {
   onsite: "Présentiel",
@@ -39,6 +40,12 @@ function OffreDetail() {
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportSuccess, setReportSuccess] = useState(false);
+  const [reportError, setReportError] = useState("");
 
   useEffect(() => {
     api
@@ -77,6 +84,31 @@ function OffreDetail() {
 
   const applyHref = `/candidature?job_id=${encodeURIComponent(id)}&job_source=${encodeURIComponent(source ?? job?.source ?? "wld")}`;
 
+  const handleReport = async () => {
+    if (!job) return;
+    setReportLoading(true);
+    setReportSuccess(false);
+    setReportError("");
+    try {
+      const res = await reportJob(
+        Number(job.id),
+        job.source ?? (source || "wld"),
+        reportReason.trim() || undefined
+      );
+      if (res.success) {
+        setReportSuccess(true);
+        setReportReason("");
+        setTimeout(() => setShowReportModal(false), 1500);
+      } else {
+        setReportError(res.message || "Erreur lors du signalement.");
+      }
+    } catch {
+      setReportError("Impossible de contacter le serveur.");
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <p className="text-center py-20 text-sm text-gray-400">
@@ -109,13 +141,26 @@ function OffreDetail() {
         {job.location && (
           <p className="text-sm text-gray-500">{job.location}</p>
         )}
-        <div className="mt-2">
+        <div className="mt-2 flex items-center gap-3">
           <Link
             href={applyHref}
             className="inline-block bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors"
           >
             Continuer pour postuler
           </Link>
+          <button
+            onClick={() => {
+              setShowReportModal(true);
+              setReportSuccess(false);
+              setReportError("");
+            }}
+            className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-red-500 transition-colors"
+            title="Signaler cette offre"
+            aria-label="Signaler cette offre"
+          >
+            <Flag className="w-4 h-4" />
+            <span className="hidden sm:inline">Signaler</span>
+          </button>
         </div>
       </div>
 
@@ -196,6 +241,48 @@ function OffreDetail() {
           Postuler à cette offre
         </Link>
       </div>
+
+      {showReportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6 flex flex-col gap-4">
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <Flag className="w-5 h-5 text-red-500" />
+              Signaler cette offre
+            </h3>
+            <p className="text-sm text-gray-500">
+              Veuillez indiquer pourquoi vous signalez cette offre. Notre équipe de modération l'examinera.
+            </p>
+            <textarea
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+              placeholder="Raison du signalement (optionnel)"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 resize-none h-24"
+            />
+            {reportSuccess && (
+              <div className="text-sm text-green-600 font-medium">Signalement envoyé avec succès.</div>
+            )}
+            {reportError && (
+              <div className="text-sm text-red-600">{reportError}</div>
+            )}
+            <div className="flex flex-wrap gap-2 justify-end">
+              <button
+                onClick={() => setShowReportModal(false)}
+                className="text-sm text-gray-500 hover:text-gray-700 px-4 py-2 rounded-lg transition-colors"
+                disabled={reportLoading}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleReport}
+                disabled={reportLoading}
+                className="text-sm bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white font-medium px-4 py-2 rounded-lg transition-colors"
+              >
+                {reportLoading ? "Envoi..." : "Signaler"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
