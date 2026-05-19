@@ -106,6 +106,13 @@ const AuthController = {
 
             const user = users[0];
 
+            if (user.role === 'banned') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Votre compte a été suspendu.'
+                });
+            }
+
             const isPasswordValid = await bcrypt.compare(password, user.password);
 
             if (!isPasswordValid) {

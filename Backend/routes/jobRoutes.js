@@ -181,45 +181,4 @@ router.get('/', JobController.getAll);
  */
 router.post('/summarize', JobController.summarize);
 router.post('/analyze', JobController.analyze);
-// Dans ton fichier routes/jobRoutes.js
-
-// Route pour transférer la demande de résumé à l'IA locale (Port 8000)
-router.post('/summarize', async (req, res) => {
-    try {
-        const { description } = req.body;
-
-        if (!description) {
-            return res.status(400).json({ success: false, message: "La description est requise." });
-        }
-
-        // Le backend appelle l'IA (FastAPI) en local sur le port 8000
-        const iaResponse = await fetch('http://localhost:8000/summarize', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ description })
-        });
-
-        if (!iaResponse.ok) {
-            return res.status(502).json({ 
-                success: false, 
-                message: "L'IA a renvoyé une erreur ou n'est pas disponible." 
-            });
-        }
-
-        const data = await iaResponse.json();
-        
-        // On renvoie la réponse formatée au frontend (3001)
-        return res.json({ 
-            success: true, 
-            summary: data.summary 
-        });
-
-    } catch (error) {
-        console.error("Erreur passerelle IA dans jobRoutes:", error.message);
-        return res.status(500).json({ 
-            success: false, 
-            message: "Erreur interne lors de la communication avec l'IA." 
-        });
-    }
-});
 module.exports = router;
