@@ -46,3 +46,43 @@ export async function getAdminUserById(id: number): Promise<{ success: boolean; 
   });
   return res.json();
 }
+
+export interface AdminJob {
+  id: number;
+  external_id: string;
+  title: string;
+  company_name: string | null;
+  location: string | null;
+  contract_type: string | null;
+  remote_type: string | null;
+  status: "pending" | "approved" | "rejected";
+  created_at: string;
+}
+
+export async function getAdminJobs(): Promise<{ success: boolean; jobs: AdminJob[] }> {
+  const res = await fetch(`${API_URL}/api/admin/jobs`, {
+    credentials: "include",
+  });
+  return res.json();
+}
+
+export async function updateAdminJobStatus(
+  externalId: string,
+  status: "approved" | "rejected" | "pending"
+): Promise<{ success: boolean; message: string }> {
+  const res = await fetch(`${API_URL}/api/admin/jobs/${encodeURIComponent(externalId)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ status }),
+  });
+  return res.json();
+}
+
+export async function deleteAdminJob(externalId: string): Promise<{ success: boolean; message: string }> {
+  const res = await fetch(`${API_URL}/api/admin/jobs/${encodeURIComponent(externalId)}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  return res.json();
+}

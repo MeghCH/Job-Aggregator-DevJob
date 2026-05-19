@@ -128,11 +128,9 @@ const ReportController = {
                 });
             }
 
-            const resolvedAt = status === 'resolved' || status === 'dismissed' ? new Date() : null;
-
             const [result] = await pool.query(
-                `UPDATE reported_jobs SET status = ?, resolved_at = ? WHERE id = ?`,
-                [status, resolvedAt, id]
+                `UPDATE reported_jobs SET status = ? WHERE id = ?`,
+                [status, id]
             );
 
             if (result.affectedRows === 0) {
