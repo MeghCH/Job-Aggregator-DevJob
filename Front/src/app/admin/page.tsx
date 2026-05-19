@@ -9,14 +9,11 @@ import { cn } from "@/lib/utils";
 import { getAdminUsers, updateAdminUser, deleteAdminUser, AdminUser } from "@/lib/api/admin";
 import { triggerIngestion, IngestResult } from "@/lib/api/ingestion";
 import { authApi } from "@/lib/api";
+import { getReportedJobs, updateReportStatus, deleteReport, ReportedJob } from "@/lib/api/reports";
+import { formatDate } from "@/lib/utils";
 
 function getInitials(user: AdminUser) {
   return `${user.firstname?.[0] ?? ""}${user.name?.[0] ?? ""}`.toUpperCase();
-}
-
-function formatDate(dateStr: string) {
-  const d = new Date(dateStr);
-  return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
 }
 
 const ROLE_LABELS: Record<string, string> = {
@@ -41,6 +38,10 @@ export default function AdminPage() {
   const [actionError, setActionError] = useState("");
   const [adminProfile, setAdminProfile] = useState<{ firstname: string; name: string; email: string; skills: string[]; location: string } | null>(null);
 
+  const [reports, setReports] = useState<ReportedJob[]>([]);
+  const [reportsLoading, setReportsLoading] = useState(false);
+  const [reportsError, setReportsError] = useState("");
+
   useEffect(() => {
     authApi.me().then((res) => {
       if (res?.success) {
@@ -48,6 +49,23 @@ export default function AdminPage() {
         setAdminProfile({ firstname, name, email, skills: skills ?? [], location: location ?? "" });
       }
     }).catch(() => {});
+  }, []);
+
+  const fetchReports = useCallback(async () => {
+    setReportsLoading(true);
+    setReportsError("");
+    try {
+      const res = await getReportedJobs();
+      if (res.success) {
+        setReports(res.data);
+      } else {
+        setReportsError("Impossible de charger les signalements.");
+      }
+    } catch {
+      setReportsError("Impossible de contacter le serveur.");
+    } finally {
+      setReportsLoading(false);
+    }
   }, []);
 
   const fetchUsers = useCallback(async () => {
@@ -143,12 +161,32 @@ export default function AdminPage() {
     { n: "1 243", l: "Offres totales" },
     { n: "18", l: "En attente" },
     { n: usersLoading ? "…" : String(users.length), l: "Utilisateurs" },
-    { n: "5", l: "Signalements" },
+    { n: reportsLoading ? "…" : String(reports.length), l: "Signalements" },
   ];
 
-  const offresSignalees = [
-    { id: 3, title: "Stage UX Designer", company: "Entreprise inconnue", location: "Lyon", date: "03/04/2026", type: "Stage" },
-  ];
+  useEffect(() => {
+    if (activeTab === "offres") {
+      fetchReports();
+    }
+  }, [activeTab, fetchReports]);
+
+  const handleResolveReport = async (id: number) => {
+    const res = await updateReportStatus(id, "resolved");
+    if (!res.success) setReportsError(res.message || "Erreur lors de la mise à jour.");
+    fetchReports();
+  };
+
+  const handleDismissReport = async (id: number) => {
+    const res = await updateReportStatus(id, "dismissed");
+    if (!res.success) setReportsError(res.message || "Erreur lors de la mise à jour.");
+    fetchReports();
+  };
+
+  const handleDeleteReport = async (id: number) => {
+    const res = await deleteReport(id);
+    if (!res.success) setReportsError(res.message || "Erreur lors de la suppression.");
+    fetchReports();
+  };
 
   const UserRow = ({ u, section }: { u: AdminUser; section: "user" | "recruiter" | "banned" }) => (
     <div
@@ -332,34 +370,62 @@ export default function AdminPage() {
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
                 Offres signalées
               </p>
+              {reportsLoading && (
+                <div className="text-sm text-gray-500 text-center py-4">Chargement des signalements…</div>
+              )}
+              {reportsError && (
+                <div className="bg-red-100 border border-red-300 rounded-xl px-5 py-3 text-sm text-red-700">
+                  {reportsError}
+                </div>
+              )}
               <div className="flex flex-col gap-2">
-                {offresSignalees.map((offre) => (
+                {!reportsLoading && reports.length === 0 && (
+                  <p className="text-sm text-gray-500">Aucune offre signalée.</p>
+                )}
+                {reports.map((r) => (
                   <div
-                    key={offre.id}
+                    key={r.report_id}
                     className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-red-200 bg-red-100/30 rounded-xl px-5 py-4"
                   >
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{offre.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {offre.company} · {offre.location} · Signalé le {offre.date}
+                      <p className="text-sm font-semibold text-gray-900">
+                        {r.job_title || `Offre #${r.job_id}`}
                       </p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {r.company_name || "Entreprise inconnue"
+                        } · {r.location || "Non renseigné"
+                        } · Signalé le {formatDate(r.reported_at)}
+                        {r.reporter_name && ` par ${r.reporter_name}`}
+                      </p>
+                      {r.reason && (
+                        <p className="text-xs text-gray-500 mt-1 italic">“{r.reason}”</p>
+                      )}
                       <div className="flex gap-2 mt-2">
                         <span className="text-xs bg-red-100 text-red-800 border border-red-400 px-2 py-0.5 rounded-md">
-                          Signalée
+                          {r.report_status}
                         </span>
                         <span className="text-xs bg-indigo-100 text-indigo-600 border border-indigo-200 px-2 py-0.5 rounded-md">
-                          {offre.type}
+                          {r.contract_type || "Non renseigné"}
                         </span>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 sm:shrink-0">
-                      <button className="text-xs bg-green-100 text-green-800 border border-green-400 rounded-lg px-3 py-1.5 hover:bg-green-200 transition-colors">
+                      <button
+                        onClick={() => handleDismissReport(r.report_id)}
+                        className="text-xs bg-green-100 text-green-800 border border-green-400 rounded-lg px-3 py-1.5 hover:bg-green-200 transition-colors"
+                      >
                         Garder
                       </button>
-                      <button className="text-xs bg-red-100 text-red-800 border border-red-400 rounded-lg px-3 py-1.5 hover:bg-red-200 transition-colors">
-                        Refuser
+                      <button
+                        onClick={() => handleResolveReport(r.report_id)}
+                        className="text-xs bg-red-100 text-red-800 border border-red-400 rounded-lg px-3 py-1.5 hover:bg-red-200 transition-colors"
+                      >
+                        Refuser / Résoudre
                       </button>
-                      <button className="text-xs bg-gray-50 text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-100 transition-colors">
+                      <button
+                        onClick={() => handleDeleteReport(r.report_id)}
+                        className="text-xs bg-gray-50 text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-100 transition-colors"
+                      >
                         Supprimer
                       </button>
                     </div>

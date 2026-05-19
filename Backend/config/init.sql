@@ -126,7 +126,7 @@ SELECT
     j.skills,
     j.created_at,
     'wld' AS source,
-    'approved' AS status 
+    'approved' AS status
 FROM jobs_wld j
 LEFT JOIN companies_wld c ON j.company_id = c.id
 
@@ -153,3 +153,17 @@ SELECT
 FROM jobs_dj j
 LEFT JOIN companies_dj c ON j.company_id = c.id
 WHERE j.is_deleted = FALSE;
+
+-- --- SIGNALEMENTS ---
+CREATE TABLE IF NOT EXISTS reported_jobs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    job_id INT NOT NULL,
+    job_source ENUM('wld', 'dj') NOT NULL,
+    user_id INT NOT NULL,
+    reason TEXT DEFAULT NULL,
+    status ENUM('open', 'reviewed', 'resolved', 'dismissed') DEFAULT 'open',
+    reported_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    resolved_at TIMESTAMP NULL DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_report (user_id, job_id, job_source)
+);
