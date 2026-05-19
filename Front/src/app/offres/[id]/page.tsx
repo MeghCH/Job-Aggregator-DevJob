@@ -93,7 +93,7 @@ function OffreDetail() {
       const res = await reportJob(
         Number(job.id),
         job.source ?? (source || "wld"),
-        reportReason.trim() || undefined
+        reportReason.trim() || undefined,
       );
       if (res.success) {
         setReportSuccess(true);
@@ -154,7 +154,7 @@ function OffreDetail() {
               setReportSuccess(false);
               setReportError("");
             }}
-            className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-red-500 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-500 transition-colors"
             title="Signaler cette offre"
             aria-label="Signaler cette offre"
           >
@@ -192,7 +192,8 @@ function OffreDetail() {
           {job.experience_years != null && (
             <div className="flex items-center gap-3 text-sm text-gray-600">
               <Clock className="w-4 h-4 text-gray-500 shrink-0" />
-              {job.experience_years} an{job.experience_years > 1 ? "s" : ""} d'expérience
+              {job.experience_years} an{job.experience_years > 1 ? "s" : ""}{" "}
+              d'expérience
             </div>
           )}
         </div>
@@ -250,7 +251,8 @@ function OffreDetail() {
               Signaler cette offre
             </h3>
             <p className="text-sm text-gray-500">
-              Veuillez indiquer pourquoi vous signalez cette offre. Notre équipe de modération l'examinera.
+              Veuillez indiquer pourquoi vous signalez cette offre. Notre équipe
+              de modération l'examinera.
             </p>
             <textarea
               value={reportReason}
@@ -259,7 +261,9 @@ function OffreDetail() {
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 resize-none h-24"
             />
             {reportSuccess && (
-              <div className="text-sm text-green-600 font-medium">Signalement envoyé avec succès.</div>
+              <div className="text-sm text-green-600 font-medium">
+                Signalement envoyé avec succès.
+              </div>
             )}
             {reportError && (
               <div className="text-sm text-red-600">{reportError}</div>

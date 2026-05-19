@@ -8,7 +8,7 @@ export type IngestResult = {
 };
 
 export async function triggerIngestion(): Promise<{ success: boolean; data?: IngestResult; message?: string }> {
-  const res = await fetch(`${API_URL}/api/ingestion`, {
+  const res = await fetch(`${API_URL}/api/ingest`, {
     method: "POST",
     credentials: "include",
   });

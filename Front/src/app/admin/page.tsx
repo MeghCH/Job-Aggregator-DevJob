@@ -1,15 +1,26 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/NavBar";
 import LogoutButton from "@/components/LogoutButton";
 import ProfileHeader from "@/components/ProfileHeader";
 import { Search, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getAdminUsers, updateAdminUser, deleteAdminUser, AdminUser } from "@/lib/api/admin";
+import {
+  getAdminUsers,
+  updateAdminUser,
+  deleteAdminUser,
+  AdminUser,
+} from "@/lib/api/admin";
 import { triggerIngestion, IngestResult } from "@/lib/api/ingestion";
-import { authApi } from "@/lib/api";
-import { getReportedJobs, updateReportStatus, deleteReport, ReportedJob } from "@/lib/api/reports";
+import { authApi, jobsApi } from "@/lib/api";
+import {
+  getReportedJobs,
+  updateReportStatus,
+  deleteReport,
+  ReportedJob,
+} from "@/lib/api/reports";
 import { formatDate } from "@/lib/utils";
 
 function getInitials(user: AdminUser) {
@@ -24,6 +35,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export default function AdminPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"offres" | "users">("offres");
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -36,19 +48,43 @@ export default function AdminPage() {
   const [usersError, setUsersError] = useState("");
   const [roleEditing, setRoleEditing] = useState<number | null>(null);
   const [actionError, setActionError] = useState("");
-  const [adminProfile, setAdminProfile] = useState<{ firstname: string; name: string; email: string; skills: string[]; location: string } | null>(null);
+  const [adminProfile, setAdminProfile] = useState<{
+    firstname: string;
+    name: string;
+    email: string;
+    skills: string[];
+    location: string;
+  } | null>(null);
 
   const [reports, setReports] = useState<ReportedJob[]>([]);
   const [reportsLoading, setReportsLoading] = useState(false);
   const [reportsError, setReportsError] = useState("");
 
+  const [totalJobs, setTotalJobs] = useState<number | null>(null);
+
   useEffect(() => {
-    authApi.me().then((res) => {
-      if (res?.success) {
-        const { firstname, name, email, skills, location } = res.data;
-        setAdminProfile({ firstname, name, email, skills: skills ?? [], location: location ?? "" });
-      }
-    }).catch(() => {});
+    authApi
+      .me()
+      .then((res) => {
+        if (res?.success) {
+          const { firstname, name, email, skills, location } = res.data;
+          setAdminProfile({
+            firstname,
+            name,
+            email,
+            skills: skills ?? [],
+            location: location ?? "",
+          });
+        }
+      })
+      .catch(() => {});
+
+    jobsApi
+      .getAll()
+      .then((res) => {
+        if (res?.success) setTotalJobs(res.count);
+      })
+      .catch(() => {});
   }, []);
 
   const fetchReports = useCallback(async () => {
@@ -92,7 +128,8 @@ export default function AdminPage() {
   const handleRoleChange = async (id: number, role: string) => {
     setActionError("");
     const res = await updateAdminUser(id, { role });
-    if (!res.success) setActionError(res.message || "Erreur lors du changement de rôle.");
+    if (!res.success)
+      setActionError(res.message || "Erreur lors du changement de rôle.");
     setRoleEditing(null);
     fetchUsers();
   };
@@ -100,21 +137,24 @@ export default function AdminPage() {
   const handleBan = async (id: number) => {
     setActionError("");
     const res = await updateAdminUser(id, { role: "banned" });
-    if (!res.success) setActionError(res.message || "Erreur lors du bannissement.");
+    if (!res.success)
+      setActionError(res.message || "Erreur lors du bannissement.");
     fetchUsers();
   };
 
   const handleUnban = async (id: number) => {
     setActionError("");
     const res = await updateAdminUser(id, { role: "user" });
-    if (!res.success) setActionError(res.message || "Erreur lors du débannissement.");
+    if (!res.success)
+      setActionError(res.message || "Erreur lors du débannissement.");
     fetchUsers();
   };
 
   const handleDelete = async (id: number) => {
     setActionError("");
     const res = await deleteAdminUser(id);
-    if (!res.success) setActionError(res.message || "Erreur lors de la suppression.");
+    if (!res.success)
+      setActionError(res.message || "Erreur lors de la suppression.");
     fetchUsers();
   };
 
@@ -141,7 +181,9 @@ export default function AdminPage() {
       list.filter((u) => {
         const matchesSearch =
           search === "" ||
-          `${u.firstname} ${u.name}`.toLowerCase().includes(search.toLowerCase()) ||
+          `${u.firstname} ${u.name}`
+            .toLowerCase()
+            .includes(search.toLowerCase()) ||
           u.email.toLowerCase().includes(search.toLowerCase());
         const matchesRole =
           roleFilter === "all" ||
@@ -149,17 +191,18 @@ export default function AdminPage() {
           u.role === roleFilter;
         return matchesSearch && matchesRole;
       }),
-    [search, roleFilter]
+    [search, roleFilter],
   );
 
   const regularUsers = filterUsers(users.filter((u) => u.role === "user"));
-  const recruiterUsers = filterUsers(users.filter((u) => u.role === "recruiter"));
+  const recruiterUsers = filterUsers(
+    users.filter((u) => u.role === "recruiter"),
+  );
   const bannedUsers = filterUsers(users.filter((u) => u.role === "banned"));
   const adminUsers = filterUsers(users.filter((u) => u.role === "admin"));
 
   const stats = [
-    { n: "1 243", l: "Offres totales" },
-    { n: "18", l: "En attente" },
+    { n: totalJobs === null ? "…" : String(totalJobs), l: "Offres totales" },
     { n: usersLoading ? "…" : String(users.length), l: "Utilisateurs" },
     { n: reportsLoading ? "…" : String(reports.length), l: "Signalements" },
   ];
@@ -172,49 +215,74 @@ export default function AdminPage() {
 
   const handleResolveReport = async (id: number) => {
     const res = await updateReportStatus(id, "resolved");
-    if (!res.success) setReportsError(res.message || "Erreur lors de la mise à jour.");
-    fetchReports();
+    if (res.success) {
+      setReports((prev) => prev.filter((r) => r.report_id !== id));
+    } else {
+      setReportsError(res.message || "Erreur lors de la mise à jour.");
+    }
   };
 
   const handleDismissReport = async (id: number) => {
     const res = await updateReportStatus(id, "dismissed");
-    if (!res.success) setReportsError(res.message || "Erreur lors de la mise à jour.");
-    fetchReports();
+    if (res.success) {
+      setReports((prev) => prev.filter((r) => r.report_id !== id));
+    } else {
+      setReportsError(res.message || "Erreur lors de la mise à jour.");
+    }
   };
 
   const handleDeleteReport = async (id: number) => {
     const res = await deleteReport(id);
-    if (!res.success) setReportsError(res.message || "Erreur lors de la suppression.");
-    fetchReports();
+    if (res.success) {
+      setReports((prev) => prev.filter((r) => r.report_id !== id));
+    } else {
+      setReportsError(res.message || "Erreur lors de la suppression.");
+    }
   };
 
-  const UserRow = ({ u, section }: { u: AdminUser; section: "user" | "recruiter" | "banned" }) => (
+  const UserRow = ({
+    u,
+    section,
+  }: {
+    u: AdminUser;
+    section: "user" | "recruiter" | "banned";
+  }) => (
     <div
       key={u.id}
       className={cn(
         "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border rounded-xl px-5 py-3",
         section === "banned"
           ? "border-red-200 bg-red-100/30"
-          : "border-indigo-100 bg-indigo-50/40"
+          : "border-indigo-100 bg-indigo-50/40",
       )}
     >
       <div className="flex items-center gap-3">
         <div
           className={cn(
             "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
-            section === "banned" ? "bg-red-200 text-red-1000" :
-            section === "recruiter" ? "bg-green-200 text-green-800" :
-            "bg-indigo-100 text-indigo-600"
+            section === "banned"
+              ? "bg-red-200 text-red-1000"
+              : section === "recruiter"
+                ? "bg-green-200 text-green-800"
+                : "bg-indigo-100 text-indigo-600",
           )}
         >
           {getInitials(u)}
         </div>
         <div>
-          <p className={cn("text-sm font-semibold", section === "banned" ? "text-red-1000" : "text-gray-900")}>
+          <p
+            className={cn(
+              "text-sm font-semibold",
+              section === "banned" ? "text-red-1000" : "text-gray-900",
+            )}
+          >
             {u.firstname} {u.name}
           </p>
           <p className="text-xs text-gray-500">
-            {u.email} · {section === "banned" ? `Banni le ${u.banned_at ? formatDate(u.banned_at) : "-"}` : `Inscrit le ${formatDate(u.created_at)}`}
+            {u.email} ·{" "}
+            {section === "banned"
+              ? `Banni le ${u.banned_at ? formatDate(u.banned_at) : "-"}`
+              : `Inscrit le ${formatDate(u.created_at)}`}
           </p>
         </div>
       </div>
@@ -225,9 +293,11 @@ export default function AdminPage() {
             <span
               className={cn(
                 "text-xs px-2.5 py-0.5 rounded-full font-medium border",
-                section === "recruiter"
-                  ? "bg-green-100 text-green-800 border-green-200"
-                  : "bg-indigo-50 text-indigo-600 border-indigo-100"
+                u.role === "admin"
+                  ? "bg-purple-100 text-purple-800 border-purple-200"
+                  : section === "recruiter"
+                    ? "bg-green-100 text-green-800 border-green-200"
+                    : "bg-indigo-50 text-indigo-600 border-indigo-100",
               )}
             >
               {ROLE_LABELS[u.role] ?? u.role}
@@ -309,24 +379,41 @@ export default function AdminPage() {
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <h2 className="text-lg font-bold text-gray-900">
-            Interface <span className="text-indigo-600">d&apos;administration</span>
+            Interface{" "}
+            <span className="text-indigo-600">d&apos;administration</span>
           </h2>
           <button
             onClick={handleIngest}
             disabled={ingestLoading}
             className="flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors cursor-pointer w-full sm:w-auto"
           >
-            <RefreshCw className={cn("w-4 h-4", ingestLoading && "animate-spin")} />
-            {ingestLoading ? "Ingestion en cours..." : "Ingérer offres WeLoveDevs"}
+            <RefreshCw
+              className={cn("w-4 h-4", ingestLoading && "animate-spin")}
+            />
+            {ingestLoading
+              ? "Ingestion en cours..."
+              : "Ingérer offres WeLoveDevs"}
           </button>
         </div>
 
         {ingestResult && (
           <div className="bg-green-100 border border-green-300 rounded-xl px-5 py-3 text-sm text-green-800 flex flex-wrap gap-3 sm:gap-6">
-            <span><span className="font-semibold">{ingestResult.inserted}</span> insérées</span>
-            <span><span className="font-semibold">{ingestResult.skipped}</span> ignorées</span>
-            <span><span className="font-semibold">{ingestResult.errors}</span> erreurs</span>
-            <span><span className="font-semibold">{ingestResult.pagesFetched}</span> pages récupérées</span>
+            <span>
+              <span className="font-semibold">{ingestResult.inserted}</span>{" "}
+              insérées
+            </span>
+            <span>
+              <span className="font-semibold">{ingestResult.skipped}</span>{" "}
+              ignorées
+            </span>
+            <span>
+              <span className="font-semibold">{ingestResult.errors}</span>{" "}
+              erreurs
+            </span>
+            <span>
+              <span className="font-semibold">{ingestResult.pagesFetched}</span>{" "}
+              pages récupérées
+            </span>
           </div>
         )}
         {ingestError && (
@@ -337,7 +424,10 @@ export default function AdminPage() {
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {stats.map((s) => (
-            <div key={s.l} className="bg-indigo-50/60 border border-indigo-100 rounded-xl p-4">
+            <div
+              key={s.l}
+              className="bg-indigo-50/60 border border-indigo-100 rounded-xl p-4"
+            >
               <div className="text-2xl font-bold text-indigo-600">{s.n}</div>
               <div className="text-xs text-gray-500 mt-1">{s.l}</div>
             </div>
@@ -356,7 +446,7 @@ export default function AdminPage() {
                 "text-sm px-5 py-3 border-b-2 transition-colors",
                 activeTab === tab.key
                   ? "border-indigo-600 text-indigo-600 font-semibold"
-                  : "border-transparent text-gray-500 hover:text-gray-600"
+                  : "border-transparent text-gray-500 hover:text-indigo-500",
               )}
             >
               {tab.label}
@@ -371,7 +461,9 @@ export default function AdminPage() {
                 Offres signalées
               </p>
               {reportsLoading && (
-                <div className="text-sm text-gray-500 text-center py-4">Chargement des signalements…</div>
+                <div className="text-sm text-gray-500 text-center py-4">
+                  Chargement des signalements…
+                </div>
               )}
               {reportsError && (
                 <div className="bg-red-100 border border-red-300 rounded-xl px-5 py-3 text-sm text-red-700">
@@ -380,53 +472,76 @@ export default function AdminPage() {
               )}
               <div className="flex flex-col gap-2">
                 {!reportsLoading && reports.length === 0 && (
-                  <p className="text-sm text-gray-500">Aucune offre signalée.</p>
+                  <p className="text-sm text-gray-500">
+                    Aucune offre signalée.
+                  </p>
                 )}
                 {reports.map((r) => (
                   <div
                     key={r.report_id}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-red-200 bg-red-100/30 rounded-xl px-5 py-4"
+                    onClick={() =>
+                      router.push(`/offres/${r.job_id}?source=${r.job_source}`)
+                    }
+                    className="relative cursor-pointer flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-red-200 bg-red-100/30 rounded-xl px-5 py-4 hover:border-red-400 hover:bg-red-100/50 transition-colors"
                   >
                     <div>
                       <p className="text-sm font-semibold text-gray-900">
                         {r.job_title || `Offre #${r.job_id}`}
                       </p>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        {r.company_name || "Entreprise inconnue"
-                        } · {r.location || "Non renseigné"
-                        } · Signalé le {formatDate(r.reported_at)}
+                        {r.company_name || "Entreprise inconnue"}
+                        {r.location ? ` · ${r.location}` : ""}
+                        {` · Signalé le ${formatDate(r.reported_at)}`}
                         {r.reporter_name && ` par ${r.reporter_name}`}
                       </p>
                       {r.reason && (
-                        <p className="text-xs text-gray-500 mt-1 italic">“{r.reason}”</p>
+                        <p className="text-xs text-gray-500 mt-1 italic">
+                          "{r.reason}"
+                        </p>
                       )}
-                      <div className="flex gap-2 mt-2">
-                        <span className="text-xs bg-red-100 text-red-800 border border-red-400 px-2 py-0.5 rounded-md">
-                          {r.report_status}
-                        </span>
-                        <span className="text-xs bg-indigo-100 text-indigo-600 border border-indigo-200 px-2 py-0.5 rounded-md">
-                          {r.contract_type || "Non renseigné"}
-                        </span>
-                      </div>
+                      {r.contract_type && (
+                        <div className="flex gap-2 mt-2">
+                          <span className="text-xs bg-indigo-100 text-indigo-600 border border-indigo-200 px-2 py-0.5 rounded-md">
+                            {r.contract_type}
+                          </span>
+                        </div>
+                      )}
                     </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteReport(r.report_id);
+                      }}
+                      className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors p-1 rounded"
+                      aria-label="Supprimer"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-3 h-3"
+                      >
+                        <path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z" />
+                      </svg>
+                    </button>
                     <div className="flex flex-wrap gap-2 sm:shrink-0">
                       <button
-                        onClick={() => handleDismissReport(r.report_id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDismissReport(r.report_id);
+                        }}
                         className="text-xs bg-green-100 text-green-800 border border-green-400 rounded-lg px-3 py-1.5 hover:bg-green-200 transition-colors"
                       >
                         Garder
                       </button>
                       <button
-                        onClick={() => handleResolveReport(r.report_id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleResolveReport(r.report_id);
+                        }}
                         className="text-xs bg-red-100 text-red-800 border border-red-400 rounded-lg px-3 py-1.5 hover:bg-red-200 transition-colors"
                       >
-                        Refuser / Résoudre
-                      </button>
-                      <button
-                        onClick={() => handleDeleteReport(r.report_id)}
-                        className="text-xs bg-gray-50 text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-100 transition-colors"
-                      >
-                        Supprimer
+                        Refuser
                       </button>
                     </div>
                   </div>
@@ -476,7 +591,9 @@ export default function AdminPage() {
             )}
 
             {usersLoading && (
-              <div className="text-sm text-gray-500 text-center py-4">Chargement des utilisateurs…</div>
+              <div className="text-sm text-gray-500 text-center py-4">
+                Chargement des utilisateurs…
+              </div>
             )}
 
             {!usersLoading && (
@@ -488,9 +605,13 @@ export default function AdminPage() {
                     </p>
                     <div className="flex flex-col gap-2">
                       {regularUsers.length === 0 ? (
-                        <p className="text-sm text-gray-500">Aucun utilisateur trouvé.</p>
+                        <p className="text-sm text-gray-500">
+                          Aucun utilisateur trouvé.
+                        </p>
                       ) : (
-                        regularUsers.map((u) => <UserRow key={u.id} u={u} section="user" />)
+                        regularUsers.map((u) => (
+                          <UserRow key={u.id} u={u} section="user" />
+                        ))
                       )}
                     </div>
                   </div>
@@ -503,9 +624,13 @@ export default function AdminPage() {
                     </p>
                     <div className="flex flex-col gap-2">
                       {recruiterUsers.length === 0 ? (
-                        <p className="text-sm text-gray-500">Aucune entreprise trouvée.</p>
+                        <p className="text-sm text-gray-500">
+                          Aucune entreprise trouvée.
+                        </p>
                       ) : (
-                        recruiterUsers.map((u) => <UserRow key={u.id} u={u} section="recruiter" />)
+                        recruiterUsers.map((u) => (
+                          <UserRow key={u.id} u={u} section="recruiter" />
+                        ))
                       )}
                     </div>
                   </div>
@@ -518,9 +643,13 @@ export default function AdminPage() {
                     </p>
                     <div className="flex flex-col gap-2">
                       {adminUsers.length === 0 ? (
-                        <p className="text-sm text-gray-500">Aucun administrateur trouvé.</p>
+                        <p className="text-sm text-gray-500">
+                          Aucun administrateur trouvé.
+                        </p>
                       ) : (
-                        adminUsers.map((u) => <UserRow key={u.id} u={u} section="user" />)
+                        adminUsers.map((u) => (
+                          <UserRow key={u.id} u={u} section="user" />
+                        ))
                       )}
                     </div>
                   </div>
@@ -534,9 +663,13 @@ export default function AdminPage() {
                     </p>
                     <div className="flex flex-col gap-2">
                       {bannedUsers.length === 0 ? (
-                        <p className="text-sm text-gray-500">Aucun compte banni.</p>
+                        <p className="text-sm text-gray-500">
+                          Aucun compte banni.
+                        </p>
                       ) : (
-                        bannedUsers.map((u) => <UserRow key={u.id} u={u} section="banned" />)
+                        bannedUsers.map((u) => (
+                          <UserRow key={u.id} u={u} section="banned" />
+                        ))
                       )}
                     </div>
                   </div>
