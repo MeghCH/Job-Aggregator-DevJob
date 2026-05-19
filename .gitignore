@@ -21,3 +21,5 @@ welovedevs_api.txt
 *.gguf
 
 __pycache__/
+
+jobAggregator-project.md
