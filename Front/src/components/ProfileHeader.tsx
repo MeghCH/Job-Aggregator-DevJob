@@ -5,10 +5,26 @@ import { Mail, MapPin, Pencil, X, Check } from "lucide-react";
 import { authApi } from "@/lib/api";
 
 const AVAILABLE_SKILLS = [
-  "TypeScript", "JavaScript", "Python", "React", "Next.js",
-  "Node.js", "Express", "Docker", "Kubernetes", "PostgreSQL",
-  "MongoDB", "Redis", "GraphQL", "REST API", "Git",
-  "Linux", "AWS", "Tailwind CSS", "Figma", "Java",
+  // Langages
+  "TypeScript", "JavaScript", "Python", "Java", "C", "C++", "C#", "Go",
+  "Rust", "PHP", "Ruby", "Swift", "Kotlin", "Scala", "R", "Dart",
+  // Frontend
+  "React", "Next.js", "Vue.js", "Nuxt.js", "Angular", "Svelte",
+  "Tailwind CSS", "Sass", "HTML", "CSS", "Figma", "Redux",
+  // Backend
+  "Node.js", "Express", "NestJS", "Django", "FastAPI", "Flask",
+  "Spring Boot", "Laravel", "Ruby on Rails", "GraphQL", "REST API", "gRPC",
+  // Bases de données
+  "PostgreSQL", "MySQL", "MongoDB", "Redis", "SQLite", "Elasticsearch",
+  "Cassandra", "DynamoDB", "Prisma", "Supabase", "Firebase",
+  // DevOps / Cloud
+  "Docker", "Kubernetes", "Git", "Linux", "AWS", "GCP", "Azure",
+  "Terraform", "CI/CD", "GitHub Actions", "Jenkins", "Nginx",
+  // Data / IA
+  "Machine Learning", "TensorFlow", "PyTorch", "Pandas", "NumPy",
+  "SQL", "Power BI", "Tableau", "Spark", "Airflow",
+  // Mobile
+  "React Native", "Flutter", "Android", "iOS",
 ];
 
 type Props = {
@@ -71,7 +87,6 @@ export default function ProfileHeader({ name, firstname, email, skills: initialS
       </h1>
 
       <div className="flex flex-col sm:flex-row gap-8 sm:gap-16 w-full justify-center items-center sm:items-start px-2 sm:px-0">
-        {/* Informations */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-sm text-gray-500 uppercase font-semibold tracking-widest">
@@ -126,7 +141,7 @@ export default function ProfileHeader({ name, firstname, email, skills: initialS
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <Mail className="w-4 h-4 text-indigo-400" />
-                {saved.email || "—"}
+                {saved.email || "-"}
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <MapPin className="w-4 h-4 text-indigo-400" />

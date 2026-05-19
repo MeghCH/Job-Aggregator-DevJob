@@ -176,7 +176,7 @@ export default function AdminPage() {
             {u.firstname} {u.name}
           </p>
           <p className="text-xs text-gray-500">
-            {u.email} · {section === "banned" ? `Banni le ${u.banned_at ? formatDate(u.banned_at) : "—"}` : `Inscrit le ${formatDate(u.created_at)}`}
+            {u.email} · {section === "banned" ? `Banni le ${u.banned_at ? formatDate(u.banned_at) : "-"}` : `Inscrit le ${formatDate(u.created_at)}`}
           </p>
         </div>
       </div>

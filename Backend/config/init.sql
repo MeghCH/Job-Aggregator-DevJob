@@ -104,6 +104,7 @@ CREATE TABLE IF NOT EXISTS applications (
     applicant_postal_code VARCHAR(10) DEFAULT NULL,
     applicant_city VARCHAR(100) DEFAULT NULL,
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE KEY unique_application (user_id, job_source, job_id)
 );

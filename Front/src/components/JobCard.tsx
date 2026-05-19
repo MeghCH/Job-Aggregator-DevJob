@@ -10,7 +10,7 @@ type JobCardProps = {
   id?: string | number;
   title: string;
   company: string;
-  company_sector?:string;
+  company_sector?: string;
   location: string;
   salary: string;
   contractType: string;
@@ -22,6 +22,7 @@ type JobCardProps = {
   onUnsave?: () => void;
   onDelete?: () => void;
   href?: string;
+  score?: number;
 };
 
 export default function JobCard({
@@ -40,6 +41,7 @@ export default function JobCard({
   onUnsave,
   onDelete,
   href,
+  score,
 }: JobCardProps) {
   const [saved, setSaved] = useState(initialSaved);
 
@@ -48,7 +50,6 @@ export default function JobCard({
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [isSummarized, setIsSummarized] = useState(false);
 
-  
   const getSimulatedDescription = () => {
     return `Offre d'emploi de ${title} chez ${company} dans le secteur de ${company_sector} à ${location}. Type de contrat : ${contractType}. Stack et compétences recherchées : ${tags.join(", ")}.`;
   };
@@ -67,7 +68,10 @@ export default function JobCard({
         setAiSummary(res.summary);
         setIsSummarized(true);
       } else {
-        console.error("Le backend central a échoué à récupérer le résumé :", res?.message);
+        console.error(
+          "Le backend central a échoué à récupérer le résumé :",
+          res?.message,
+        );
       }
     } catch (err) {
       console.error("Erreur lors de la génération du résumé :", err);
@@ -87,7 +91,9 @@ export default function JobCard({
     setSaved(!prev);
 
     try {
-      const res = prev ? await unsaveJob(jobId) : await saveJob(jobId, jobSource);
+      const res = prev
+        ? await unsaveJob(jobId)
+        : await saveJob(jobId, jobSource);
       if (!res?.success) {
         console.error("Save job failed:", res);
         setSaved(prev);
@@ -101,8 +107,15 @@ export default function JobCard({
   }
 
   return (
-    <Link href={href ?? (id ? `/offres/${encodeURIComponent(id)}?source=${encodeURIComponent(jobSource)}` : "#")} className="relative flex flex-col border border-indigo-100 bg-indigo-50/40 rounded-xl px-4 sm:px-6 py-4 sm:py-5 hover:border-indigo-300 transition-colors cursor-pointer gap-4">
-      
+    <Link
+      href={
+        href ??
+        (id
+          ? `/offres/${encodeURIComponent(id)}?source=${encodeURIComponent(jobSource)}`
+          : "#")
+      }
+      className="relative flex flex-col border border-indigo-100 bg-indigo-50/40 rounded-xl px-4 sm:px-6 py-4 sm:py-5 hover:border-indigo-300 transition-colors cursor-pointer gap-4"
+    >
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-0 w-full">
         {/* Gauche */}
         <div className="flex flex-col gap-2">
@@ -129,28 +142,45 @@ export default function JobCard({
 
         {/* Droite */}
         <div className="flex flex-row sm:flex-col items-center sm:items-end gap-3 shrink-0 sm:ml-6 flex-wrap">
-          <span className="text-sm font-semibold text-indigo-600">{salary}</span>
+          {score !== undefined && (
+            <span
+              className={`text-xs font-bold px-3 py-1 rounded-full ${
+                score >= 70
+                  ? "bg-emerald-100 text-emerald-700"
+                  : score >= 40
+                    ? "bg-orange-100 text-orange-700"
+                    : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              {score}% match
+            </span>
+          )}
+          <span className="text-sm font-semibold text-indigo-600">
+            {salary}
+          </span>
           <span className="text-xs bg-indigo-500 text-white px-3 py-1 rounded-full font-medium">
             {contractType}
           </span>
-          
+
           <div className="flex gap-2">
             {/* BOUTON UNIQUE SECURISÉ */}
             <button
               onClick={handleAiSummary}
               disabled={loadingSummary}
-              className="text-xs font-semibold px-3 py-2 border border-emerald-200 bg-white hover:bg-emerald-50 text-emerald-600 rounded-lg transition-colors shadow-sm disabled:opacity-50"
+              className="text-xs font-semibold px-3 py-2 border border-emerald-200 bg-white hover:bg-emerald-50 text-emerald-700 rounded-lg transition-colors shadow-sm disabled:opacity-50"
               title="Générer un résumé technique via le backend sécurisé"
             >
               {loadingSummary ? "Génération..." : "Résumé"}
             </button>
-            
+
             <button
               aria-label="Sauvegarder cette offre"
               onClick={handleSave}
               className="p-2 border border-indigo-200 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition-colors"
             >
-              <Heart className={`w-4 h-4 ${saved ? "fill-indigo-500 text-indigo-500" : "text-indigo-400"}`} />
+              <Heart
+                className={`w-4 h-4 ${saved ? "fill-indigo-500 text-indigo-500" : "text-indigo-400"}`}
+              />
             </button>
           </div>
         </div>
@@ -159,7 +189,7 @@ export default function JobCard({
       {/* --- BLOC D'AFFICHAGE DU RÉSUMÉ --- */}
       {isSummarized && (
         <div className="w-full p-4 bg-white border border-emerald-100 rounded-lg shadow-inner flex flex-col gap-1">
-          <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
+          <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
             Résumé IA :
           </p>
           <p className="text-xs text-gray-700 italic leading-relaxed">
@@ -178,7 +208,12 @@ export default function JobCard({
           aria-label="Supprimer la candidature"
           className="absolute top-2 right-2 text-gray-300 hover:text-red-500 transition-colors"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-3 h-3"
+          >
             <path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z" />
           </svg>
         </button>

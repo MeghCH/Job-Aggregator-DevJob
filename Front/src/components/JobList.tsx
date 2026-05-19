@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import JobCard from "./JobCard";
-import { jobsApi as api, getSavedJobIds } from "@/lib/api";
+import { jobsApi as api, getSavedJobIds, authApi } from "@/lib/api";
 
 const sorts = ["Recent", "Pertinent", "Salaire"];
 
@@ -29,6 +29,7 @@ type Job = {
   skills: string[] | null;
   experience_years: number;
   created_at: string;
+  relevance_score?: number;
 };
 
 type Props = {
@@ -44,13 +45,18 @@ export default function JobList({ activeFilter, activeSort, onSortChange, query,
   const [savedIds, setSavedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const [res, ids] = await Promise.all([api.getAll(), getSavedJobIds()]);
-        if (res.success) {
-          setJobs(res.data);
+        const [meRes, ids] = await Promise.all([authApi.me(), getSavedJobIds()]);
+        const loggedIn = meRes?.success === true;
+        setIsLoggedIn(loggedIn);
+
+        const jobsRes = loggedIn ? await api.getScoredJobs() : await api.getAll();
+        if (jobsRes.success) {
+          setJobs(jobsRes.data);
         } else {
           setError("Erreur lors du chargement des offres.");
         }
@@ -98,7 +104,7 @@ export default function JobList({ activeFilter, activeSort, onSortChange, query,
     } else if (activeSort === "Salaire") {
       result.sort((a, b) => (b.salary_max ?? 0) - (a.salary_max ?? 0));
     } else if (activeSort === "Pertinent") {
-      result.sort((a, b) => (b.experience_years ?? 0) - (a.experience_years ?? 0));
+      result.sort((a, b) => (b.relevance_score ?? 0) - (a.relevance_score ?? 0));
     }
 
     return result;
@@ -143,13 +149,14 @@ export default function JobList({ activeFilter, activeSort, onSortChange, query,
               title={job.title}
               company={job.company_name ?? job.company_id}
               location={job.location ?? job.remote_type}
-              salary={job.salary_min && job.salary_max ? `${job.salary_min} – ${job.salary_max} €` : "Non précisé"}
-              contractType={job.contract_type ?? "—"}
+              salary={job.salary_min && job.salary_max ? `${job.salary_min} - ${job.salary_max} €` : "Non précisé"}
+              contractType={job.contract_type ?? "-"}
               tags={job.skills ?? []}
               postedAt={new Date(job.created_at).toLocaleDateString("fr-FR")}
               remote={job.remote_type}
               jobSource={(job as any).source ?? "wld"}
               initialSaved={savedIds.includes(job.id)}
+              score={isLoggedIn ? job.relevance_score : undefined}
             />
           ))
         )}

@@ -71,7 +71,7 @@ function OffreDetail() {
     if (!job?.salary_min && !job?.salary_max) return null;
     const currency = job?.currency || "€";
     if (job?.salary_min && job?.salary_max)
-      return `${job.salary_min.toLocaleString("fr-FR")} – ${job.salary_max.toLocaleString("fr-FR")} ${currency} / an`;
+      return `${job.salary_min.toLocaleString("fr-FR")} - ${job.salary_max.toLocaleString("fr-FR")} ${currency} / an`;
     return `${(job?.salary_min || job?.salary_max)?.toLocaleString("fr-FR")} ${currency} / an`;
   };
 
@@ -146,9 +146,8 @@ function OffreDetail() {
           )}
           {job.experience_years != null && (
             <div className="flex items-center gap-3 text-sm text-gray-600">
-              <Clock className="w-4 h-4 text-gray-500 shrink-0" />-{" "}
-              {job.experience_years}
-              {job.experience_years > 1 ? "s" : ""} d'année d'expérience
+              <Clock className="w-4 h-4 text-gray-500 shrink-0" />
+              {job.experience_years} an{job.experience_years > 1 ? "s" : ""} d'expérience
             </div>
           )}
         </div>

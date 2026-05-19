@@ -66,6 +66,13 @@ export const api = {
     });
     return res.json();
   },
+
+  async getScoredJobs() {
+    const res = await fetch(`${API_URL}/api/jobs/scored`, {
+      credentials: "include",
+    });
+    return res.json();
+  },
 };
 // Dans ton fichier de requêtes frontend (ex: lib/api/jobs.ts ou @/lib/api)
 export async function summarizeJobWithAI(description: string) {

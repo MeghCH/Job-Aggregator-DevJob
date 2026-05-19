@@ -354,6 +354,92 @@ const JobController = {
      * @desc Delete job offers with unknown company or blank title (admin only)
      * @access Private (Admin)
      */
+    async getScoredJobs(req, res) {
+        try {
+            const { userId } = req.user;
+
+            const [users] = await pool.query(
+                'SELECT skills, location FROM users WHERE id = ?',
+                [userId]
+            );
+            if (!users.length) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            const userSkills = users[0].skills
+                ? (typeof users[0].skills === 'string' ? JSON.parse(users[0].skills) : users[0].skills)
+                : [];
+            const userLocation = users[0].location || '';
+
+            const [jobs] = await pool.query('SELECT * FROM unified_jobs ORDER BY created_at DESC');
+
+            const userSet = new Set(userSkills.map(s => s.toLowerCase().trim()));
+
+            const scored = jobs.map(job => {
+                const jobSkills = job.skills
+                    ? (typeof job.skills === 'string' ? JSON.parse(job.skills) : job.skills)
+                    : [];
+                const jobAiTags = job.ai_tags
+                    ? (typeof job.ai_tags === 'string' ? JSON.parse(job.ai_tags) : job.ai_tags)
+                    : [];
+
+                const jobSet = new Set(
+                    [...jobSkills, ...jobAiTags].map(s => String(s).toLowerCase().trim())
+                );
+
+                let score = 0;
+
+                // Skills match (0–60 pts)
+                if (userSet.size > 0 && jobSet.size > 0) {
+                    let matches = 0;
+                    for (const skill of userSet) {
+                        for (const tag of jobSet) {
+                            if (tag.includes(skill) || skill.includes(tag)) {
+                                matches++;
+                                break;
+                            }
+                        }
+                    }
+                    score += Math.min(Math.round((matches / userSet.size) * 60), 60);
+                }
+
+                // Location match (0–25 pts)
+                const remoteType = (job.remote_type || '').toLowerCase();
+                if (remoteType === 'remote' || remoteType === 'full_remote') {
+                    score += 25;
+                } else if (userLocation && job.location) {
+                    const uLoc = userLocation.toLowerCase().trim();
+                    const jLoc = job.location.toLowerCase().trim();
+                    if (uLoc === jLoc || uLoc.includes(jLoc) || jLoc.includes(uLoc)) {
+                        score += 25;
+                    } else {
+                        const uWords = uLoc.split(/[\s,]+/).filter(w => w.length > 3);
+                        const jWords = jLoc.split(/[\s,]+/).filter(w => w.length > 3);
+                        if (uWords.some(w => jWords.some(jw => jw.includes(w) || w.includes(jw)))) {
+                            score += 12;
+                        }
+                    }
+                }
+
+                // Remote bonus (0–15 pts)
+                if (remoteType === 'remote' || remoteType === 'full_remote') {
+                    score += 15;
+                } else if (remoteType === 'hybrid') {
+                    score += 8;
+                }
+
+                return { ...job, relevance_score: Math.min(score, 100) };
+            });
+
+            scored.sort((a, b) => b.relevance_score - a.relevance_score);
+
+            return res.status(200).json({ success: true, count: scored.length, data: scored });
+        } catch (error) {
+            console.error('Get scored jobs error:', error);
+            return res.status(500).json({ success: false, message: 'Error computing relevance scores' });
+        }
+    },
+
     async cleanUnknown(req, res) {
         try {
             const [rows] = await pool.query(`
