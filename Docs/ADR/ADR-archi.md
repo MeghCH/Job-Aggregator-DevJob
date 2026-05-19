@@ -1,0 +1,1 @@
+architecture; base de données en my sql, reprendre l'api de we love dev et utiliser leur poste, frontend en nextjs et backend avec du expressjs, et de l'ia en python avec le modele a 450 md qwen, le frontend toiurne sur le 3001 le backend sur 3000 et l'ia sur 8000, bon structure comme ça; 
