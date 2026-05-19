@@ -6,18 +6,37 @@ import SearchBar from "@/components/SearchBar";
 import FilterBar from "@/components/FilterBar";
 import JobList from "@/components/JobList";
 
+function getSavedSort(): string {
+  try {
+    return localStorage.getItem("jobSort") ?? "Pertinent";
+  } catch {
+    return "Pertinent";
+  }
+}
+
 export default function OffresPage() {
   const [activeFilter, setActiveFilter] = useState("Tous");
-  const [activeSort, setActiveSort] = useState("Recent");
+  const [activeSort, setActiveSort] = useState("Pertinent");
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("");
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    setActiveSort(getSavedSort());
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 300);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleSortChange = (sort: string) => {
+    try {
+      localStorage.setItem("jobSort", sort);
+    } catch {}
+    setActiveSort(sort);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -42,7 +61,7 @@ export default function OffresPage() {
         <JobList
           activeFilter={activeFilter}
           activeSort={activeSort}
-          onSortChange={setActiveSort}
+          onSortChange={handleSortChange}
           query={query}
           location={location}
         />
@@ -50,6 +69,7 @@ export default function OffresPage() {
 
       {showScrollTop && (
         <button
+          type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg transition-colors"
           aria-label="Retour en haut"
