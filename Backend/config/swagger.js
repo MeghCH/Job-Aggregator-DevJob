@@ -101,6 +101,26 @@ const options = {
                         pagesFetched: { type: 'integer', example: 1 },
                     },
                 },
+                ReportedJob: {
+                    type: 'object',
+                    properties: {
+                        report_id: { type: 'integer', example: 1 },
+                        job_id: { type: 'integer', example: 42 },
+                        job_source: { type: 'string', enum: ['wld', 'dj'], example: 'wld' },
+                        reason: { type: 'string', example: 'This offer seems fraudulent.' },
+                        report_status: { type: 'string', enum: ['open', 'reviewed', 'resolved', 'dismissed'], example: 'open' },
+                        reported_at: { type: 'string', format: 'date-time' },
+                        resolved_at: { type: 'string', format: 'date-time', nullable: true },
+                        job_title: { type: 'string', example: 'Senior Fullstack Developer' },
+                        company_name: { type: 'string', example: 'Acme Corp' },
+                        contract_type: { type: 'string', example: 'CDI' },
+                        location: { type: 'string', example: 'Paris, France' },
+                        job_status: { type: 'string', example: 'approved' },
+                        reporter_id: { type: 'integer', example: 5 },
+                        reporter_name: { type: 'string', example: 'John Doe' },
+                        reporter_email: { type: 'string', example: 'john@example.com' },
+                    },
+                },
                 Error: {
                     type: 'object',
                     properties: {

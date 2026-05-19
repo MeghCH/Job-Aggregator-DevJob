@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router();
 
-// On importe précisément chaque fonction depuis le contrôleur
 const { 
     getAllJobsForAdmin, 
     updateJobStatus, 
     deleteJob, 
     getAllUsers, 
+    getUserById,
     updateUser, 
-    deleteUser 
+    deleteUser, 
+    registerAdmin 
 } = require('../controllers/adminController');
 
 // --- ROUTES JOBS ---
@@ -26,10 +27,16 @@ router.delete('/jobs/:id', deleteJob);
 // Pour appeler : GET http://localhost:3000/api/admin/users
 router.get('/users', getAllUsers);
 
+// Pour appeler : GET http://localhost:3000/api/admin/users/ID_USER
+router.get('/users/:id', getUserById);
+
 // Pour appeler : PATCH http://localhost:3000/api/admin/users/ID_USER
 router.patch('/users/:id', updateUser);
 
 // Pour appeler : DELETE http://localhost:3000/api/admin/users/ID_USER
 router.delete('/users/:id', deleteUser);
+
+// POST http://localhost:3000/api/admin/setup-master
+router.post('/setup-master', registerAdmin);
 
 module.exports = router;

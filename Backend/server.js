@@ -11,6 +11,7 @@ const ingestionRoutes = require('./routes/ingestionRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const candidatureRoutes = require('./routes/candidatureRoutes');
 const savedJobRoutes = require('./routes/savedJobRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 const pool = require('./config/db');
 
 const path = require('path');
@@ -89,6 +90,9 @@ app.use('/api/applications', candidatureRoutes);
 
 // Saved jobs routes
 app.use('/api/saved', savedJobRoutes);
+
+// Report routes
+app.use('/api/reports', reportRoutes);
 
 // Error handler for 404
 app.use((req, res) => {
