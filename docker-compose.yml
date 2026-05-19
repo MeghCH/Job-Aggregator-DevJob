@@ -36,7 +36,7 @@ services:
     container_name: jobaggregator-backend
     restart: unless-stopped
     env_file:
-      - ./Backend/.env
+      - ./.env
     environment:
       DB_HOST: db
       DB_USER: appuser
@@ -44,7 +44,9 @@ services:
       DB_NAME: jobaggregator
       DB_PORT: 3306
     ports:
-      - "3001:3000"
+      - "3000:3000"
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -52,12 +54,27 @@ services:
       - backend_network
 
   frontend:
-    build: ./Front
+    build:
+      context: ./Front
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     ports:
-      - "3000:3000"
+      - "3001:3000"
+    env_file:
+      - ./.env
     environment:
       - NODE_ENV=development
-
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    networks:
+      - backend_network
+  ai-service:
+    build: ./AI-service
+    container_name: jobaggregator-ai
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - backend_network
   tests:
     image: curlimages/curl:latest
     container_name: jobaggregator-tests
@@ -78,14 +95,14 @@ services:
         echo "--- 2. Register User ---"
         curl -s -X POST http://backend:3000/api/auth/register \
           -H "Content-Type: application/json" \
-          -d '{"name":"Doe","firstname":"John","email":"john@example.com","password":"mypassword123","role":"User"}'
+          -d '{"name":"Doe","firstname":"John","email":"john@example.com","password":"mypassword123","role":"user"}'
         echo ""
 
         echo ""
         echo "--- 3. Register Recruiter ---"
         curl -s -X POST http://backend:3000/api/auth/register \
           -H "Content-Type: application/json" \
-          -d '{"name":"Smith","firstname":"Jane","email":"jane@example.com","password":"mypassword123","role":"Recruiter"}'
+          -d '{"name":"Smith","firstname":"Jane","email":"jane@example.com","password":"mypassword123","role":"recruiter","company":"Acme Corp","siret":"12345678900012"}'
         echo ""
 
         echo ""
@@ -106,14 +123,14 @@ services:
         echo "--- 6. Duplicate Register (should fail 409) ---"
         curl -s -X POST http://backend:3000/api/auth/register \
           -H "Content-Type: application/json" \
-          -d '{"name":"Doe","firstname":"John","email":"john@example.com","password":"mypassword123","role":"User"}'
+          -d '{"name":"Doe","firstname":"John","email":"john@example.com","password":"mypassword123","role":"user"}'
         echo ""
 
         echo ""
         echo "--- 7. Invalid Role (should fail 400) ---"
         curl -s -X POST http://backend:3000/api/auth/register \
           -H "Content-Type: application/json" \
-          -d '{"name":"Doe","firstname":"John","email":"invalid@example.com","password":"mypassword123","role":"Admin"}'
+          -d '{"name":"Doe","firstname":"John","email":"invalid@example.com","password":"mypassword123","role":"admin"}'
         echo ""
 
         echo ""
@@ -130,6 +147,7 @@ services:
 
 volumes:
   db_data:
+  uploads_data:
 
 networks:
   backend_network:

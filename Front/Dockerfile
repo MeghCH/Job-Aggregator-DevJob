@@ -3,6 +3,10 @@
 # ---- Base Stage ----
 FROM node:20-alpine AS base
 
+# Variables de build (disponibles au build time)
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
 # Set working directory
 WORKDIR /app
 

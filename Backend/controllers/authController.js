@@ -13,7 +13,7 @@ const AuthController = {
      */
     async register(req, res) {
         try {
-            const { name, firstname, email, password, role } = req.body;
+            const { name, firstname, email, password, role, company, siret } = req.body;
 
             if (!name || !firstname || !email || !password) {
                 return res.status(400).json({
@@ -22,12 +22,18 @@ const AuthController = {
                 });
             }
 
-            // Validate role
-            const userRole = role || 'User';
-            if (!['User', 'Recruiter'].includes(userRole)) {
+            const userRole = role || 'user';
+            if (!['user', 'recruiter'].includes(userRole)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Role must be either "User" or "Recruiter"'
+                    message: 'Role must be either "user" or "recruiter"'
+                });
+            }
+
+            if (userRole === 'recruiter' && !company) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Recruiters must provide a company name'
                 });
             }
 
@@ -47,12 +53,12 @@ const AuthController = {
             const hashedPassword = await bcrypt.hash(password, 12);
 
             const [result] = await pool.query(
-                'INSERT INTO users (name, firstname, email, password, role) VALUES (?, ?, ?, ?, ?)',
-                [name, firstname, email, hashedPassword, userRole]
+                'INSERT INTO users (name, firstname, email, password, role, company, siret) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                [name, firstname, email, hashedPassword, userRole, company || null, siret || null]
             );
 
             const [newUser] = await pool.query(
-                'SELECT id, name, firstname, email, role, created_at FROM users WHERE id = ?',
+                'SELECT id, name, firstname, email, role, company, siret, created_at FROM users WHERE id = ?',
                 [result.insertId]
             );
 
@@ -120,10 +126,17 @@ const AuthController = {
                 { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
             );
 
+            const isProduction = process.env.NODE_ENV === 'production';
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: isProduction,
+                sameSite: 'strict',
+                maxAge: 60 * 60 * 1000, // 1h
+            });
+
             return res.status(200).json({
                 success: true,
                 message: 'Login successful',
-                token,
                 user: {
                     id: user.id,
                     name: user.name,
@@ -150,7 +163,7 @@ const AuthController = {
     async me(req, res) {
         try {
             const [users] = await pool.query(
-                'SELECT id, name, firstname, email, role, created_at FROM users WHERE id = ?',
+                'SELECT id, name, firstname, email, role, company, siret, skills, location, created_at FROM users WHERE id = ?',
                 [req.user.userId]
             );
 
@@ -173,6 +186,50 @@ const AuthController = {
                 message: 'Error fetching user'
             });
         }
+    },
+
+    /**
+     * @route PATCH /api/auth/me
+     * @desc Update current authenticated user's info
+     */
+    async updateMe(req, res) {
+        try {
+            const { name, firstname, email, skills, location } = req.body;
+
+            if (!name && !firstname && !email && skills === undefined && !location) {
+                return res.status(400).json({ success: false, message: 'No fields to update' });
+            }
+
+            const fields = [];
+            const values = [];
+            if (name)              { fields.push('name = ?');      values.push(name); }
+            if (firstname)         { fields.push('firstname = ?'); values.push(firstname); }
+            if (email)             { fields.push('email = ?');     values.push(email); }
+            if (skills !== undefined) { fields.push('skills = ?'); values.push(JSON.stringify(skills)); }
+            if (location)          { fields.push('location = ?');  values.push(location); }
+            values.push(req.user.userId);
+
+            await pool.query(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`, values);
+
+            const [updated] = await pool.query(
+                'SELECT id, name, firstname, email, role, skills, location, created_at FROM users WHERE id = ?',
+                [req.user.userId]
+            );
+
+            return res.status(200).json({ success: true, data: updated[0] });
+        } catch (error) {
+            console.error('Update user error:', error);
+            return res.status(500).json({ success: false, message: 'Error updating user' });
+        }
+    },
+
+    /**
+     * @route POST /api/auth/logout
+     * @desc Clear the auth cookie
+     */
+    logout(req, res) {
+        res.clearCookie('token', { httpOnly: true, sameSite: 'strict' });
+        return res.status(200).json({ success: true, message: 'Logged out successfully' });
     }
 };
 
