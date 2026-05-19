@@ -110,7 +110,7 @@ const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
 
-        if (req.user && parseInt(id) === req.user.userId) {
+        if (req.user && parseInt(id) === req.user.id) {
             return res.status(400).json({
                 success: false,
                 message: 'You cannot delete your own admin account'

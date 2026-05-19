@@ -53,7 +53,7 @@ def safe_response(text: str):
 async def analyze(data: JobData):
     desc = clean_text(data.description)
     
-    # On précise "plusieurs" et on enlève la virgule du stop pour le laisser lister
+
     prompt = (
         f"<|im_start|>system\nTu es un extracteur de données techniques. Extraits toutes les technologies, langages et frameworks mentionnés. Réponds uniquement par une liste séparée par des virgules.<|im_end|>\n"
         f"<|im_start|>user\nOffre : {desc}\nExtraire toutes les technos :<|im_end|>\n"
@@ -62,20 +62,20 @@ async def analyze(data: JobData):
 
     output = llm(
         prompt,
-        max_tokens=60, # On augmente un peu pour laisser de la place à plusieurs mots
+        max_tokens=60, 
         temperature=0,
         repeat_penalty=1.2,
-        # IMPORTANT : On retire "," des stop sequences
+   
         stop=["<|im_end|>", "\n\n", "Offre:"] 
     )
 
     res = safe_response(output["choices"][0]["text"])
     
-    # On nettoie et on s'assure de récupérer chaque élément
+  
     raw_list = res.split(",")
     technos = [t.strip().capitalize() for t in raw_list if len(t.strip()) > 1]
     
-    # Supprime les doublons
+   
     unique_technos = list(dict.fromkeys(technos))
 
     return {"analysis": unique_technos if unique_technos else ["Non détecté"]}
@@ -85,7 +85,6 @@ async def analyze(data: JobData):
 async def summarize(data: JobData):
     desc = clean_text(data.description)
 
-    # Format ChatML pour forcer le résumé en français
     prompt = (
     f"<|im_start|>system\n"
     f"You are an expert tech recruiter. Your task is to summarize job offers technically and concisely.\n"
@@ -111,7 +110,7 @@ async def summarize(data: JobData):
 
     res = safe_response(output["choices"][0]["text"])
     
-    # On s'assure que la phrase finit proprement
+
     if "." in res:
         res = res[:res.rfind(".")+1]
         
