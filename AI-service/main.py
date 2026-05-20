@@ -86,25 +86,27 @@ async def summarize(data: JobData):
     desc = clean_text(data.description)
 
     prompt = (
-    f"<|im_start|>system\n"
-    f"You are an expert tech recruiter. Your task is to summarize job offers technically and concisely.\n"
-    f"CRITICAL RULES:\n"
-    f"1. You MUST respond in FRENCH.\n"
-    f"2. Extract the core role, the technical stack (languages/frameworks), and the company's sector.\n"
-    f"3. If the company's business sector is not mentioned, omit it completely.\n"
-    f"4. If the remote policy is 'hybrid' or 'remote', you MUST use the exact word 'TÉLÉTRAVAIL'.\n"
-    f"5. STRICT FORMAT: Développeur [Rôle] ([Stack]) pour [Mission].\n"
-    f"6. LENGTH CONSTRAINT: Maximum 25 words. No fluff, no introductory text, get straight to the point.<|im_end|>\n"
-    f"<|im_start|>user\n"
-    f"Summarize this job offer technically and accurately: {desc}<|im_end|>\n"
-    f"<|im_start|>assistant\n"
-)
-
+        f"<|im_start|>system\n"
+        f"You MUST output EXACTLY this format:\n"
+        f"[Role]. Tech: [stack]. Domain: [sector]. [Location].\n"
+        f"Example: Data Analyst. Tech: Python, SQL. Domain: Énergie. Paris, TÉLÉTRAVAIL.\n\n"
+        f"FORBIDDEN OUTPUT (will be rejected):\n"
+        f"- 'Ce poste consiste à'\n"
+        f"- 'Référence :'\n"
+        f"- 'Job Title:'\n"
+        f"- 'Non spécifié'\n"
+        f"- 'Offre d'emploi'\n"
+        f"- Any line starting with a JSON key name\n\n"
+        f"You are a technical recruiter. Be concise (max 30 words).\n"
+        f"<|im_end|>\n"
+        f"<|im_start|>user\n"
+        f"Summarize this job (respond ONLY in the format above, nothing else):\n{desc}<|im_end|>\n"
+        f"<|im_start|>assistant\n"
+    )
     output = llm(
         prompt,
-        max_tokens=60,
-        temperature=0,
-        repeat_penalty=1.3,
+        max_tokens=50,
+        temperature=0.2,
         stop=["<|im_end|>", "\n"]
     )
 
