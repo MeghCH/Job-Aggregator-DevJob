@@ -6,12 +6,18 @@ import SearchBar from "@/components/SearchBar";
 import FilterBar from "@/components/FilterBar";
 import JobList from "@/components/JobList";
 
-function getSavedSort(): string {
+function load(key: string, fallback: string): string {
   try {
-    return localStorage.getItem("jobSort") ?? "Pertinent";
+    return localStorage.getItem(key) ?? fallback;
   } catch {
-    return "Pertinent";
+    return fallback;
   }
+}
+
+function save(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {}
 }
 
 export default function OffresPage() {
@@ -22,7 +28,10 @@ export default function OffresPage() {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
-    setActiveSort(getSavedSort());
+    setActiveFilter(load("offresFilter", "Tous"));
+    setActiveSort(load("jobSort", "Pertinent"));
+    setQuery(load("offresQuery", ""));
+    setLocation(load("offresLocation", ""));
   }, []);
 
   useEffect(() => {
@@ -31,10 +40,23 @@ export default function OffresPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleFilterChange = (filter: string) => {
+    save("offresFilter", filter);
+    setActiveFilter(filter);
+  };
+
+  const handleQueryChange = (q: string) => {
+    save("offresQuery", q);
+    setQuery(q);
+  };
+
+  const handleLocationChange = (loc: string) => {
+    save("offresLocation", loc);
+    setLocation(loc);
+  };
+
   const handleSortChange = (sort: string) => {
-    try {
-      localStorage.setItem("jobSort", sort);
-    } catch {}
+    save("jobSort", sort);
     setActiveSort(sort);
   };
 
@@ -52,11 +74,11 @@ export default function OffresPage() {
         <SearchBar
           query={query}
           location={location}
-          onQueryChange={setQuery}
-          onLocationChange={setLocation}
+          onQueryChange={handleQueryChange}
+          onLocationChange={handleLocationChange}
         />
 
-        <FilterBar active={activeFilter} onChange={setActiveFilter} />
+        <FilterBar active={activeFilter} onChange={handleFilterChange} />
 
         <JobList
           activeFilter={activeFilter}

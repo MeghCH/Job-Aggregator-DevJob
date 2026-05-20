@@ -18,7 +18,6 @@ import { authApi, jobsApi } from "@/lib/api";
 import {
   getReportedJobs,
   updateReportStatus,
-  deleteReport,
   ReportedJob,
 } from "@/lib/api/reports";
 import { formatDate } from "@/lib/utils";
@@ -36,7 +35,14 @@ const ROLE_LABELS: Record<string, string> = {
 
 export default function AdminPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"offres" | "users">("offres");
+  const [activeTab, setActiveTab] = useState<"offres" | "users">(() => {
+    try {
+      const saved = localStorage.getItem("adminTab");
+      return saved === "users" ? "users" : "offres";
+    } catch {
+      return "offres";
+    }
+  });
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [ingestLoading, setIngestLoading] = useState(false);
@@ -231,14 +237,6 @@ export default function AdminPage() {
     }
   };
 
-  const handleDeleteReport = async (id: number) => {
-    const res = await deleteReport(id);
-    if (res.success) {
-      setReports((prev) => prev.filter((r) => r.report_id !== id));
-    } else {
-      setReportsError(res.message || "Erreur lors de la suppression.");
-    }
-  };
 
   const UserRow = ({
     u,
@@ -441,7 +439,11 @@ export default function AdminPage() {
           ].map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key as "offres" | "users")}
+              onClick={() => {
+                const t = tab.key as "offres" | "users";
+                try { localStorage.setItem("adminTab", t); } catch {}
+                setActiveTab(t);
+              }}
               className={cn(
                 "text-sm px-5 py-3 border-b-2 transition-colors",
                 activeTab === tab.key
@@ -507,23 +509,7 @@ export default function AdminPage() {
                         </div>
                       )}
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteReport(r.report_id);
-                      }}
-                      className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors p-1 rounded"
-                      aria-label="Supprimer"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="w-3 h-3"
-                      >
-                        <path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z" />
-                      </svg>
-                    </button>
+
                     <div className="flex flex-wrap gap-2 sm:shrink-0">
                       <button
                         onClick={(e) => {

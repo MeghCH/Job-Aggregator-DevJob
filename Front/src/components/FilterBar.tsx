@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-const filters = ["Tous", "CDI", "CDD", "Stage", "Alternance", "Tele Travail"];
+const filters = ["Tous", "CDI", "CDD", "Stage", "Alternance", "Télétravail"];
 
 type Props = {
   active: string;
