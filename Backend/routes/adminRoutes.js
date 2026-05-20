@@ -26,6 +26,7 @@ router.patch('/users/:id', authenticateToken, authorizeRoles('admin'), updateUse
 router.delete('/users/:id', authenticateToken, authorizeRoles('admin'), deleteUser);
 
 // POST /api/admin/setup-master — bootstrap first admin (protected by controller: only works if no admin exists)
-router.post('/setup-master', registerAdmin);
+// Note: This route requires authentication to prevent unauthorized admin creation
+router.post('/setup-master', authenticateToken, authorizeRoles('admin'), registerAdmin);
 
 module.exports = router;
