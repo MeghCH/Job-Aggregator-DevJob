@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const authenticateToken = require('../middleware/authMiddleware');
+const authorizeRoles = require('../middleware/roleMiddleware');
 
 const { 
     getAllJobsForAdmin, 
@@ -13,30 +15,18 @@ const {
 } = require('../controllers/adminController');
 
 // --- ROUTES JOBS ---
-// Pour appeler : GET http://localhost:3000/api/admin/jobs
-router.get('/jobs', getAllJobsForAdmin);
-
-// Pour appeler : PATCH http://localhost:3000/api/admin/jobs/ID_DU_JOB
-router.patch('/jobs/:id', updateJobStatus);
-
-// Pour appeler : DELETE http://localhost:3000/api/admin/jobs/ID_DU_JOB
-router.delete('/jobs/:id', deleteJob);
-
+router.get('/jobs', authenticateToken, authorizeRoles('admin'), getAllJobsForAdmin);
+router.patch('/jobs/:id', authenticateToken, authorizeRoles('admin'), updateJobStatus);
+router.delete('/jobs/:id', authenticateToken, authorizeRoles('admin'), deleteJob);
 
 // --- ROUTES USERS ---
-// Pour appeler : GET http://localhost:3000/api/admin/users
-router.get('/users', getAllUsers);
+router.get('/users', authenticateToken, authorizeRoles('admin'), getAllUsers);
+router.get('/users/:id', authenticateToken, authorizeRoles('admin'), getUserById);
+router.patch('/users/:id', authenticateToken, authorizeRoles('admin'), updateUser);
+router.delete('/users/:id', authenticateToken, authorizeRoles('admin'), deleteUser);
 
-// Pour appeler : GET http://localhost:3000/api/admin/users/ID_USER
-router.get('/users/:id', getUserById);
-
-// Pour appeler : PATCH http://localhost:3000/api/admin/users/ID_USER
-router.patch('/users/:id', updateUser);
-
-// Pour appeler : DELETE http://localhost:3000/api/admin/users/ID_USER
-router.delete('/users/:id', deleteUser);
-
-// POST http://localhost:3000/api/admin/setup-master
-router.post('/setup-master', registerAdmin);
+// POST /api/admin/setup-master — bootstrap first admin (protected by controller: only works if no admin exists)
+// Note: This route requires authentication to prevent unauthorized admin creation
+router.post('/setup-master', authenticateToken, authorizeRoles('admin'), registerAdmin);
 
 module.exports = router;

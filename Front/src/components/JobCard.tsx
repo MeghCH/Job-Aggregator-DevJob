@@ -56,12 +56,12 @@ export default function JobCard({
 
   // --- FONCTION : RÉSUMÉ DE L'OFFRE PASSERELLE (Via Port 3000) ---
   async function handleAiSummary(e: React.MouseEvent) {
-    e.preventDefault(); // Bloque l'ouverture de la page de l'offre
-    e.stopPropagation(); // Bloque le déclenchement du composant Link de Next.js
+    e.preventDefault(); 
+    e.stopPropagation(); 
 
     setLoadingSummary(true);
     try {
-      // On utilise la fonction de ton fichier jobs.ts qui transite par ton Express
+     
       const res = await summarizeJobWithAI(getSimulatedDescription());
 
       if (res && res.success) {

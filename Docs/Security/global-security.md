@@ -56,6 +56,3 @@ Attackers may try to inject malicious scripts into the web pages viewed by other
 | **Brute Force** | Rate Limiting & Cooldowns 
 | **CSRF** | SameSite Cookies / CORS 
 | **XSS** | HttpOnly Cookies & Escaping 
-
----
-*End of Security Document*
