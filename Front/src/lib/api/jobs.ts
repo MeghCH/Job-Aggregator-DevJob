@@ -16,12 +16,13 @@ export const api = {
   async createJob(data: {
     title: string;
     description?: string;
+    location?: string;
+    contract_type?: string;
     salary_min?: number;
     salary_max?: number;
     currency?: string;
     experience_years?: number;
     remote_type?: "remote" | "hybrid" | "onsite";
-    location?: string;
     skills?: string[];
   }) {
     const res = await fetch(`${API_URL}/api/jobs`, {

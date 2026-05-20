@@ -65,6 +65,8 @@ export default function PublierPage() {
       const res = await jobsApi.createJob({
         title: form.title,
         description: form.description || undefined,
+        location: form.location || undefined,
+        contract_type: form.contract_type || undefined,
         salary_min: form.salary_min ? Number(form.salary_min) : undefined,
         salary_max: form.salary_max ? Number(form.salary_max) : undefined,
         experience_years: form.experience_years

@@ -19,6 +19,7 @@ type Job = {
   currency: string | null;
   contract_type: string | null;
   remote_type: string | null;
+  location: string | null;
   skills: string | null;
   created_at: string;
 };
@@ -169,7 +170,7 @@ export default function ProfilAdminPage() {
                   href={`/offres/${offre.id}?source=dj`}
                   title={offre.title}
                   company={saved.company}
-                  location=""
+                  location={offre.location ?? ""}
                   salary={salary}
                   contractType={offre.contract_type || ""}
                   tags={skills}

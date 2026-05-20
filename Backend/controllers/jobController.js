@@ -19,6 +19,7 @@ const JobController = {
                 salary_min,
                 salary_max,
                 currency,
+                contract_type,
                 experience_years,
                 remote_type,
                 location,
@@ -63,8 +64,8 @@ const JobController = {
                 `INSERT INTO jobs_dj (
                     external_id, company_id, title, description,
                     salary_min, salary_max, currency,
-                    experience_years, remote_type, location, skills, ai_summary, ai_tags, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+                    contract_type, experience_years, remote_type, location, skills, ai_summary, ai_tags, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
                 [
                     external_id || `dj_${Date.now()}_${Math.random().toString(36).slice(2)}`,
                     company_id,
@@ -73,6 +74,7 @@ const JobController = {
                     salary_min || null,
                     salary_max || null,
                     currency || null,
+                    contract_type || null,
                     experience_years || null,
                     remote_type || null,
                     location || null,
