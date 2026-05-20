@@ -94,6 +94,7 @@ const ReportController = {
                  FROM reported_jobs r
                  LEFT JOIN unified_jobs j ON r.job_id = j.id AND r.job_source = j.source
                  LEFT JOIN users u ON r.user_id = u.id
+                 WHERE r.status = 'open'
                  ORDER BY r.reported_at DESC`
             );
 
