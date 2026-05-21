@@ -111,7 +111,7 @@ async def summarize(data: JobData):
     )
 
     res = safe_response(output["choices"][0]["text"])
-    
+
 
     if "." in res:
         res = res[:res.rfind(".")+1]

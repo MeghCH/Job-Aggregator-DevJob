@@ -50,7 +50,7 @@ export const api = {
     return res.json();
   },
 
-  async analyzeJob(description: string) {
+   async analyzeJob(description: string) {
     const res = await fetch(`${API_URL}/api/jobs/analyze`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

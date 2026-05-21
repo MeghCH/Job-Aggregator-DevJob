@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { saveJob, unsaveJob } from "@/lib/api";
@@ -49,6 +49,7 @@ export default function JobCard({
   const [aiSummary, setAiSummary] = useState<string>("");
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [isSummarized, setIsSummarized] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const getSimulatedDescription = () => {
     return `Offre d'emploi de ${title} chez ${company} dans le secteur de ${company_sector} à ${location}. Type de contrat : ${contractType}. Stack et compétences recherchées : ${tags.join(", ")}.`;
@@ -61,7 +62,7 @@ export default function JobCard({
 
     setLoadingSummary(true);
     try {
-     
+      
       const res = await summarizeJobWithAI(getSimulatedDescription());
 
       if (res && res.success) {
@@ -79,6 +80,28 @@ export default function JobCard({
       setLoadingSummary(false);
     }
   }
+
+  // --- EFFET : GÉNÉRATION AUTOMATIQUE DU RÉSUMÉ LORS DU SURVOL ---
+  useEffect(() => {
+    if (isHovered && !isSummarized && !loadingSummary) {
+      const generateSummary = async () => {
+        setLoadingSummary(true);
+        try {
+          const res = await summarizeJobWithAI(getSimulatedDescription());
+          if (res && res.success) {
+            setAiSummary(res.summary);
+            setIsSummarized(true);
+          }
+        } catch (err) {
+          console.error("Erreur lors de la génération automatique du résumé :", err);
+        } finally {
+          setLoadingSummary(false);
+        }
+      };
+
+      generateSummary();
+    }
+  }, [isHovered, isSummarized, loadingSummary]);
 
   async function handleSave(e: React.MouseEvent) {
     e.preventDefault();
@@ -116,7 +139,7 @@ export default function JobCard({
       }
       className="relative flex flex-col border border-indigo-100 bg-indigo-50/40 rounded-xl px-4 sm:px-6 py-4 sm:py-5 hover:border-indigo-300 transition-colors cursor-pointer gap-4"
     >
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-0 w-full">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-0 w-full" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
         {/* Gauche */}
         <div className="flex flex-col gap-2">
           <h3 className="text-base font-semibold text-gray-900">{title}</h3>
@@ -162,27 +185,17 @@ export default function JobCard({
             {contractType}
           </span>
 
-          <div className="flex gap-2">
-            {/* BOUTON UNIQUE SECURISÉ */}
-            <button
-              onClick={handleAiSummary}
-              disabled={loadingSummary}
-              className="text-xs font-semibold px-3 py-2 border border-emerald-200 bg-white hover:bg-emerald-50 text-emerald-700 rounded-lg transition-colors shadow-sm disabled:opacity-50"
-              title="Générer un résumé technique via le backend sécurisé"
-            >
-              {loadingSummary ? "Génération..." : "Résumé"}
-            </button>
-
-            <button
-              aria-label="Sauvegarder cette offre"
-              onClick={handleSave}
-              className="p-2 border border-indigo-200 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition-colors"
-            >
-              <Heart
-                className={`w-4 h-4 ${saved ? "fill-indigo-500 text-indigo-500" : "text-indigo-400"}`}
-              />
-            </button>
-          </div>
+           <div className="flex gap-2">
+             <button
+               aria-label="Sauvegarder cette offre"
+               onClick={handleSave}
+               className="p-2 border border-indigo-200 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition-colors"
+             >
+               <Heart
+                 className={`w-4 h-4 ${saved ? "fill-indigo-500 text-indigo-500" : "text-indigo-400"}`}
+               />
+             </button>
+           </div>
         </div>
       </div>
 
