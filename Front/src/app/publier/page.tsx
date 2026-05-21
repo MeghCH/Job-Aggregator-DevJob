@@ -248,14 +248,14 @@ export default function PublierPage() {
             </div>
           </FormField>
 
-          <FormField label="Description du poste" required>
-            <textarea
-              value={form.description}
-              onChange={set("description")}
-              placeholder="Décris les missions, les attentes, le contexte..."
-              className={`${inputClass} min-h-[140px] resize-none`}
-            />
-          </FormField>
+           <FormField label="Description du poste" required>
+             <textarea
+               value={form.description}
+               onChange={set("description")}
+               placeholder="Décris les missions, les attentes, le contexte..."
+               className={`${inputClass} min-h-[140px] resize-none`}
+             />
+           </FormField>
         </div>
 
         <hr className="border-gray-100" />

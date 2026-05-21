@@ -220,7 +220,7 @@ function OffreDetail() {
         </>
       )}
 
-      {job.description && (
+       {job.description && (
         <>
           <hr className="border-gray-100" />
           <div className="flex flex-col gap-4">

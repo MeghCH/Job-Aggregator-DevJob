@@ -181,4 +181,5 @@ router.get('/', JobController.getAll);
  */
 router.post('/summarize', JobController.summarize);
 router.post('/analyze', JobController.analyze);
+
 module.exports = router;

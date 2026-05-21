@@ -155,7 +155,7 @@ const JobController = {
             }
 
             const response = await axios.post('http://ai-service:8000/analyze', { description });
-            
+
             return res.status(200).json({
                 success: true,
                 analysis: response.data.analysis
