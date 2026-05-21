@@ -153,13 +153,14 @@ async function seedAdmin() {
         return;
     }
 
-    const hashedPassword = await bcrypt.hash('votre_password', 12);
+    const rawPassword = process.env.ADMIN_PASSWORD || 'admin-default-change-me';
+    const hashedPassword = await bcrypt.hash(rawPassword, 12);
     await pool.query(
         `INSERT INTO users (firstname, name, email, password, role)
          VALUES (?, ?, ?, ?, ?)`,
         ['Admin', 'Système', 'admin@exemple.com', hashedPassword, 'admin']
     );
-    console.log('[DB] Default admin user seeded (admin@exemple.com / votre_password)');
+    console.log('[DB] Default admin user seeded (admin@exemple.com).');
 }
 
 async function testConnection() {
