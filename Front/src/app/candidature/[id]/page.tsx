@@ -101,7 +101,7 @@ export default function CandidatureDetailPage() {
     if (!application?.salary_min && !application?.salary_max) return null;
     const c = application?.currency || "€";
     if (application?.salary_min && application?.salary_max)
-      return `${application.salary_min} – ${application.salary_max} ${c}`;
+      return `${application.salary_min} - ${application.salary_max} ${c}`;
     return `${application?.salary_min || application?.salary_max} ${c}`;
   };
 
@@ -127,7 +127,7 @@ export default function CandidatureDetailPage() {
 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col gap-6">
         {loading && (
-          <p className="text-center text-gray-400 text-sm">Chargement...</p>
+          <p className="text-center text-gray-500 text-sm">Chargement...</p>
         )}
         {error && <p className="text-center text-red-500 text-sm">{error}</p>}
 
@@ -139,7 +139,7 @@ export default function CandidatureDetailPage() {
                 {application.title || "Poste non renseigné"}
               </h1>
               <p className="text-sm text-gray-500">
-                {application.company_name || "—"}
+                {application.company_name || "-"}
               </p>
               <div className="flex flex-wrap gap-3 mt-1">
                 {application.contract_type && (
@@ -173,7 +173,7 @@ export default function CandidatureDetailPage() {
               >
                 {STATUS_LABELS[application.status ?? "pending"]}
               </span>
-              <span className="text-xs text-gray-400 ml-auto">
+              <span className="text-xs text-gray-500 ml-auto">
                 Envoyée le{" "}
                 {new Date(application.applied_at).toLocaleDateString("fr-FR")}
               </span>

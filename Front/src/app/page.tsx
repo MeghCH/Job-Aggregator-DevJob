@@ -39,13 +39,6 @@ export default function HomePage() {
         )}
       </nav>
 
-      {/* SearchBar */}
-      <div className="flex justify-center px-8 py-6 border-b border-gray-100">
-        <div className="w-full max-w-3xl">
-          <SearchBar />
-        </div>
-      </div>
-
       {/* Hero */}
       <section className="flex flex-col items-center justify-center gap-6 text-center px-8 py-24">
         <span className="text-sm font-semibold tracking-widest text-indigo-500 uppercase">
@@ -56,7 +49,7 @@ export default function HomePage() {
         </h1>
         <div className="flex flex-col gap-1">
           <p className="text-xl font-bold text-gray-900">
-            Push ta carrière&nbsp;!
+            Push ta carrière !
           </p>
           <p className="text-sm text-gray-500">
             Le job tech qui te correspond{" "}

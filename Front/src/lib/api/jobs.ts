@@ -16,12 +16,13 @@ export const api = {
   async createJob(data: {
     title: string;
     description?: string;
+    location?: string;
+    contract_type?: string;
     salary_min?: number;
     salary_max?: number;
     currency?: string;
     experience_years?: number;
     remote_type?: "remote" | "hybrid" | "onsite";
-    location?: string;
     skills?: string[];
   }) {
     const res = await fetch(`${API_URL}/api/jobs`, {
@@ -49,7 +50,7 @@ export const api = {
     return res.json();
   },
 
-  async analyzeJob(description: string) {
+   async analyzeJob(description: string) {
     const res = await fetch(`${API_URL}/api/jobs/analyze`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -62,6 +63,13 @@ export const api = {
   async deleteJob(id: string | number) {
     const res = await fetch(`${API_URL}/api/jobs/${encodeURIComponent(id)}`, {
       method: "DELETE",
+      credentials: "include",
+    });
+    return res.json();
+  },
+
+  async getScoredJobs() {
+    const res = await fetch(`${API_URL}/api/jobs/scored`, {
       credentials: "include",
     });
     return res.json();

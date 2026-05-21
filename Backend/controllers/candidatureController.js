@@ -10,7 +10,7 @@ const CandidatureController = {
                         j.title, j.company_name, j.contract_type, j.remote_type,
                         j.salary_min, j.salary_max, j.currency, j.skills
                  FROM applications a
-                 LEFT JOIN unified_jobs j ON a.job_id = j.id
+                 LEFT JOIN unified_jobs j ON a.job_id = j.id AND a.job_source = j.source
                  WHERE a.user_id = ?
                  ORDER BY a.applied_at DESC`,
                 [userId]

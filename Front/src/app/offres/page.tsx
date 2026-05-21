@@ -6,18 +6,59 @@ import SearchBar from "@/components/SearchBar";
 import FilterBar from "@/components/FilterBar";
 import JobList from "@/components/JobList";
 
+function load(key: string, fallback: string): string {
+  try {
+    return localStorage.getItem(key) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function save(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {}
+}
+
 export default function OffresPage() {
   const [activeFilter, setActiveFilter] = useState("Tous");
-  const [activeSort, setActiveSort] = useState("Recent");
+  const [activeSort, setActiveSort] = useState("Pertinent");
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("");
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    setActiveFilter(load("offresFilter", "Tous"));
+    setActiveSort(load("jobSort", "Pertinent"));
+    setQuery(load("offresQuery", ""));
+    setLocation(load("offresLocation", ""));
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 300);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleFilterChange = (filter: string) => {
+    save("offresFilter", filter);
+    setActiveFilter(filter);
+  };
+
+  const handleQueryChange = (q: string) => {
+    save("offresQuery", q);
+    setQuery(q);
+  };
+
+  const handleLocationChange = (loc: string) => {
+    save("offresLocation", loc);
+    setLocation(loc);
+  };
+
+  const handleSortChange = (sort: string) => {
+    save("jobSort", sort);
+    setActiveSort(sort);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -33,16 +74,16 @@ export default function OffresPage() {
         <SearchBar
           query={query}
           location={location}
-          onQueryChange={setQuery}
-          onLocationChange={setLocation}
+          onQueryChange={handleQueryChange}
+          onLocationChange={handleLocationChange}
         />
 
-        <FilterBar active={activeFilter} onChange={setActiveFilter} />
+        <FilterBar active={activeFilter} onChange={handleFilterChange} />
 
         <JobList
           activeFilter={activeFilter}
           activeSort={activeSort}
-          onSortChange={setActiveSort}
+          onSortChange={handleSortChange}
           query={query}
           location={location}
         />
@@ -50,6 +91,7 @@ export default function OffresPage() {
 
       {showScrollTop && (
         <button
+          type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg transition-colors"
           aria-label="Retour en haut"

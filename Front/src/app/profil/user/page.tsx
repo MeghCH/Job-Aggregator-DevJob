@@ -8,6 +8,7 @@ import JobCard from "@/components/JobCard";
 import LogoutButton from "@/components/LogoutButton";
 import { authApi, getMyApplications, getSavedJobs } from "@/lib/api";
 import { deleteApplication } from "@/lib/api/candidatures";
+import { computeRelevanceScore } from "@/lib/utils";
 
 type User = {
   name: string;
@@ -73,8 +74,15 @@ export default function ProfilPage() {
                 try { return JSON.parse(app.skills); } catch { return []; }
               })();
               const salary = app.salary_min || app.salary_max
-                ? `${app.salary_min ?? ""} – ${app.salary_max ?? ""} ${app.currency ?? "€"}`.trim()
+                ? `${app.salary_min ?? ""} - ${app.salary_max ?? ""} ${app.currency ?? "€"}`.trim()
                 : "Non précisé";
+              const appScore = computeRelevanceScore(
+                user?.skills ?? [],
+                user?.location ?? "",
+                skills,
+                app.location ?? null,
+                app.remote_type ?? null
+              );
               return (
                 <JobCard
                   key={app.id}
@@ -89,6 +97,7 @@ export default function ProfilPage() {
                   postedAt={new Date(app.applied_at).toLocaleDateString("fr-FR")}
                   remote={app.remote_type ?? "-"}
                   jobSource={app.job_source ?? "wld"}
+                  score={appScore}
                   onDelete={async () => {
                     const res = await deleteApplication(app.id);
                     if (res?.success) setCandidatures((prev) => prev.filter((c) => c.id !== app.id));
@@ -109,23 +118,38 @@ export default function ProfilPage() {
             {savedJobs.length === 0 && (
               <p className="text-sm text-gray-500 text-center">Aucune offre sauvegardée.</p>
             )}
-            {savedJobs.map((job) => (
-              <JobCard
-                key={job.job_id}
-                id={job.job_id}
-                title={job.title ?? "—"}
-                company={job.company_name ?? "—"}
-                location={job.remote_type ?? "—"}
-                salary={job.salary_min && job.salary_max ? `${job.salary_min} – ${job.salary_max} €` : "Non précisé"}
-                contractType={job.contract_type ?? "—"}
-                tags={job.skills ?? []}
-                postedAt={new Date(job.saved_at).toLocaleDateString("fr-FR")}
-                remote={job.remote_type ?? "—"}
-                jobSource={job.job_source}
-                initialSaved={true}
-                onUnsave={() => setSavedJobs((prev) => prev.filter((j) => j.job_id !== job.job_id))}
-              />
-            ))}
+            {savedJobs.map((job) => {
+              const savedSkills = (() => {
+                if (!job.skills) return [];
+                if (Array.isArray(job.skills)) return job.skills;
+                try { return JSON.parse(job.skills); } catch { return []; }
+              })();
+              const savedScore = computeRelevanceScore(
+                user?.skills ?? [],
+                user?.location ?? "",
+                savedSkills,
+                job.location ?? null,
+                job.remote_type ?? null
+              );
+              return (
+                <JobCard
+                  key={job.job_id}
+                  id={job.job_id}
+                  title={job.title ?? "-"}
+                  company={job.company_name ?? "-"}
+                  location={job.remote_type ?? "-"}
+                  salary={job.salary_min && job.salary_max ? `${job.salary_min} - ${job.salary_max} €` : "Non précisé"}
+                  contractType={job.contract_type ?? "-"}
+                  tags={savedSkills}
+                  postedAt={new Date(job.saved_at).toLocaleDateString("fr-FR")}
+                  remote={job.remote_type ?? "-"}
+                  jobSource={job.job_source}
+                  initialSaved={true}
+                  score={savedScore}
+                  onUnsave={() => setSavedJobs((prev) => prev.filter((j) => j.job_id !== job.job_id))}
+                />
+              );
+            })}
           </div>
         </div>
       </div>

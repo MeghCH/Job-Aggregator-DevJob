@@ -76,6 +76,7 @@ export default function ConnexionPage() {
             <input
               id="email"
               type="email"
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="exemple@email.com"
               className="border border-indigo-100 bg-indigo-50/40 rounded-lg px-4 py-2.5 text-sm text-indigo-600 outline-none focus:border-indigo-600 transition-colors placeholder-indigo-600"

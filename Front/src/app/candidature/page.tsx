@@ -140,7 +140,7 @@ function CandidatureForm() {
         <h2 className="text-2xl font-bold text-gray-900">
           Documents de <span className="text-indigo-600">candidature.</span>
         </h2>
-        <p className="text-xs text-gray-400">Formats acceptés : PDF, JPG, PNG, DOC, DOCX — 5 Mo max par fichier</p>
+        <p className="text-xs text-gray-400">Formats acceptés : PDF, JPG, PNG, DOC, DOCX - 5 Mo max par fichier</p>
         <div className="flex flex-wrap gap-6">
           <FileButton label="CV" field="cv" file={files.cv} onChange={handleFileChange} />
           <FileButton label="Lettre de motivation" field="cover_letter" file={files.cover_letter} onChange={handleFileChange} />
