@@ -29,11 +29,6 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Insertion de l'admin par défaut
-DELETE FROM users WHERE email = 'admin@exemple.com';
-INSERT INTO users (firstname, name, email, password, role) 
-VALUES ('Admin', 'Système', 'admin@exemple.com', '$2a$12$R9hazbYrDqBfBYbWvVf6eOExw0rQWJmBw5p8XF0vJ.3P7ZpGvY1uq', 'admin');
-
 -- --- JOBS EXTERNES (WeLoveDevs) ---
 CREATE TABLE IF NOT EXISTS jobs_wld (
     id INT AUTO_INCREMENT PRIMARY KEY,
